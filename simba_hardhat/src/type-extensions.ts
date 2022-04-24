@@ -29,6 +29,21 @@ declare module "hardhat/types/runtime" {
   // This is an example of an extension to the Hardhat Runtime Environment.
   // This new field will be available in tasks' actions, scripts, and tests.
   export interface HardhatRuntimeEnvironment {
-    example: ExampleHardhatRuntimeEnvironmentField;
+    login: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void | Error>;
+    simba: (
+      hre: HardhatRuntimeEnvironment,
+      cmd: string,
+    ) => Promise<void>;
+    deploy: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
+    export: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
+    logout: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
   }
 }
