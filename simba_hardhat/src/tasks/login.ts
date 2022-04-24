@@ -32,7 +32,7 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     log.info(`Logged in with organisation ${org.display_name} and application ${app.display_name}`);
 }
 
-task("login", "keycloak device login")
+task("login", "keycloak device and blocks login")
     .setAction(async (hre) => {
         await login(hre);
     });
