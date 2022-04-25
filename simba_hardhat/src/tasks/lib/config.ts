@@ -4,6 +4,10 @@ this file will actually come from the standalone web3 repo
 it is just included here for now for testing purposes
 */
 
+import {
+    Logger,
+} from "tslog";
+const log: Logger = new Logger();
 import {cwd} from 'process';
 import * as path from 'path';
 import Configstore from 'configstore';
@@ -31,7 +35,6 @@ export class SimbaConfig {
         this.application = this.getApplication();
         this.organisation = this.getOrganisation();
         this.authStore = this.getAuthStore();
-        console.log("path to simba.json: ", this.projectConfigStore.path);
     }
 
     public getConfigStore(): Configstore {
@@ -51,9 +54,11 @@ export class SimbaConfig {
     }
 
     public getAuthStore(): KeycloakHandler {
+        log.debug(`:: ENTER :`)
         if (!this.authStore) {
             this.authStore = new KeycloakHandler(this.configStore, this.projectConfigStore);
         }
+        log.debug(`:: EXIT :`);
         return this.authStore;
     }
 

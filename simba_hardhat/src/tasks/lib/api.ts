@@ -39,7 +39,6 @@ export const chooseOrganisationFromList = async (config: SimbaConfig, url?: stri
     if (!url) {
         url = 'organisations/';
     }
-    log.debug(`:: url : ${url}`);
     const orgResponse = await getList(config, url);
 
     const orgs: Response = {
