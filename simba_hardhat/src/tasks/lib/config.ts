@@ -14,76 +14,125 @@ import Configstore from 'configstore';
 import {KeycloakHandler} from './authentication';
 
 export class SimbaConfig {
-    public web3Suite: string;
+    public static _web3Suite: string;
     // Common config, such as auth
-    public configStore: Configstore;
+    public static _configStore: Configstore;
     // Project config, such as app ID, etc
-    public projectConfigStore: Configstore;
-    public help = false;
-    public authStore: KeycloakHandler;
-    public application: any;
-    public organisation: any;
+    public static _projectConfigStore: Configstore;
+    public static help = false;
+    public static _authStore: KeycloakHandler;
+    public static _application: any;
+    public static _organisation: any;
 
-    public constructor(
-        web3Suite: string,
-    ) {
-        this.web3Suite = web3Suite;
-        this.configStore = new Configstore(`@simbachain/${this.web3Suite}`);
-        this.projectConfigStore = new Configstore(`@simbachain/${this.web3Suite}`, null, {
-            configPath: path.join(cwd(), 'simba.json'),
-        });
-        this.application = this.getApplication();
-        this.organisation = this.getOrganisation();
-        this.authStore = this.getAuthStore();
-    }
-
-    public getConfigStore(): Configstore {
-        if (!this.configStore) {
-            this.configStore = new Configstore(`@simbachain/${this.web3Suite}`);
+    public constructor() {
+        // SimbaConfig._configStore = new Configstore(`@simbachain/${this.web3Suite}`);
+        // SimbaConfig._projectConfigStore = new Configstore(`@simbachain/${this.web3Suite}`, null, {
+        //     configPath: path.join(cwd(), 'simba.json'),
+        // });
+        // this.application = this.Application;
+        // this.organisation = this.getOrganisation();
+        // this.authStore = this.getAuthStore();
+        const confstore = SimbaConfig.ConfigStore;
+        const projconfstore = SimbaConfig.ProjectConfigStore;
+        const app = SimbaConfig.application;
+        const org = SimbaConfig.organisation;
+        const authStr = SimbaConfig.authStore;
+        const suite = SimbaConfig.web3Suite;
+        const constructorParams = {
+            confstore,
+            projconfstore,
+            app,
+            org,
+            authStr,
+            suite,
         }
-        return this.configStore;
+        log.debug(`:: ENTER : SimbaConfig constructor params : ${JSON.stringify(constructorParams)}`)
+
     }
 
-    public getProjectConfigStore(): Configstore {
-        if (!this.projectConfigStore) {
-            this.projectConfigStore = new Configstore(`@simbachain/${this.web3Suite}`, null, {
+    public static get ConfigStore(): Configstore {
+        if (!this._configStore) {
+            this._configStore = new Configstore(`@simbachain/${this.web3Suite}`);
+        }
+        return this._configStore;
+    }
+
+    public get ConfigStore(): Configstore {
+        return SimbaConfig.ConfigStore;
+    }
+
+    public static get ProjectConfigStore(): Configstore {
+        if (!this._projectConfigStore) {
+            this._projectConfigStore = new Configstore(`@simbachain/${this.web3Suite}`, null, {
                 configPath: path.join(cwd(), 'simba.json'),
             });
         }
-        return this.projectConfigStore;
+        return this._projectConfigStore;
     }
 
-    public getAuthStore(): KeycloakHandler {
+    public get ProjectConfigStore(): Configstore {
+        return SimbaConfig.ConfigStore;
+    }
+
+    public static get authStore(): KeycloakHandler {
         log.debug(`:: ENTER :`)
-        if (!this.authStore) {
-            this.authStore = new KeycloakHandler(this.configStore, this.projectConfigStore);
+        if (!this._authStore) {
+            this._authStore = new KeycloakHandler(this._configStore, this._projectConfigStore);
         }
         log.debug(`:: EXIT :`);
-        return this.authStore;
+        return this._authStore;
     }
 
-    public getWeb3Suite(): string {
-        return this.projectConfigStore.get('web3Suite');
+    public get authStore(): KeycloakHandler {
+        return SimbaConfig.authStore;
     }
 
-    public setWeb3Sute(web3Suite: string) {
-        this.projectConfigStore.set('web3Suite', web3Suite);
+    public static get web3Suite(): string {
+        return this._projectConfigStore.get('web3Suite');
     }
 
-    public getOrganisation(): string {
-        const org = this.projectConfigStore.get('organisation') ? this.projectConfigStore.get('organisation') : this.projectConfigStore.get('organization');
+    public get web3Suite(): string {
+        return SimbaConfig.web3Suite;
+    }
+
+    public static set web3Suite(_web3Suite: string) {
+        this._projectConfigStore.set('web3Suite', _web3Suite);
+    }
+    
+    public set web3Suite(_web3Suite: string) {
+        SimbaConfig.web3Suite = _web3Suite;
+    }
+
+    public static get organisation(): any {
+        const org = this.ProjectConfigStore.get('organisation') ? this.ProjectConfigStore.get('organisation') : this.ProjectConfigStore.get('organization');
         return org;
     }
 
-    public setOrganisation(org: string) {
-        this.projectConfigStore.set('organisation', org);
+    public get organisation(): any {
+        return SimbaConfig.organisation;
     }
 
-    public getApplication(): string {
-        return this.projectConfigStore.get('application');
+    public static set organisation(org: any) {
+        this.ProjectConfigStore.set('organisation', org);
     }
 
-    public setApplication(org: string) {
-        this.projectConfigStore.set('application', org);
+    public set organisation(org: any) {
+        SimbaConfig.organisation = org;
+    }
+
+    public static get application(): any {
+        return this.ProjectConfigStore.get('application');
+    }
+
+    public get application(): any {
+        return SimbaConfig.application;
+    }
+
+    public static set application(app: any) {
+        this.ProjectConfigStore.set('application', app);
+    }
+
+    public set application(app: any) {
+        SimbaConfig.application = app;
     }
 }

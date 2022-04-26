@@ -28,16 +28,16 @@
     "README.md"
   ],
   "dependencies": {
-    "@types/prompts": "^2.0.5",
-    "prompts": "^2.3.2",
     "@types/configstore": "^4.0.0",
-    "configstore": "^5.0.1"
+    "@types/prompts": "^2.0.5",
+    "configstore": "^5.0.1",
+    "fs": "^0.0.1-security",
+    "prompts": "^2.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.4",
     "@types/mocha": "^9.1.0",
-    "@types/node": "^8.10.38",
     "chai": "^4.2.0",
     "hardhat": "^2.0.0",
     "mocha": "^9.2.2",
@@ -46,6 +46,7 @@
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
+    "tslog": "^3.3.3",
     "typescript": "^4.0.3"
   },
   "peerDependencies": {

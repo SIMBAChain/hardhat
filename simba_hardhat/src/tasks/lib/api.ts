@@ -85,7 +85,7 @@ export const chooseOrganisationFromList = async (config: SimbaConfig, url?: stri
         throw new Error('No Organisation Selected!');
     }
     
-    config.setOrganisation(response.organisation);
+    config.organisation = response.organisation;
 
     return response.organisation;
 };
@@ -150,7 +150,7 @@ export const chooseApplicationFromList = async (config: SimbaConfig, url?: strin
     if (!response.application) {
         throw new Error('No Application Selected!');
     }
-    config.setApplication(response.application);
+    config.application = response.application;
 
     return response.application;
 };
