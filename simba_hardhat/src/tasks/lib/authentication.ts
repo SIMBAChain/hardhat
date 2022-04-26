@@ -51,14 +51,12 @@ class KeycloakHandler {
     private projectConfig: Configstore;
     private clientID: string;
     private authURL: string;
-    private tokenURL: string;
     private baseURL: string;
     private realm: string;
     private verificationInfo: KeycloakDeviceVerificationInfo;
-    private accessToken: KeycloakAccessToken;
     private tokenExpirationPad: number;
     private configBase: string;
-    // private _configBase: string;
+    private _loggedIn: boolean;
     constructor(
         config: Configstore,
         projectConfig: Configstore,
@@ -69,11 +67,11 @@ class KeycloakHandler {
         this.clientID = this.projectConfig.get('clientID');
         this.baseURL = this.projectConfig.get('baseURL') ? this.projectConfig.get('baseURL') : this.projectConfig.get('baseUrl');
         this.authURL = this.projectConfig.get('authURL') ? this.projectConfig.get('authURL') : this.projectConfig.get('authUrl');
-        this.tokenURL = this.projectConfig.get('tokenURL') ? this.projectConfig.get('tokenURL') : this.projectConfig.get('tokenUrl');
         this.realm = this.projectConfig.get('realm');
         this.configBase = this.baseURL.split(".").join("_");
-        this.deleteAuthInfo();
         this.tokenExpirationPad = tokenExpirationPad;
+        this.logout();
+        console.log(`path to config: ${this.getPathToConfigFile()}`);
     }
 
     protected getConfigBase(): string {
@@ -83,17 +81,26 @@ class KeycloakHandler {
         return this.configBase;
     }
 
-    // public isLoggeIn(): boolean {
-    //     return this.hasConfig(AUTHKEY);
-    // }
+    public setLoggedInStatus(status: boolean): void {
+        this._loggedIn = status;
+    }
 
-    // public logout(): void {
-    //     this.deleteConfig(AUTHKEY);
-    // }
+    public isLoggedIn(): boolean {
+        return this._loggedIn;
+    }
+
+    public logout(): void {
+        this.setLoggedInStatus(false);
+        this.deleteAuthInfo();
+    }
 
     protected deleteAuthInfo(): void {
         log.debug(`:: ENTER : deleting any existing authToken info`);
         this.config.set(this.configBase, {});
+    }
+
+    protected getPathToConfigFile(): string {
+        return this.config.path;
     }
 
     protected hasConfig(key: string): boolean {
@@ -164,6 +171,7 @@ class KeycloakHandler {
             const verificationInfo: KeycloakDeviceVerificationInfo = res.data;
             this.verificationInfo = verificationInfo;
             log.debug(`:: EXIT : ${JSON.stringify(this.verificationInfo)}`);
+            this.setLoggedInStatus(true);
             return verificationInfo;
         } catch (error) {
             log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
@@ -173,7 +181,7 @@ class KeycloakHandler {
 
     public async loginUser(): Promise<void> {
         log.debug(`:: ENTER :`);
-        if (!this.verificationInfo) {
+        if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
@@ -191,7 +199,7 @@ class KeycloakHandler {
         log.debug(`:: ENTER :`);
         const maxAttempts = pollingConfig.maxAttempts;
         const interval = pollingConfig.interval;
-        if (!this.verificationInfo) {
+        if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const deviceCode = this.verificationInfo.device_code;
@@ -306,7 +314,7 @@ class KeycloakHandler {
                 return;
             }
             if (this.refreshTokenExpired()) {
-                this.deleteConfig("AUTHKEY");
+                this.deleteAuthInfo();
                 await this.loginAndGetAuthToken();
             }
             const pollingConfig: PollingConfig = {
