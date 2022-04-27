@@ -90,7 +90,11 @@ class KeycloakHandler {
     }
 
     public isLoggedIn(): boolean {
-        return this._loggedIn;
+        if (this.verificationInfo) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public async logout(): Promise<void> {
@@ -184,7 +188,7 @@ class KeycloakHandler {
 
     public async loginUser(): Promise<void> {
         log.debug(`:: ENTER :`);
-        if (!this.verificationInfo) {
+        if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
@@ -202,7 +206,7 @@ class KeycloakHandler {
         log.debug(`:: ENTER :`);
         const maxAttempts = pollingConfig.maxAttempts;
         const interval = pollingConfig.interval;
-        if (!this.verificationInfo) {
+        if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const deviceCode = this.verificationInfo.device_code;
