@@ -250,30 +250,20 @@ class KeycloakHandler {
             params.append("client_id", this.clientID);
             params.append("grant_type", "refresh_token");
             params.append("refresh_token", _refreshToken);
-            let attempts = 0;
-            while (attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, interval));
-                try {
-                    let response = await axios.post(url, params, config);
-                    const newAuthToken: KeycloakAccessToken = response.data;
-                    newAuthToken.expires_at = Math.floor(Date.now() / 1000) + newAuthToken.expires_in;
-                    newAuthToken.refresh_expires_at = Math.floor(Date.now() / 1000) + newAuthToken.refresh_expires_in;
-                    this.setConfig("authToken", newAuthToken);
-                    log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
-                    return newAuthToken;
-                } catch (error) {
-                    log.error(`:: refresh error : ${JSON.stringify(error)}`)
-                    if (attempts%5 == 0) {
-                        log.info(`still waiting for user to login`)
-                    }
-                    attempts += 1;
-                }
+            await new Promise(resolve => setTimeout(resolve, interval));
+            try {
+                let response = await axios.post(url, params, config);
+                const newAuthToken: KeycloakAccessToken = response.data;
+                newAuthToken.expires_at = Math.floor(Date.now() / 1000) + newAuthToken.expires_in;
+                newAuthToken.refresh_expires_at = Math.floor(Date.now() / 1000) + newAuthToken.refresh_expires_in;
+                this.setConfig("authToken", newAuthToken);
+                log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
+                return newAuthToken;
+            } catch (error) {
+                log.error(`:: refresh error : ${JSON.stringify(error)}`)
+                return error as Error;
             }
         }
-        const err = new Error("user did not log in - timedout");
-        log.debug(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
-        return new Error("user did not log in - timedout")
-
     }
 
     public tokenExpired(): boolean {
