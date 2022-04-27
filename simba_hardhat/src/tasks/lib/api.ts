@@ -31,7 +31,18 @@ const getList = async (config: SimbaConfig, url?: string): Promise<any> => {
     if (!url) {
         url = 'v2/organisations/';
     }
-    return config.authStore.doGetRequest(url);
+    try {
+        const res = config.authStore.doGetRequest(url);
+        return res;
+    } catch (e) {
+        const err = e as any;
+        log.info(`err from getList : ${JSON.stringify(err)}`);
+        if (err.message === "Request failed with status code 500") {
+            log.info(`:: Auth token expired, please log in again`);
+            SimbaConfig.authStore.logout();
+            await SimbaConfig.authStore.loginAndGetAuthToken();
+        }
+    }
 };
 
 export const chooseOrganisationFromList = async (config: SimbaConfig, url?: string): Promise<any> => {
@@ -85,7 +96,7 @@ export const chooseOrganisationFromList = async (config: SimbaConfig, url?: stri
         throw new Error('No Organisation Selected!');
     }
     
-    config.setOrganisation(response.organisation);
+    config.organisation = response.organisation;
 
     return response.organisation;
 };
@@ -150,7 +161,7 @@ export const chooseApplicationFromList = async (config: SimbaConfig, url?: strin
     if (!response.application) {
         throw new Error('No Application Selected!');
     }
-    config.setApplication(response.application);
+    config.application = response.application;
 
     return response.application;
 };
