@@ -175,7 +175,6 @@ class KeycloakHandler {
             const verificationInfo: KeycloakDeviceVerificationInfo = res.data;
             this.verificationInfo = verificationInfo;
             log.debug(`:: EXIT : ${JSON.stringify(this.verificationInfo)}`);
-            this.setLoggedInStatus(true);
             return verificationInfo;
         } catch (error) {
             log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
@@ -185,7 +184,7 @@ class KeycloakHandler {
 
     public async loginUser(): Promise<void> {
         log.debug(`:: ENTER :`);
-        if (!this.isLoggedIn()) {
+        if (!this.verificationInfo) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
@@ -203,7 +202,7 @@ class KeycloakHandler {
         log.debug(`:: ENTER :`);
         const maxAttempts = pollingConfig.maxAttempts;
         const interval = pollingConfig.interval;
-        if (!this.isLoggedIn()) {
+        if (!this.verificationInfo) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const deviceCode = this.verificationInfo.device_code;
@@ -241,8 +240,8 @@ class KeycloakHandler {
             return new Error("attempts exceeded, timedout");
         } else {
             log.debug(`:: entering refresh logic`);
-            const auth = this.getConfig(this.configBase);
-            const authToken = auth.authToken;
+            const authToken = this.getConfig("authToken");
+            log.debug(`:: auth!! : ${JSON.stringify(authToken)}`);
             const _refreshToken = authToken.refresh_token;
             params.append("client_id", this.clientID);
             params.append("grant_type", "refresh_token");
@@ -252,7 +251,6 @@ class KeycloakHandler {
                 await new Promise(resolve => setTimeout(resolve, interval));
                 try {
                     let response = await axios.post(url, params, config);
-                    log.debug(`:: refresh respons : ${JSON.stringify(response)}`);
                     const newAuthToken: KeycloakAccessToken = response.data;
                     newAuthToken.expires_at = Math.floor(Date.now() / 1000) + newAuthToken.expires_in;
                     newAuthToken.refresh_expires_at = Math.floor(Date.now() / 1000) + newAuthToken.refresh_expires_in;
@@ -260,6 +258,7 @@ class KeycloakHandler {
                     log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
                     return newAuthToken;
                 } catch (error) {
+                    log.error(`:: refresh error : ${JSON.stringify(error)}`)
                     if (attempts%5 == 0) {
                         log.info(`still waiting for user to login`)
                     }
@@ -315,43 +314,45 @@ class KeycloakHandler {
 
     public async refreshToken(): Promise<any> {
         log.debug(`:: ENTER :`);
-        const auth: any = this.getConfig(this.configBase);
-        if (auth) {
-            if (!this.tokenExpired()) {
-                log.debug(`:: EXIT : authToken still valid`);
-                return;
-            }
-            if (this.refreshTokenExpired()) {
-                log.debug(`:: entering tokenexpired logic`);
-                this.deleteAuthInfo();
-                await this.loginAndGetAuthToken();
-                return;
-            }
-            log.debug(`:: entering logic to refresh token`);
-            const pollingConfig: PollingConfig = {
-                maxAttempts: 60,
-                interval: 3000,
-            };
-            const refreshing = true;
-            const newAuthToken = await this.getAuthToken(
-                pollingConfig,
-                refreshing,
-            );
-            log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
-        } else {
-            log.debug(`:: auth does not exist`);
+        log.debug(`:: this.configBase : ${this.configBase}`);
+        if (!this.tokenExpired()) {
+            log.debug(`:: EXIT : authToken still valid`);
+            return;
         }
+        if (this.refreshTokenExpired()) {
+            this.deleteAuthInfo();
+            await this.loginAndGetAuthToken();
+            return;
+        }
+        log.debug(`:: entering logic to refresh token`);
+        const pollingConfig: PollingConfig = {
+            maxAttempts: 60,
+            interval: 3000,
+        };
+        const refreshing = true;
+        const newAuthToken = await this.getAuthToken(
+            pollingConfig,
+            refreshing,
+        );
+        log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
     }
 
-    public async loginAndGetAuthToken(): Promise<KeycloakAccessToken> {
+    public async loginAndGetAuthToken(
+        refreshing: boolean = false,
+    ): Promise<KeycloakAccessToken> {
         log.debug(`:: ENTER :`);
-        const verificationInfo = this.verificationInfo;
-        await this.loginUser();
-        let authToken = this.getConfig("authToken");
-        if (!authToken) {
-            authToken = await this.getAuthToken() as KeycloakAccessToken;
+        if (!refreshing) {
+            this.logout();
+            await this.loginUser();
         }
+        // let authToken = this.getConfig("authToken");
+        const pollingConfig: PollingConfig = {
+            maxAttempts: 60,
+            interval: 3000,
+        };
+        const authToken = await this.getAuthToken(pollingConfig, refreshing) as KeycloakAccessToken;
         log.debug(`:: EXIT : authToken : ${JSON.stringify(authToken)}`);
+        this.setLoggedInStatus(true);
         return authToken;
     }
 
@@ -360,7 +361,7 @@ class KeycloakHandler {
         console.log(`config for object: ${JSON.stringify(this.config)}`);
         const authToken = this.getConfig("authToken");
         if (!authToken) {
-            await this.loginAndGetAuthToken();
+            await this.loginAndGetAuthToken(false);
         }
         const accessToken = authToken.access_token;
         const headers = {
