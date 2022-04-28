@@ -491,7 +491,7 @@ class KeycloakHandler {
             if (_buildURL) {
                 url = this.buildURL(url);
             }
-            const res = await axios.post(url, params, config);
+            const res = await axios.post(url, _postData, config);
             const resData: Record<any, any> = res.data;
             log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
             return resData;

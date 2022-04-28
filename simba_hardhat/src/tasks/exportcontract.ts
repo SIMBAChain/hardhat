@@ -2,7 +2,6 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import * as path from 'path';
 import * as fs from "fs";
-const fsPromises = require("fs").promises;
 import {
     Logger,
 } from "tslog";
@@ -11,6 +10,9 @@ import {SimbaConfig} from './lib';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import { StatusCodeError } from 'request-promise/errors';
+import {
+    writeAndReturnASTAndSource,
+} from "./lib/api"
 
 interface Data {
     [key: string]: any;
@@ -59,7 +61,7 @@ interface Request {
 //     return files;
 // }
 
-const walkDirForContracts = (dir: string, extension: string): Promise<string[]> =>
+export const walkDirForContracts = (dir: string, extension: string): Promise<string[]> =>
     new Promise((resolve, reject) => {
         fs.readdir(dir, {withFileTypes: true}, async (err, entries) => {
             if (err) {
@@ -101,7 +103,7 @@ const walkDirForContracts = (dir: string, extension: string): Promise<string[]> 
 //     }
 // }
 
-const promisifiedReadFile = (filePath: fs.PathLike, options: { encoding?: null; flag?: string }): Promise<Buffer> =>
+export const promisifiedReadFile = (filePath: fs.PathLike, options: { encoding?: null; flag?: string }): Promise<Buffer> =>
     new Promise((resolve, reject) => {
         fs.readFile(filePath, options, (err: NodeJS.ErrnoException | null, data: Buffer) => {
             if (err) {
@@ -134,7 +136,7 @@ const exportContract = async (
     } catch (e) {
         const err = e as any;
         if (err.code === 'ENOENT') {
-            log.error(`:: EXIT : ERROR : Simba was not able to find any build artifacts.\nDid you forget to run: "truffle compile" ?\n`);
+            log.error(`:: EXIT : ERROR : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`);
             return;
         }
         log.error(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
@@ -155,10 +157,15 @@ const exportContract = async (
         }
         const parsed = JSON.parse(buf.toString());
         const name = parsed.contractName;
+        const _astAndSource = await writeAndReturnASTAndSource(name);
+        import_data[name]
         import_data[name] = JSON.parse(buf.toString());
+        import_data[name].ast = _astAndSource.ast;
+        import_data[name].source = _astAndSource.source; 
         import_data[name].compiler = {'name': 'solc', 'version': '0.8.4'} //NOTE(Adam): Find this info inside of artifacts/build-info/
-        import_data[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
-        import_data[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
+        // import_data[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
+        // import_data[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
+
         choices.push({title: name, value: name});
     }
 
@@ -187,10 +194,7 @@ const exportContract = async (
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
     }
 
-    // const stringifiedImportData = JSON.stringify(import_data);
-
     const request = {
-        // id: '16f94890-7bb5-4fa6-9ba6-94ec6e0f3894', //SimbaConfig.ProjectConfigStore.get('design_id'),
         version: '0.0.2',
         primary: SimbaConfig.ProjectConfigStore.get('primary'),
         import_data,
@@ -199,8 +203,6 @@ const exportContract = async (
     log.info(`:: INFO : Sending to SIMBA Chain SCaaS`);
 
     try {
-        let buf = fs.readFileSync('/home/abrinckm/dev/truffle/damn.json');
-        // let request = JSON.parse(buf.toString());
         const resp = await SimbaConfig.authStore.doPostRequest(
             `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
             request,

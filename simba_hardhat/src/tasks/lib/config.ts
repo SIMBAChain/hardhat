@@ -94,8 +94,24 @@ export class SimbaConfig {
         return SimbaConfig.authStore;
     }
 
+    public static get artifactDirectory(): string {
+        return this.ProjectConfigStore.get('artifact_directory');
+    }
+
+    public get artifactDirectory(): string {
+        return SimbaConfig.artifactDirectory;
+    }
+
+    public static get buildInfoDirectory(): string {
+        return SimbaConfig.artifactDirectory + "/build-info";
+    }
+
+    public get buildInfoDirectory(): string {
+        return SimbaConfig.buildInfoDirectory;
+    }
+
     public static get buildDirectory(): string {
-        return this.ProjectConfigStore.get('build_directory');
+        return SimbaConfig.artifactDirectory + "/contracts";
     }
 
     public get buildDirectory(): string {
