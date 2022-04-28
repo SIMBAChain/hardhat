@@ -156,6 +156,9 @@ const exportContract = async (
         const parsed = JSON.parse(buf.toString());
         const name = parsed.contractName;
         import_data[name] = JSON.parse(buf.toString());
+        import_data[name].compiler = {'name': 'solc', 'version': '0.8.4'} //NOTE(Adam): Find this info inside of artifacts/build-info/
+        import_data[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
+        import_data[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
         choices.push({title: name, value: name});
     }
 
@@ -185,8 +188,9 @@ const exportContract = async (
     }
 
     // const stringifiedImportData = JSON.stringify(import_data);
+
     const request = {
-        // id: SimbaConfig.ProjectConfigStore.get('design_id'),
+        // id: '16f94890-7bb5-4fa6-9ba6-94ec6e0f3894', //SimbaConfig.ProjectConfigStore.get('design_id'),
         version: '0.0.2',
         primary: SimbaConfig.ProjectConfigStore.get('primary'),
         import_data,
@@ -195,6 +199,8 @@ const exportContract = async (
     log.info(`:: INFO : Sending to SIMBA Chain SCaaS`);
 
     try {
+        let buf = fs.readFileSync('/home/abrinckm/dev/truffle/damn.json');
+        // let request = JSON.parse(buf.toString());
         const resp = await SimbaConfig.authStore.doPostRequest(
             `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
             request,
