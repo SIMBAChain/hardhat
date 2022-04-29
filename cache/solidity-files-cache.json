@@ -37,8 +37,8 @@
       ]
     },
     "/Users/brendanbirch/development/simba/sep/hardhat/contracts/Greeter.sol": {
-      "lastModificationDate": 1650496433295,
-      "contentHash": "54c28c84e5277b35b8c8329ce9755dae",
+      "lastModificationDate": 1651257339804,
+      "contentHash": "065487f3834c782ac67206b3a4b4ab43",
       "sourceName": "contracts/Greeter.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -70,81 +70,7 @@
         "^0.8.0"
       ],
       "artifacts": [
-        "Greeter"
-      ]
-    },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/Greeter3.sol": {
-      "lastModificationDate": 1651173662579,
-      "contentHash": "5c2b62dbabb4dc72860ed0167d1b3475",
-      "sourceName": "contracts/Greeter3.sol",
-      "solcConfig": {
-        "version": "0.8.4",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Greeter3"
-      ]
-    },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/Greeter2.sol": {
-      "lastModificationDate": 1651161664084,
-      "contentHash": "9823d47a7fbda9c3fe7580928917600d",
-      "sourceName": "contracts/Greeter2.sol",
-      "solcConfig": {
-        "version": "0.8.4",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Greeter2"
+        "Greeter7"
       ]
     }
   }

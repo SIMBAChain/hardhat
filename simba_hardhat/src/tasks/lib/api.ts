@@ -31,9 +31,10 @@ interface Response {
     data: Dictionary<any>;
 }
 
-interface ASTAndSource {
+interface ASTSourceAndCompiler {
     ast: Record<any, any>;
     source: Record<any, any>;
+    compiler: string;
 }
 
 const getList = async (config: SimbaConfig, url?: string): Promise<any> => {
@@ -218,10 +219,11 @@ async function buildInfoJsonName(
     return "";
 }
 
-async function astAndSource(
+async function astSourceAndCompiler(
     contractName: string,
+    contractSourceName: string,
     _buildInfoJsonName: string,
-): Promise<ASTAndSource> {
+): Promise<ASTSourceAndCompiler> {
     const params = {
         contractName,
         _buildInfoJsonName,
@@ -231,9 +233,10 @@ async function astAndSource(
     log.debug(`:: buildInfoDir : ${buildInfoDir}`);
     let files: string[] = [];
 
-    let astAndSource: ASTAndSource = {
+    let astAndSourceAndCompiler: ASTSourceAndCompiler = {
         "ast": {},
         "source": {},
+        "compiler": "",
     };
 
     try {
@@ -243,43 +246,54 @@ async function astAndSource(
         const err = e as any;
         if (err.code === 'ENOENT') {
             log.error(`:: EXIT : ERROR : Simba was not able to find any build info artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`);
-            return astAndSource;
+            return astAndSourceAndCompiler;
         }
         log.error(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
-        return astAndSource;
+        return astAndSourceAndCompiler;
     }
 
     for (const file of files) {
         if (!(file.endsWith(_buildInfoJsonName))) {
             continue;
         } else {
-            const contractNameWSol = contractName.endsWith(".sol") ? contractName : contractName + ".sol";
+            // here we should actually be taking
+            // the sourceName from the artifact
+            // because 
+            // const contractNameWSol = contractName.endsWith(".sol") ? contractName : contractName + ".sol";
             const buf = await promisifiedReadFile(file, {flag: 'r'});
             const parsed = JSON.parse(buf.toString());
             const output = parsed.output;
             const outputSources = output.sources;
-            const outputContractSource = outputSources[`contracts/${contractNameWSol}`];
+            const outputContractSource = outputSources[contractSourceName];
             const ast = outputContractSource.ast;
-            astAndSource.ast = ast;
+            astAndSourceAndCompiler.ast = ast;
+
+            const solcVersion = parsed.solcVersion;
+            astAndSourceAndCompiler.compiler = solcVersion;
 
             const input = parsed.input;
             const inputSources = input.sources;
-            const inputContractSource = inputSources[`contracts/${contractNameWSol}`];
+            const inputContractSource = inputSources[contractSourceName];
             const contractSourceCode = inputContractSource.content;
-            astAndSource.source = contractSourceCode;
-            return astAndSource;
+            astAndSourceAndCompiler.source = contractSourceCode;
+            return astAndSourceAndCompiler;
         }
     }
     log.error(`:: EXIT : ERROR : no contract info found`);
-    return astAndSource;
+    return astAndSourceAndCompiler;
 }
 
-export async function writeAndReturnASTAndSource(
+export async function writeAndReturnASTSourceAndCompiler(
     contractName: string,
-): Promise<ASTAndSource> {
-    const _astAndSource = await getASTAndSource(contractName) as ASTAndSource;
+    contractSourceName: string,
+): Promise<ASTSourceAndCompiler> {
+    const _astSourceAndCompiler = await getASTSourceAndCompiler(
+        contractName,
+        contractSourceName,
+        ) as ASTSourceAndCompiler;
     const buildDir = SimbaConfig.buildDirectory;
-    const filePath = `${buildDir}/${contractName}.sol/${contractName}.json`;
+    const sourceFileName = contractSourceName.split("/")[1];
+    const filePath = `${buildDir}/${sourceFileName}/${contractName}.json`;
     const files = await walkDirForContracts(buildDir, ".json");
     for (const file of files) {
         if (!(file.endsWith(`${contractName}.json`))) {
@@ -287,28 +301,30 @@ export async function writeAndReturnASTAndSource(
         }
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         const parsed = JSON.parse(buf.toString());
-        parsed.ast = _astAndSource.ast;
-        parsed.source = _astAndSource.source;
+        parsed.ast = _astSourceAndCompiler.ast;
+        parsed.source = _astSourceAndCompiler.source;
         const data = JSON.stringify(parsed);
         log.debug(`:: writing to ${filePath}`);
         fs.writeFileSync(filePath, data);
-        return _astAndSource;
+        return _astSourceAndCompiler;
     }
-    return _astAndSource;
+    return _astSourceAndCompiler;
 }
 
-async function getASTAndSource(
+async function getASTSourceAndCompiler(
     contractName: string,
-): Promise<ASTAndSource | Error> {
-    const contractJsonName = await buildInfoJsonName(contractName);
-    const _astAndSource = await astAndSource(
+    contractSourceName: string,
+): Promise<ASTSourceAndCompiler | Error> {
+    const _buildInfoJsonName = await buildInfoJsonName(contractName);
+    const _astAndSourceAndCompiler = await astSourceAndCompiler(
         contractName,
-        contractJsonName,
+        contractSourceName,
+        _buildInfoJsonName,
     );
-    if (_astAndSource.ast === {}) {
+    if (_astAndSourceAndCompiler.ast === {}) {
         const message = `no ast found for ${contractName}`;
         log.error(`:: EXIT : ERROR : ${message}`);
         return new Error(`${message}`);
     }
-    return _astAndSource;
+    return _astAndSourceAndCompiler;
 }
