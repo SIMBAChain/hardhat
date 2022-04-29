@@ -4,6 +4,9 @@ this file will actually come from the standalone web3 repo
 it is just included here for now for testing purposes
 */
 import Configstore from "configstore";
+import {
+    SimbaConfig,
+} from "./config";
 import axios from "axios";
 import {
     Logger,
@@ -62,16 +65,17 @@ class KeycloakHandler {
         projectConfig: Configstore,
         tokenExpirationPad: number = 60,
     ) {
-        this.config = config;
-        this.projectConfig = projectConfig;
+        this.config = SimbaConfig.ConfigStore;
+        this.projectConfig = SimbaConfig.ProjectConfigStore;
         this.clientID = this.projectConfig.get('clientID');
         this.baseURL = this.projectConfig.get('baseURL') ? this.projectConfig.get('baseURL') : this.projectConfig.get('baseUrl');
+        log.debug(`:: baesURL : ${this.baseURL}`);
         this.authURL = this.projectConfig.get('authURL') ? this.projectConfig.get('authURL') : this.projectConfig.get('authUrl');
         this.realm = this.projectConfig.get('realm');
         this.configBase = this.baseURL.split(".").join("_");
         this.tokenExpirationPad = tokenExpirationPad;
-        this.logout();
-        console.log(`path to config: ${this.getPathToConfigFile()}`);
+        // this.logout();
+        log.info(`path to config: ${this.getPathToConfigFile()}`);
     }
 
     protected getConfigBase(): string {
@@ -86,10 +90,14 @@ class KeycloakHandler {
     }
 
     public isLoggedIn(): boolean {
-        return this._loggedIn;
+        if (this.verificationInfo) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public logout(): void {
+    public async logout(): Promise<void> {
         this.setLoggedInStatus(false);
         this.deleteAuthInfo();
     }
@@ -171,7 +179,6 @@ class KeycloakHandler {
             const verificationInfo: KeycloakDeviceVerificationInfo = res.data;
             this.verificationInfo = verificationInfo;
             log.debug(`:: EXIT : ${JSON.stringify(this.verificationInfo)}`);
-            this.setLoggedInStatus(true);
             return verificationInfo;
         } catch (error) {
             log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
@@ -235,15 +242,14 @@ class KeycloakHandler {
             }
             log.debug(`:: EXIT : attempts exceeded, timedout`);
             return new Error("attempts exceeded, timedout");
-        }
-        const auth = this.getConfig(this.configBase);
-        const authToken = auth.authToken;
-        const refreshToken = authToken.refresh_token;
-        params.append("client_id", this.clientID);
-        params.append("grant_type", "refresh_token");
-        params.append("refresh_token", refreshToken);
-        let attempts = 0;
-        while (attempts < maxAttempts) {
+        } else {
+            log.debug(`:: entering refresh logic`);
+            const authToken = this.getConfig("authToken");
+            log.debug(`:: auth!! : ${JSON.stringify(authToken)}`);
+            const _refreshToken = authToken.refresh_token;
+            params.append("client_id", this.clientID);
+            params.append("grant_type", "refresh_token");
+            params.append("refresh_token", _refreshToken);
             await new Promise(resolve => setTimeout(resolve, interval));
             try {
                 let response = await axios.post(url, params, config);
@@ -254,16 +260,10 @@ class KeycloakHandler {
                 log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
                 return newAuthToken;
             } catch (error) {
-                if (attempts%5 == 0) {
-                    log.info(`still waiting for user to login`)
-                }
-                attempts += 1;
+                log.error(`:: refresh error : ${JSON.stringify(error)}`)
+                return error as Error;
             }
         }
-        const err = new Error("user did not log in - timedout");
-        log.debug(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
-        return new Error("user did not log in - timedout")
-
     }
 
     public tokenExpired(): boolean {
@@ -298,7 +298,7 @@ class KeycloakHandler {
             return true;
         }
         // return true below, to pad for time required for operations
-        if (authToken.refresh_expires_at >= Math.floor(Date.now()/1000) - this.tokenExpirationPad) {
+        if (authToken.refresh_expires_at <= Math.floor(Date.now()/1000) - this.tokenExpirationPad) {
             log.debug(`:: EXIT : access_token expiring within 60 seconds, returning true`);
             return true;
         }
@@ -307,38 +307,46 @@ class KeycloakHandler {
     }
 
     public async refreshToken(): Promise<any> {
-        const auth: any = this.getConfig(this.configBase);
-        if (auth) {
-            if (!this.tokenExpired()) {
-                log.debug(`:: EXIT : authToken still valid`);
-                return;
-            }
-            if (this.refreshTokenExpired()) {
-                this.deleteAuthInfo();
-                await this.loginAndGetAuthToken();
-            }
-            const pollingConfig: PollingConfig = {
-                maxAttempts: 60,
-                interval: 3000,
-            };
-            const refreshing = true;
-            const newAuthToken = await this.getAuthToken(
-                pollingConfig,
-                refreshing,
-            );
-            log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
+        log.debug(`:: ENTER :`);
+        log.debug(`:: this.configBase : ${this.configBase}`);
+        if (!this.tokenExpired()) {
+            log.debug(`:: EXIT : authToken still valid`);
+            return;
         }
+        if (this.refreshTokenExpired()) {
+            this.deleteAuthInfo();
+            await this.loginAndGetAuthToken();
+            return;
+        }
+        log.debug(`:: entering logic to refresh token`);
+        const pollingConfig: PollingConfig = {
+            maxAttempts: 60,
+            interval: 3000,
+        };
+        const refreshing = true;
+        const newAuthToken = await this.getAuthToken(
+            pollingConfig,
+            refreshing,
+        );
+        log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
     }
 
-    public async loginAndGetAuthToken(): Promise<KeycloakAccessToken> {
+    public async loginAndGetAuthToken(
+        refreshing: boolean = false,
+    ): Promise<KeycloakAccessToken> {
         log.debug(`:: ENTER :`);
-        const verificationInfo = this.verificationInfo;
-        await this.loginUser();
-        let authToken = this.getConfig("authToken");
-        if (!authToken) {
-            authToken = await this.getAuthToken() as KeycloakAccessToken;
+        if (!refreshing) {
+            this.logout();
+            await this.loginUser();
         }
+        // let authToken = this.getConfig("authToken");
+        const pollingConfig: PollingConfig = {
+            maxAttempts: 60,
+            interval: 3000,
+        };
+        const authToken = await this.getAuthToken(pollingConfig, refreshing) as KeycloakAccessToken;
         log.debug(`:: EXIT : authToken : ${JSON.stringify(authToken)}`);
+        this.setLoggedInStatus(true);
         return authToken;
     }
 
@@ -347,7 +355,7 @@ class KeycloakHandler {
         console.log(`config for object: ${JSON.stringify(this.config)}`);
         const authToken = this.getConfig("authToken");
         if (!authToken) {
-            await this.loginAndGetAuthToken();
+            await this.loginAndGetAuthToken(false);
         }
         const accessToken = authToken.access_token;
         const headers = {
@@ -382,6 +390,7 @@ class KeycloakHandler {
         log.debug(`:: ENTER : ${JSON.stringify(funcParams)}`);
         if (this.tokenExpired()) {
             if (this.refreshTokenExpired()) {
+                // this.logout();
                 log.info(`:: INFO : token expired, please log in again`);
                 await this.loginAndGetAuthToken();
             } else {
@@ -482,7 +491,7 @@ class KeycloakHandler {
             if (_buildURL) {
                 url = this.buildURL(url);
             }
-            const res = await axios.post(url, params, config);
+            const res = await axios.post(url, _postData, config);
             const resData: Record<any, any> = res.data;
             log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
             return resData;

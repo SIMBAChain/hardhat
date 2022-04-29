@@ -20,7 +20,7 @@ import {
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     console.log("beginning login");
     const web3Suite = "hardhat";
-    const simbaConfig = new SimbaConfig(web3Suite);
+    const simbaConfig = new SimbaConfig();
     const org = await chooseOrganisationFromList(simbaConfig);
     if (!org) {
         return Promise.resolve(new Error('No Organisation Selected!'));
