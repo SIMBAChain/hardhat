@@ -9,6 +9,7 @@ export {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     getApp,
-    // getBlockchains,
-    // getStorages
+    getBlockchains,
+    getStorages,
+    primaryConstructorRequiresArgs,
 } from './api';

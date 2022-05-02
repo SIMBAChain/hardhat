@@ -111,70 +111,12 @@ export const chooseOrganisationFromList = async (config: SimbaConfig, url?: stri
     return response.organisation;
 };
 
-export const chooseOrganisationFromInput = async (config: SimbaConfig, url?: string): Promise<any> => {
+export async function chooseOrganisationFromInput(
+    config: SimbaConfig,
+    url?: string,
+): Promise<any> {
     console.error("needs to be implemented");
 }
-
-export const getApp = async (config: SimbaConfig, id: string): Promise<any> => {
-    const url = `organisations/${config.organisation.id}/applications/${id}`;
-    const response = await config.authStore.doGetRequest(url, 'application/json');
-    return response;
-};
-
-export const chooseApplicationFromList = async (config: SimbaConfig, url?: string): Promise<any> => {
-    if (!url) {
-        url = `organisations/${config.organisation.id}/applications/`;
-    }
-
-    const appResponse = await getList(config, url);
-
-    const apps: Response = {
-        next: appResponse.next,
-        prev: appResponse.prev,
-        data: appResponse.results.reduce((map: Dictionary<object>, obj: any) => {
-            const data = {...obj, id: obj.id};
-            map[data.display_name] = data;
-            return map;
-        }, {}),
-    };
-
-    const choices = [];
-    if (apps.prev) {
-        choices.push({
-            title: '<-',
-            description: 'Previous choices',
-            value: 'prev'
-        });
-    }
-
-    if (apps.next) {
-        choices.push({title: '->', description: 'Next choices', value: 'next'});
-    }
-
-    for (const [key, val] of Object.entries(apps.data)) {
-        choices.push({title: key, value: val});
-    }
-
-    const response = await prompt({
-        type: 'select',
-        name: 'application',
-        message: 'Please pick an application',
-        choices,
-    });
-
-    if (response.application === 'prev') {
-        return chooseApplicationFromList(config, apps.prev);
-    } else if (response.application === 'next') {
-        return chooseApplicationFromList(config, apps.next);
-    }
-
-    if (!response.application) {
-        throw new Error('No Application Selected!');
-    }
-    config.application = response.application;
-
-    return response.application;
-};
 
 function parseBuildInfoJsonName(
     location: string,
@@ -327,4 +269,171 @@ async function getASTSourceAndCompiler(
         return new Error(`${message}`);
     }
     return _astAndSourceAndCompiler;
+}
+
+export async function getApp(config: SimbaConfig,
+    id: string,
+): Promise<any> {
+    const url = `organisations/${config.organisation.id}/applications/${id}`;
+    const response = await config.authStore.doGetRequest(url, 'application/json');
+    return response;
+};
+
+export async function chooseApplicationFromList(
+    config: SimbaConfig,
+    url?: string,
+): Promise<any> {
+    if (!url) {
+        url = `organisations/${config.organisation.id}/applications/`;
+    }
+
+    const appResponse = await getList(config, url);
+
+    const apps: Response = {
+        next: appResponse.next,
+        prev: appResponse.prev,
+        data: appResponse.results.reduce((map: Dictionary<object>, obj: any) => {
+            const data = {...obj, id: obj.id};
+            map[data.display_name] = data;
+            return map;
+        }, {}),
+    };
+
+    const choices = [];
+    if (apps.prev) {
+        choices.push({
+            title: '<-',
+            description: 'Previous choices',
+            value: 'prev'
+        });
+    }
+
+    if (apps.next) {
+        choices.push({title: '->', description: 'Next choices', value: 'next'});
+    }
+
+    for (const [key, val] of Object.entries(apps.data)) {
+        choices.push({title: key, value: val});
+    }
+
+    const response = await prompt({
+        type: 'select',
+        name: 'application',
+        message: 'Please pick an application',
+        choices,
+    });
+
+    if (response.application === 'prev') {
+        return chooseApplicationFromList(config, apps.prev);
+    } else if (response.application === 'next') {
+        return chooseApplicationFromList(config, apps.next);
+    }
+
+    if (!response.application) {
+        throw new Error('No Application Selected!');
+    }
+    config.application = response.application;
+
+    return response.application;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getBlockchains(
+    config: SimbaConfig,
+    url?: string,
+): Promise<any> {
+    if (!url) {
+        url = `organisations/${config.organisation.id}/blockchains/`;
+    }
+
+    const chains: any = await getList(config, url);
+    const choices: Choice[] = [];
+
+    chains.results.forEach((chain: any) => {
+        choices.push({
+            title: chain.display_name,
+            value: chain.name,
+        });
+    });
+
+    return choices;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getStorages(
+    config: SimbaConfig,
+    url?: string,
+): Promise<any> {
+    if (!url) {
+        url = `organisations/${config.organisation.id}/storage/`;
+    }
+
+    const storages: any = await getList(config, url);
+    const choices: Choice[] = [];
+
+    storages.results.forEach((storage: any) => {
+        choices.push({
+            title: storage.display_name,
+            value: storage.name,
+        });
+    });
+
+    return choices;
+};
+
+async function getABIForPrimaryContract(
+) {
+    const contractName = SimbaConfig.ProjectConfigStore.get("primary");
+    if (!contractName) {
+        log.error(`:: EXIT : ERROR : no primary contract in simba.json`);
+        return "";
+    }
+    const buildDir = SimbaConfig.buildDirectory;
+    const files = await walkDirForContracts(buildDir, ".json");
+    for (const file of files) {
+        if (!(file.endsWith(`${contractName}.json`))) {
+            continue;
+        }
+        const buf = await promisifiedReadFile(file, {flag: 'r'});
+        const parsed = JSON.parse(buf.toString());
+        const abi = parsed.abi;
+        log.debug(`:: contract ABI : ${JSON.stringify(abi)}`);
+        return abi;
+    }
+}
+
+export async function getFieldFromPrimaryContractABI(
+    name: string,
+) {
+    const abi = await getABIForPrimaryContract();
+    for (let i = 0; i < abi.length; i++) {
+        const entry = abi[i];
+        if (entry.name === name) {
+            return entry;
+        }
+    }
+    return {};
+}
+
+async function primaryContractConstructor() {
+    const abi = await getABIForPrimaryContract();
+    for (let i = 0; i < abi.length; i++) {
+        const entry = abi[i];
+        if (entry.type === "constructor") {
+            log.debug(`:: constructor : ${JSON.stringify(entry)}`);
+            return entry;
+        }
+    }
+    return {};
+}
+
+export async function primaryConstructorRequiresArgs(): Promise<boolean> {
+    const constructor = await primaryContractConstructor();
+    const inputs = constructor.inputs;
+    let requiresArgs = false;
+    if (inputs && inputs.length > 0) {
+        requiresArgs = true;
+    }
+    log.debug(`:: requiresArgs : ${requiresArgs}`);
+    return requiresArgs;
 }

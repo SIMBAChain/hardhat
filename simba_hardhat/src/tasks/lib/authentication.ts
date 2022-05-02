@@ -410,10 +410,6 @@ class KeycloakHandler {
         for (const [key, value] of Object.entries(queryParams)) {
             params.append(key, value);
         }
-        // const config = {
-        //     headers: headers,
-        //     params: params,
-        // }
         const config = {
             headers: headers,
         }
@@ -456,7 +452,7 @@ class KeycloakHandler {
         url: string,
         _postData?: Record<any, any>,
         contentType?: string,
-        _buildURL: boolean = false,
+        _buildURL: boolean = true,
     ): Promise<Record<any, any>> {
         const funcParams = {
             url,
@@ -479,11 +475,6 @@ class KeycloakHandler {
         } else {
             headers["content-type"] = contentType;
         }
-        const params = new URLSearchParams();
-        params.append('client_id', this.clientID);
-        for (const [key, value] of Object.entries(postData)) {
-            params.append(key, value);
-        }
         const config = {
             headers: headers,
         }
@@ -491,7 +482,7 @@ class KeycloakHandler {
             if (_buildURL) {
                 url = this.buildURL(url);
             }
-            const res = await axios.post(url, _postData, config);
+            const res = await axios.post(url, postData, config);
             const resData: Record<any, any> = res.data;
             log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
             return resData;

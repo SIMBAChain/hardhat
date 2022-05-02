@@ -36,10 +36,10 @@
         "console"
       ]
     },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/Greeter.sol": {
-      "lastModificationDate": 1651257339804,
-      "contentHash": "065487f3834c782ac67206b3a4b4ab43",
-      "sourceName": "contracts/Greeter.sol",
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/Greeter11.sol": {
+      "lastModificationDate": 1651513620990,
+      "contentHash": "cb1eb8ec0dd5846e19b180dde2688feb",
+      "sourceName": "contracts/Greeter11.sol",
       "solcConfig": {
         "version": "0.8.4",
         "settings": {
@@ -70,7 +70,7 @@
         "^0.8.0"
       ],
       "artifacts": [
-        "Greeter7"
+        "Greeter11"
       ]
     }
   }
