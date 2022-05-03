@@ -8,11 +8,9 @@ import {
     getStorages,
     primaryConstructorRequiresArgs,
     primaryConstructorInputs,
+    log,
 } from './lib';
 import { StatusCodeError } from 'request-promise/errors';
-import {
-    log,
-} from "./lib";
 // const log: Logger = new Logger({minLevel: "error"});
 import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';

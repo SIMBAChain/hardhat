@@ -6,7 +6,7 @@ it is just included here for now for testing purposes
 
 import {
     log,
-} from "./logger";
+} from "../lib";
 import {cwd} from 'process';
 import * as path from 'path';
 import Configstore from 'configstore';

@@ -1,6 +1,4 @@
-import {
-    log,
-} from "./lib";
+
 import {
     task,
 } from "hardhat/config";
@@ -11,6 +9,7 @@ import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     SimbaConfig,
+    log,
 } from "./lib";
 
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {

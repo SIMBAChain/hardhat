@@ -6,12 +6,10 @@ it is just included here for now for testing purposes
 import Configstore from "configstore";
 import {
     SimbaConfig,
-} from "./config";
+    log,
+} from "../lib";
 import {default as chalk} from 'chalk';
 import axios from "axios";
-import {
-    log,
-} from "./logger";
 import {
     URLSearchParams,
 } from "url";

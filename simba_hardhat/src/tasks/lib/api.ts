@@ -3,12 +3,10 @@ NOTE:
 this file will actually come from the standalone web3 repo
 it is just included here for now for testing purposes
 */
-import {
-    log,
-} from "./logger";
 import {default as prompt} from 'prompts';
 import {
     SimbaConfig,
+    log,
 } from "../lib";
 import {
     promisifiedReadFile,

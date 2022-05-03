@@ -1,8 +1,14 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {
+    log,
+    SimbaConfig,
+} from "./lib";
 
 const logout = async (hre: HardhatRuntimeEnvironment) => {
-    console.log("running logout");
+    log.debug(`:: ENTER :`);
+    await SimbaConfig.authStore.logout();
+    log.debug(`:: EXIT :`);
 }
 
 task("logout", "export contract(s) to Blocks")

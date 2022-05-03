@@ -3,9 +3,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import * as path from 'path';
 import * as fs from "fs";
 import {
+    SimbaConfig,
     log,
-} from "./lib";
-import {SimbaConfig} from './lib';
+} from './lib';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import { StatusCodeError } from 'request-promise/errors';
