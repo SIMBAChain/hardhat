@@ -7,6 +7,7 @@ import Configstore from "configstore";
 import {
     SimbaConfig,
 } from "./config";
+import {default as chalk} from 'chalk';
 import axios from "axios";
 import {
     log,
@@ -188,7 +189,7 @@ class KeycloakHandler {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
-        console.log(`\nPlease navigate to the following URI to log in: ${verificationCompleteURI}`);
+        log.info(`\n${chalk.red('simba: ')}Please navigate to the following URI to log in: ${verificationCompleteURI}`);
         log.debug(`:: EXIT :`);
     }
 
