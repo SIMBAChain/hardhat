@@ -12,4 +12,5 @@ export {
     getBlockchains,
     getStorages,
     primaryConstructorRequiresArgs,
+    primaryConstructorInputs,
 } from './api';

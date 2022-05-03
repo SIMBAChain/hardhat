@@ -427,6 +427,22 @@ async function primaryContractConstructor() {
     return {};
 }
 
+export async function primaryConstructorInputs() {
+    const constructor = await primaryContractConstructor();
+    const constructorInputs = constructor.inputs ? constructor.inputs : [];
+    const inputs = [];
+    for (let i = 0; i < constructorInputs.length; i++) {
+        const input = constructorInputs[i];
+        const type = input.type;
+        const name = input.name;
+        inputs.push({
+            type,
+            name,
+        });
+    }
+    return inputs;
+}
+
 export async function primaryConstructorRequiresArgs(): Promise<boolean> {
     const constructor = await primaryContractConstructor();
     const inputs = constructor.inputs;

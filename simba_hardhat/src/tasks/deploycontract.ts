@@ -7,12 +7,14 @@ import {
     getBlockchains,
     getStorages,
     primaryConstructorRequiresArgs,
+    primaryConstructorInputs,
 } from './lib';
 import { StatusCodeError } from 'request-promise/errors';
 import {
     Logger,
 } from "tslog";
-const log: Logger = new Logger({minLevel: "error"});
+const log: Logger = new Logger({});
+// const log: Logger = new Logger({minLevel: "error"});
 import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';
 
@@ -30,15 +32,21 @@ interface DeploymentRequest {
 }
 
 export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
+    console.log("hellllllllooooo")
+    log.debug(`:: entering deployContract`);
     const config = new SimbaConfig();
     
+    log.debug(`:: after SimbaConfig()`);
+
     if (!config.ProjectConfigStore.has("design_id")) {
         log.error(':: EXIT : ERROR : Please export your contracts first with "truffle run simba export".');
         return Promise.resolve(new Error('Not exported!'));
     }
 
+    log.debug(`:: before getBlockchains`);
     const blockchainList = await getBlockchains(config);
     const storageList = await getStorages(config);
+    log.debug(`:: after getStorages`);
 
     if (!config.application) {
         try {
@@ -48,6 +56,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
     }
     let chosen: any = {};
+    log.debug(`:: after chosen`);
     const questions: prompt.PromptObject[] = [
         {
             type: 'text',
@@ -69,25 +78,104 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             choices: storageList,
             initial: 0,
         },
-        {
-            type: 'text',
-            name: 'args',
-            message: 'Please enter any arguments for the contract as a JSON dictionary.',
-            validate: (contractArgs: string): boolean => {
-                if (!contractArgs) {
-                    return true;
-                } // Allow empty strings
-                try {
-                    JSON.parse(contractArgs);
-                    return true;
-                } catch {
-                    return false;
-                }
-            },
-        },
+        // {
+        //     type: 'text',
+        //     name: 'args',
+        //     message: 'Please enter any arguments for the contract as a JSON dictionary.',
+        //     validate: (contractArgs: string): boolean => {
+        //         if (!contractArgs) {
+        //             return true;
+        //         } // Allow empty strings
+        //         try {
+        //             JSON.parse(contractArgs);
+        //             return true;
+        //         } catch {
+        //             return false;
+        //         }
+        //     },
+        // },
     ];
+    log.debug(`:: before primaryContractRequiresArgs`);
+    const constructorRequiresParams = await primaryConstructorRequiresArgs();
+    log.debug(`:: after primaryContractRequiresArgs`);
+    const paramInputQuestions: any = [];
+    let inputNameToTypeMap: any = {};
+    let inputsAsJson = true;
+    if (constructorRequiresParams) {
+        log.debug(`:: entering constructor params required logic`);
+        const constructorInputs = await primaryConstructorInputs();
+        log.debug(`:: after primaryConstructorInputs`)
+        const allParamsByJson = "enter all params as json object";
+        const paramsOneByOne = "enter params one by one";
+        const paramInputChoices = [allParamsByJson, paramsOneByOne]
+        const paramChoices = [];
+        for (let i = 0; i < paramInputChoices.length; i++) {
+            const entry = paramInputChoices[i];
+            paramChoices.push({
+                title: entry,
+                value: entry,
+            });
+        }
+        const promptChosen = await prompt({
+            type: 'select',
+            name: 'input_method',
+            message: 'Your constructor parameters can be input as either a single json object or one by one. Which would you prefer?',
+            choices: paramChoices,
+        });
+
+        log.debug(`:: promptChosen.input_method: ${promptChosen.input_method}`);
+
+        if (!promptChosen.input_method) {
+            log.error(`:: EXIT : ERROR : no param input method chosen!`)
+            return Promise.resolve(new Error('no param input method chosen!'));
+        }
+
+        if (promptChosen.input_method === allParamsByJson) {
+            questions.push({
+                type: 'text',
+                name: 'args',
+                message: 'Please enter any arguments for the contract as a JSON dictionary.',
+                validate: (contractArgs: string): boolean => {
+                    if (!contractArgs) {
+                        return true;
+                    } // Allow empty strings
+                    try {
+                        JSON.parse(contractArgs);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                },
+            });
+        } else {
+            inputsAsJson = false;
+            for (let i = 0; i < constructorInputs.length; i++) {
+                const inputEntry = constructorInputs[i];
+                const paramType = inputEntry.type;
+                const paramName = inputEntry.name;
+                inputNameToTypeMap[paramName] = paramType;
+                paramInputQuestions.push({
+                    type: "text",
+                    name: paramName,
+                    message: `please input value for param ${paramName} of type ${paramType}`
+                });
+            }
+        }
+    }
 
     chosen = await prompt(questions);
+
+    let inputsChosen: any;
+    if (!inputsAsJson) {
+        inputsChosen = await prompt(paramInputQuestions);
+        log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
+        for (const key in inputsChosen) {
+            if (inputNameToTypeMap[key].startsWith("int") ||inputNameToTypeMap[key].startsWith("uint")) {
+                inputsChosen[key] = parseInt(inputsChosen[key]);
+            } 
+        }
+        log.info(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
+    }
 
     if (!chosen.api) {
         return Promise.resolve(new Error('No API Name chosen!'));
@@ -101,8 +189,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         return Promise.resolve(new Error('No storage chosen!'));
     }
 
-    const constructorRequiresParams = await primaryConstructorRequiresArgs();
-    if (constructorRequiresParams && !chosen.args) {
+    if (constructorRequiresParams && !chosen.args && !inputsChosen) {
         log.error(`:: EXIT : ERROR : 'Your contract requires constructor arguments'`)
         return Promise.resolve(new Error('Your contract requires constructor arguments'));
     }
@@ -110,10 +197,15 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     const id = config.ProjectConfigStore.get('design_id');
     let deployArgs: DeploymentArguments = {};
     if (chosen.args) {
+        log.debug(`:: entering original deployArgs logic`)
         deployArgs = JSON.parse(chosen.args) as DeploymentArguments;
     } else {
         if (config.ProjectConfigStore.has('defaultArgs')) {
             deployArgs = config.ProjectConfigStore.get('defaultArgs') as DeploymentArguments;
+        } else {
+            if (inputsChosen) {
+                deployArgs = JSON.parse(JSON.stringify(inputsChosen));
+            }
         }
     }
 
