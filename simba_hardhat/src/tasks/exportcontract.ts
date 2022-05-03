@@ -11,7 +11,7 @@ import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import { StatusCodeError } from 'request-promise/errors';
 import {
-    writeAndReturnASTAndSource,
+    writeAndReturnASTSourceAndCompiler,
 } from "./lib/api"
 
 interface Data {
@@ -120,10 +120,7 @@ const exportContract = async (
 ) => {
     log.debug(`:: ENTER :`);
     const authStore = SimbaConfig.authStore;
-    // if (!authStore.isLoggedIn()) {
-        //     log.error(`:: EXIT : ERROR : please run "npx hardhat simba --cmd login" to log in`);
-        //     return;
-        // }
+    // Not putting any "isLoggedIn()" logic here because SimbaConfig.authStore.doGetRequest handles that
     log.debug(`:: SimbaConfig.authStore : ${JSON.stringify(SimbaConfig.authStore)}`);
     const buildDir = SimbaConfig.buildDirectory;
     log.debug(`:: buildDir : ${buildDir}`);
@@ -157,12 +154,14 @@ const exportContract = async (
         }
         const parsed = JSON.parse(buf.toString());
         const name = parsed.contractName;
-        const _astAndSource = await writeAndReturnASTAndSource(name);
+        const contractSourceName = parsed.sourceName;
+        const _astSourceAndCompiler = await writeAndReturnASTSourceAndCompiler(name, contractSourceName);
+        log.debug(`:: _astSourceAndCompiler : ${JSON.stringify(_astSourceAndCompiler)}`);
         import_data[name]
         import_data[name] = JSON.parse(buf.toString());
-        import_data[name].ast = _astAndSource.ast;
-        import_data[name].source = _astAndSource.source; 
-        import_data[name].compiler = {'name': 'solc', 'version': '0.8.4'} //NOTE(Adam): Find this info inside of artifacts/build-info/
+        import_data[name].ast = _astSourceAndCompiler.ast;
+        import_data[name].source = _astSourceAndCompiler.source; 
+        import_data[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler} //NOTE(Adam): Find this info inside of artifacts/build-info/
         // import_data[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
         // import_data[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
 
