@@ -134,6 +134,7 @@ function parseBuildInfoJsonName(
 
 async function buildInfoJsonName(
     contractName: string,
+    contractSourceName: string,
 ): Promise<string> {
     log.debug(`:: ENTER : ${contractName}`);
     const buildDir = SimbaConfig.buildDirectory;
@@ -150,7 +151,7 @@ async function buildInfoJsonName(
         return "";
     }
     for (const file of files) {
-        if (!(file.endsWith(`${contractName}.dbg.json`))) {
+        if (!(file.endsWith(`${contractSourceName}/${contractName}.dbg.json`))) {
             continue;
         } else {
             const buf = await promisifiedReadFile(file, {flag: 'r'});
@@ -201,6 +202,7 @@ async function astSourceAndCompiler(
         if (!(file.endsWith(_buildInfoJsonName))) {
             continue;
         } else {
+            log.debug(`:: file : ${JSON.stringify(file)}`);
             const buf = await promisifiedReadFile(file, {flag: 'r'});
             const parsed = JSON.parse(buf.toString());
             const output = parsed.output;
@@ -225,6 +227,31 @@ async function astSourceAndCompiler(
     return astAndSourceAndCompiler;
 }
 
+
+async function getASTSourceAndCompiler(
+    contractName: string,
+    contractSourceName: string,
+): Promise<ASTSourceAndCompiler | Error> {
+    const entryParams = {
+        contractName,
+        contractSourceName,
+    }
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
+    const _buildInfoJsonName = await buildInfoJsonName(contractName, contractSourceName);
+    const _astAndSourceAndCompiler = await astSourceAndCompiler(
+        contractName,
+        contractSourceName,
+        _buildInfoJsonName,
+    );
+    if (_astAndSourceAndCompiler.ast === {}) {
+        const message = `no ast found for ${contractName}`;
+        log.error(`:: EXIT : ERROR : ${message}`);
+        return new Error(`${message}`);
+    }
+    log.debug(`:: EXIT : ${JSON.stringify(_astAndSourceAndCompiler)}`);
+    return _astAndSourceAndCompiler;
+}
+
 export async function writeAndReturnASTSourceAndCompiler(
     contractName: string,
     contractSourceName: string,
@@ -243,6 +270,7 @@ export async function writeAndReturnASTSourceAndCompiler(
     const filePath = `${buildDir}/${sourceFileName}/${contractName}.json`;
     const files = await walkDirForContracts(buildDir, ".json");
     for (const file of files) {
+        log.info(`:: file : ${JSON.stringify(file)}`);
         if (!(file.endsWith(`${contractName}.json`))) {
             continue;
         }
@@ -257,30 +285,6 @@ export async function writeAndReturnASTSourceAndCompiler(
         return _astSourceAndCompiler;
     }
     return _astSourceAndCompiler;
-}
-
-async function getASTSourceAndCompiler(
-    contractName: string,
-    contractSourceName: string,
-): Promise<ASTSourceAndCompiler | Error> {
-    const entryParams = {
-        contractName,
-        contractSourceName,
-    }
-    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
-    const _buildInfoJsonName = await buildInfoJsonName(contractName);
-    const _astAndSourceAndCompiler = await astSourceAndCompiler(
-        contractName,
-        contractSourceName,
-        _buildInfoJsonName,
-    );
-    if (_astAndSourceAndCompiler.ast === {}) {
-        const message = `no ast found for ${contractName}`;
-        log.error(`:: EXIT : ERROR : ${message}`);
-        return new Error(`${message}`);
-    }
-    log.debug(`:: EXIT : ${JSON.stringify(_astAndSourceAndCompiler)}`);
-    return _astAndSourceAndCompiler;
 }
 
 export async function getApp(config: SimbaConfig,
