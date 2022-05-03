@@ -33,7 +33,8 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     const config = new SimbaConfig();
     if (!config.ProjectConfigStore.has("design_id")) {
         log.error(':: EXIT : ERROR : Please export your contracts first with "truffle run simba export".');
-        return Promise.resolve(new Error('Not exported!'));
+        // return Promise.resolve(new Error('Not exported!'));
+        return;
     }
 
     const blockchainList = await getBlockchains(config);
@@ -43,7 +44,9 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         try {
             await chooseApplicationFromList(config);
         } catch (e) {
-            return Promise.resolve(e);
+            log.error(`:: EXIT : ERROR : ${JSON.stringify(e)}`);
+            // return Promise.resolve(e);
+            return;
         }
     }
     let chosen: any = {};
@@ -113,7 +116,8 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
 
         if (!promptChosen.input_method) {
             log.error(`:: EXIT : ERROR : no param input method chosen!`)
-            return Promise.resolve(new Error('no param input method chosen!'));
+            // return Promise.resolve(new Error('no param input method chosen!'));
+            return;
         }
 
         if (promptChosen.input_method === allParamsByJson) {
@@ -163,20 +167,27 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     }
 
     if (!chosen.api) {
-        return Promise.resolve(new Error('No API Name chosen!'));
+        log.error(`:: EXIT : ERROR : No API Name chosen!`);
+        // return Promise.resolve(new Error('No API Name chosen!'));
+        return;
     }
 
     if (!chosen.blockchain) {
-        return Promise.resolve(new Error('No blockchain chosen!'));
+        log.error(`:: EXIT : ERROR : No blockchain chosen!`);
+        // return Promise.resolve(new Error('No blockchain chosen!'));
+        return;
     }
 
     if (!chosen.storage) {
-        return Promise.resolve(new Error('No storage chosen!'));
+        log.error(`:: EXIT : ERROR : No storage chosen!`)
+        // return Promise.resolve(new Error('No storage chosen!'));
+        return;
     }
 
     if (constructorRequiresParams && !chosen.args && !inputsChosen) {
-        log.error(`:: EXIT : ERROR : 'Your contract requires constructor arguments'`)
-        return Promise.resolve(new Error('Your contract requires constructor arguments'));
+        log.error(`:: EXIT : ERROR : Your contract requires constructor arguments`)
+        // return Promise.resolve(new Error('Your contract requires constructor arguments'));
+        return;
     }
 
     const id = config.ProjectConfigStore.get('design_id');

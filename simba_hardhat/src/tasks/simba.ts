@@ -4,6 +4,7 @@ import login from "./login";
 import exportContract from "./exportcontract";
 import deployContract from "./deploycontract";
 import logout from "./logout";
+import help from "./help";
 
 
 const SIMBA_COMMANDS = {
@@ -13,7 +14,11 @@ const SIMBA_COMMANDS = {
     logout: "logout of Blocks",
 };
 
-const simba = async (hre: HardhatRuntimeEnvironment, cmd: string) => {
+const simba = async (
+    hre: HardhatRuntimeEnvironment,
+    cmd: string,
+    helpTopic?: string,
+    ) => {
     switch(cmd) {
         case "login": { 
            await login(hre);
@@ -31,6 +36,10 @@ const simba = async (hre: HardhatRuntimeEnvironment, cmd: string) => {
             await logout(hre);
             break;
         }
+        case "help": {
+            await help(hre, helpTopic);
+            break;
+        }
         default: { 
            console.log(`Please enter a valid simba command:\n${JSON.stringify(SIMBA_COMMANDS)}`);
            break; 
@@ -39,10 +48,11 @@ const simba = async (hre: HardhatRuntimeEnvironment, cmd: string) => {
 }
 
 task("simba", "base simba cli that takes args")
-    .addParam("cmd", "command to call through simba")
+    .addPositionalParam("cmd", "command to call through simba")
+    .addOptionalPositionalParam("helpTopic", "pass 'help' to ask for help")
     .setAction(async (taskArgs, hre) => {
-        const {cmd} = taskArgs;
-        await simba(hre, cmd);
+        const {cmd, helpTopic} = taskArgs;
+        await simba(hre, cmd, helpTopic);
     });
 
 export default simba;
