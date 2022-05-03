@@ -9,12 +9,11 @@ import {
 } from "./config";
 import axios from "axios";
 import {
-    Logger,
-} from "tslog";
+    log,
+} from "./logger";
 import {
     URLSearchParams,
 } from "url";
-const log: Logger = new Logger();
 
 const CLIENT_ID = "simba-pkce";
 const AUTH_URL = "https://simba-dev-sso.platform.simbachain.com";
@@ -69,13 +68,10 @@ class KeycloakHandler {
         this.projectConfig = SimbaConfig.ProjectConfigStore;
         this.clientID = this.projectConfig.get('clientID');
         this.baseURL = this.projectConfig.get('baseURL') ? this.projectConfig.get('baseURL') : this.projectConfig.get('baseUrl');
-        log.debug(`:: baesURL : ${this.baseURL}`);
         this.authURL = this.projectConfig.get('authURL') ? this.projectConfig.get('authURL') : this.projectConfig.get('authUrl');
         this.realm = this.projectConfig.get('realm');
         this.configBase = this.baseURL.split(".").join("_");
         this.tokenExpirationPad = tokenExpirationPad;
-        // this.logout();
-        log.info(`path to config: ${this.getPathToConfigFile()}`);
     }
 
     protected getConfigBase(): string {

@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     chooseApplicationFromList,
-    getApp,
+    // getApp,
     getBlockchains,
     getStorages,
     primaryConstructorRequiresArgs,
@@ -11,9 +11,8 @@ import {
 } from './lib';
 import { StatusCodeError } from 'request-promise/errors';
 import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger({});
+    log,
+} from "./lib";
 // const log: Logger = new Logger({minLevel: "error"});
 import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';
@@ -32,21 +31,15 @@ interface DeploymentRequest {
 }
 
 export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
-    console.log("hellllllllooooo")
-    log.debug(`:: entering deployContract`);
+    log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
-    
-    log.debug(`:: after SimbaConfig()`);
-
     if (!config.ProjectConfigStore.has("design_id")) {
         log.error(':: EXIT : ERROR : Please export your contracts first with "truffle run simba export".');
         return Promise.resolve(new Error('Not exported!'));
     }
 
-    log.debug(`:: before getBlockchains`);
     const blockchainList = await getBlockchains(config);
     const storageList = await getStorages(config);
-    log.debug(`:: after getStorages`);
 
     if (!config.application) {
         try {
@@ -56,7 +49,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
     }
     let chosen: any = {};
-    log.debug(`:: after chosen`);
     const questions: prompt.PromptObject[] = [
         {
             type: 'text',
@@ -102,9 +94,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     let inputNameToTypeMap: any = {};
     let inputsAsJson = true;
     if (constructorRequiresParams) {
-        log.debug(`:: entering constructor params required logic`);
         const constructorInputs = await primaryConstructorInputs();
-        log.debug(`:: after primaryConstructorInputs`)
         const allParamsByJson = "enter all params as json object";
         const paramsOneByOne = "enter params one by one";
         const paramInputChoices = [allParamsByJson, paramsOneByOne]
@@ -122,8 +112,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             message: 'Your constructor parameters can be input as either a single json object or one by one. Which would you prefer?',
             choices: paramChoices,
         });
-
-        log.debug(`:: promptChosen.input_method: ${promptChosen.input_method}`);
 
         if (!promptChosen.input_method) {
             log.error(`:: EXIT : ERROR : no param input method chosen!`)
@@ -174,7 +162,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 inputsChosen[key] = parseInt(inputsChosen[key]);
             } 
         }
-        log.info(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
     }
 
     if (!chosen.api) {
@@ -197,7 +184,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     const id = config.ProjectConfigStore.get('design_id');
     let deployArgs: DeploymentArguments = {};
     if (chosen.args) {
-        log.debug(`:: entering original deployArgs logic`)
         deployArgs = JSON.parse(chosen.args) as DeploymentArguments;
     } else {
         if (config.ProjectConfigStore.has('defaultArgs')) {
@@ -315,6 +301,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
         throw e;
     }
+    log.debug(`:: EXIT :`);
 }
 
 task("deploy", "deploy contract(s) to Blocks")

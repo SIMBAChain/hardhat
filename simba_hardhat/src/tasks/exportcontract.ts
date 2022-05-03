@@ -3,9 +3,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import * as path from 'path';
 import * as fs from "fs";
 import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger();
+    log,
+} from "./lib";
 import {SimbaConfig} from './lib';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
@@ -119,17 +118,12 @@ const exportContract = async (
     primary?: string,
 ) => {
     log.debug(`:: ENTER :`);
-    const authStore = SimbaConfig.authStore;
     // Not putting any "isLoggedIn()" logic here because SimbaConfig.authStore.doGetRequest handles that
-    log.debug(`:: SimbaConfig.authStore : ${JSON.stringify(SimbaConfig.authStore)}`);
     const buildDir = SimbaConfig.buildDirectory;
-    log.debug(`:: buildDir : ${buildDir}`);
-
     let files: string[] = [];
 
     try {
         files = await walkDirForContracts(buildDir, '.json');
-        log.debug(`files: ${JSON.stringify(files)}`);
     } catch (e) {
         const err = e as any;
         if (err.code === 'ENOENT') {
@@ -156,7 +150,6 @@ const exportContract = async (
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
         const _astSourceAndCompiler = await writeAndReturnASTSourceAndCompiler(name, contractSourceName);
-        log.debug(`:: _astSourceAndCompiler : ${JSON.stringify(_astSourceAndCompiler)}`);
         import_data[name]
         import_data[name] = JSON.parse(buf.toString());
         import_data[name].ast = _astSourceAndCompiler.ast;

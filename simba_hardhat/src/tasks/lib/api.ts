@@ -4,9 +4,8 @@ this file will actually come from the standalone web3 repo
 it is just included here for now for testing purposes
 */
 import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger();
+    log,
+} from "./logger";
 import {default as prompt} from 'prompts';
 import {
     SimbaConfig,
@@ -38,15 +37,16 @@ interface ASTSourceAndCompiler {
 }
 
 const getList = async (config: SimbaConfig, url?: string): Promise<any> => {
+    log.debug(`:: ENTER :`);
     if (!url) {
         url = 'v2/organisations/';
     }
     try {
         const res = config.authStore.doGetRequest(url);
+        log.debug(`:: EXIT : ${JSON.stringify(res)}`);
         return res;
     } catch (e) {
         const err = e as any;
-        log.info(`err from getList : ${JSON.stringify(err)}`);
         if (err.message === "Request failed with status code 500") {
             log.info(`:: Auth token expired, please log in again`);
             SimbaConfig.authStore.logout();
@@ -103,11 +103,12 @@ export const chooseOrganisationFromList = async (config: SimbaConfig, url?: stri
     }
 
     if (!response.organisation) {
+        log.error(`:: EXIT : ERROR : No Organisation Selected!`);
         throw new Error('No Organisation Selected!');
     }
     
     config.organisation = response.organisation;
-
+    log.debug(`:: EXIT : ${JSON.stringify(response.organisation)}`);
     return response.organisation;
 };
 
@@ -121,11 +122,14 @@ export async function chooseOrganisationFromInput(
 function parseBuildInfoJsonName(
     location: string,
 ): string {
+    log.debug(`:: ENTER : ${location}`);
     if (location.includes("/")) {
         const idArr = location.split("/");
         const jsonName = idArr[idArr.length-1];
+        log.debug(`:: EXIT : ${jsonName}`);
         return jsonName;
     } else {
+        log.debug(`:: EXIT : ${location}`);
         return location;
     }
 }
@@ -133,6 +137,7 @@ function parseBuildInfoJsonName(
 async function buildInfoJsonName(
     contractName: string,
 ): Promise<string> {
+    log.debug(`:: ENTER : ${contractName}`);
     const buildDir = SimbaConfig.buildDirectory;
     let files: string[] = [];
     try {
@@ -154,6 +159,7 @@ async function buildInfoJsonName(
             const parsed = JSON.parse(buf.toString());
             const location = parsed.buildInfo;
             const jsonName = parseBuildInfoJsonName(location);
+            log.debug(`:: EXIT : ${jsonName}`);
             return jsonName;
         }
     }
@@ -172,7 +178,6 @@ async function astSourceAndCompiler(
     };
     log.debug(`:: ENTER : ${JSON.stringify(params)}`);
     const buildInfoDir = SimbaConfig.buildInfoDirectory;
-    log.debug(`:: buildInfoDir : ${buildInfoDir}`);
     let files: string[] = [];
 
     let astAndSourceAndCompiler: ASTSourceAndCompiler = {
@@ -198,10 +203,6 @@ async function astSourceAndCompiler(
         if (!(file.endsWith(_buildInfoJsonName))) {
             continue;
         } else {
-            // here we should actually be taking
-            // the sourceName from the artifact
-            // because 
-            // const contractNameWSol = contractName.endsWith(".sol") ? contractName : contractName + ".sol";
             const buf = await promisifiedReadFile(file, {flag: 'r'});
             const parsed = JSON.parse(buf.toString());
             const output = parsed.output;
@@ -218,6 +219,7 @@ async function astSourceAndCompiler(
             const inputContractSource = inputSources[contractSourceName];
             const contractSourceCode = inputContractSource.content;
             astAndSourceAndCompiler.source = contractSourceCode;
+            log.debug(`:: EXIT : ${JSON.stringify(astAndSourceAndCompiler)}`);
             return astAndSourceAndCompiler;
         }
     }
@@ -229,6 +231,11 @@ export async function writeAndReturnASTSourceAndCompiler(
     contractName: string,
     contractSourceName: string,
 ): Promise<ASTSourceAndCompiler> {
+    const entryParams = {
+        contractName,
+        contractSourceName,
+    };
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     const _astSourceAndCompiler = await getASTSourceAndCompiler(
         contractName,
         contractSourceName,
@@ -248,6 +255,7 @@ export async function writeAndReturnASTSourceAndCompiler(
         const data = JSON.stringify(parsed);
         log.debug(`:: writing to ${filePath}`);
         fs.writeFileSync(filePath, data);
+        log.debug(`:: EXIT : ${JSON.stringify(_astSourceAndCompiler)}`);
         return _astSourceAndCompiler;
     }
     return _astSourceAndCompiler;
@@ -257,6 +265,11 @@ async function getASTSourceAndCompiler(
     contractName: string,
     contractSourceName: string,
 ): Promise<ASTSourceAndCompiler | Error> {
+    const entryParams = {
+        contractName,
+        contractSourceName,
+    }
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     const _buildInfoJsonName = await buildInfoJsonName(contractName);
     const _astAndSourceAndCompiler = await astSourceAndCompiler(
         contractName,
@@ -268,14 +281,17 @@ async function getASTSourceAndCompiler(
         log.error(`:: EXIT : ERROR : ${message}`);
         return new Error(`${message}`);
     }
+    log.debug(`:: EXIT : ${JSON.stringify(_astAndSourceAndCompiler)}`);
     return _astAndSourceAndCompiler;
 }
 
 export async function getApp(config: SimbaConfig,
     id: string,
 ): Promise<any> {
+    log.debug(`:: ENTER : ${id}`);
     const url = `organisations/${config.organisation.id}/applications/${id}`;
     const response = await config.authStore.doGetRequest(url, 'application/json');
+    log.debug(`:: EXIT : ${JSON.stringify(response)}`);
     return response;
 };
 
@@ -283,6 +299,11 @@ export async function chooseApplicationFromList(
     config: SimbaConfig,
     url?: string,
 ): Promise<any> {
+    const entryParams = {
+        config,
+        url,
+    };
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     if (!url) {
         url = `organisations/${config.organisation.id}/applications/`;
     }
@@ -330,10 +351,11 @@ export async function chooseApplicationFromList(
     }
 
     if (!response.application) {
+        log.error(`:: EXIT : ERROR : No Application Selected!`);
         throw new Error('No Application Selected!');
     }
     config.application = response.application;
-
+    log.debug(`:: EXIT : ${JSON.stringify(response.application)}`);
     return response.application;
 };
 
@@ -342,6 +364,11 @@ export async function getBlockchains(
     config: SimbaConfig,
     url?: string,
 ): Promise<any> {
+    const entryParams = {
+        config,
+        url,
+    };
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     if (!url) {
         url = `organisations/${config.organisation.id}/blockchains/`;
     }
@@ -355,7 +382,7 @@ export async function getBlockchains(
             value: chain.name,
         });
     });
-
+    log.debug(`:: EXIT : ${JSON.stringify(choices)}`);
     return choices;
 };
 
@@ -364,6 +391,11 @@ export async function getStorages(
     config: SimbaConfig,
     url?: string,
 ): Promise<any> {
+    const entryParams = {
+        config,
+        url,
+    };
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     if (!url) {
         url = `organisations/${config.organisation.id}/storage/`;
     }
@@ -377,12 +409,13 @@ export async function getStorages(
             value: storage.name,
         });
     });
-
+    log.debug(`:: EXIT : ${JSON.stringify(choices)}`);
     return choices;
 };
 
 async function getABIForPrimaryContract(
 ) {
+    log.debug(`:: ENTER :`);
     const contractName = SimbaConfig.ProjectConfigStore.get("primary");
     if (!contractName) {
         log.error(`:: EXIT : ERROR : no primary contract in simba.json`);
@@ -397,7 +430,7 @@ async function getABIForPrimaryContract(
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         const parsed = JSON.parse(buf.toString());
         const abi = parsed.abi;
-        log.debug(`:: contract ABI : ${JSON.stringify(abi)}`);
+        log.debug(`:: EXIT : ${JSON.stringify(abi)}`);
         return abi;
     }
 }
@@ -405,29 +438,35 @@ async function getABIForPrimaryContract(
 export async function getFieldFromPrimaryContractABI(
     name: string,
 ) {
+    log.debug(`:: ENTER : ${name}`);
     const abi = await getABIForPrimaryContract();
     for (let i = 0; i < abi.length; i++) {
         const entry = abi[i];
         if (entry.name === name) {
+            log.debug(`:: EXIT : ${JSON.stringify(entry)}`);
             return entry;
         }
     }
+    log.debug(`:: EXIT : {}`);
     return {};
 }
 
 async function primaryContractConstructor() {
+    log.debug(`:: ENTER :`);
     const abi = await getABIForPrimaryContract();
     for (let i = 0; i < abi.length; i++) {
         const entry = abi[i];
         if (entry.type === "constructor") {
-            log.debug(`:: constructor : ${JSON.stringify(entry)}`);
+            log.debug(`:: EXIT : ${JSON.stringify(entry)}`);
             return entry;
         }
     }
+    log.debug(`:: EXIT : {}`);
     return {};
 }
 
 export async function primaryConstructorInputs() {
+    log.debug(`:: ENTER :`);
     const constructor = await primaryContractConstructor();
     const constructorInputs = constructor.inputs ? constructor.inputs : [];
     const inputs = [];
@@ -440,16 +479,18 @@ export async function primaryConstructorInputs() {
             name,
         });
     }
+    log.debug(`:: EXIT : ${JSON.stringify(inputs)}`);
     return inputs;
 }
 
 export async function primaryConstructorRequiresArgs(): Promise<boolean> {
+    log.debug(`:: ENTER :`);
     const constructor = await primaryContractConstructor();
     const inputs = constructor.inputs;
     let requiresArgs = false;
     if (inputs && inputs.length > 0) {
         requiresArgs = true;
     }
-    log.debug(`:: requiresArgs : ${requiresArgs}`);
+    log.debug(`:: EXIT : ${requiresArgs}`);
     return requiresArgs;
 }

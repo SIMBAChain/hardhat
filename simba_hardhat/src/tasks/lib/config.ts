@@ -5,14 +5,13 @@ it is just included here for now for testing purposes
 */
 
 import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger();
+    log,
+} from "./logger";
 import {cwd} from 'process';
 import * as path from 'path';
 import Configstore from 'configstore';
 import {KeycloakHandler} from './authentication';
-const fsPromises = require("fs").promises;
+// const fsPromises = require("fs").promises;
 
 export class SimbaConfig {
     public static _web3Suite: string;
@@ -27,13 +26,6 @@ export class SimbaConfig {
     public static _build_directory: string;
 
     public constructor() {
-        // SimbaConfig._configStore = new Configstore(`@simbachain/${this.web3Suite}`);
-        // SimbaConfig._projectConfigStore = new Configstore(`@simbachain/${this.web3Suite}`, null, {
-        //     configPath: path.join(cwd(), 'simba.json'),
-        // });
-        // this.application = this.Application;
-        // this.organisation = this.getOrganisation();
-        // this.authStore = this.getAuthStore();
         const confstore = this.ConfigStore;
         const projconfstore = this.ProjectConfigStore;
         const w3Suite = this.web3Suite;

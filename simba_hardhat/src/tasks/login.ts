@@ -1,7 +1,6 @@
 import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger();
+    log,
+} from "./lib";
 import {
     task,
 } from "hardhat/config";
@@ -9,17 +8,13 @@ import {
     HardhatRuntimeEnvironment,
 } from "hardhat/types";
 import {
-    KeycloakHandler,
-} from "./lib/authentication";
-import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     SimbaConfig,
 } from "./lib";
 
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
-    console.log("beginning login");
-    const web3Suite = "hardhat";
+    log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();
     const org = await chooseOrganisationFromList(simbaConfig);
     if (!org) {
