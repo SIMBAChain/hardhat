@@ -236,6 +236,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 throw new Error(check_resp.message);
             }
             const state: any = check_resp.state;
+            log.debug(`:: state : ${state}`);
 
             switch (state) {
                 case 'INITIALISED':
