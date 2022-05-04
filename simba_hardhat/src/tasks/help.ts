@@ -14,7 +14,7 @@ const LOGOUT = "logout";
 const SIMBAJSON = "simbajson";
 const GENERALPROCESS = "generalprocess";
 
-const PATHTOHELPJSON = "/Users/brendanbirch/development/simba/sep/hardhat/simba_hardhat/src/tasks/help.json"
+const PATHTOHELPJSON = "/Users/brendanbirch/development/simba/sep/hardhat/simba_hardhat/help.json"
 
 export async function help(
     hre: HardhatRuntimeEnvironment,
@@ -93,32 +93,32 @@ export async function help(
 
 async function loginHelp() {
     const message = await helpMessage("loginHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function exportHelp() {
     const message = await helpMessage("exportHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function deployHelp() {
     const message = await helpMessage("deployHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function logoutHelp() {
     const message = await helpMessage("logoutHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function simbaJsonHelp() {
     const message = await helpMessage("simbaJsonHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function generalProcessHelp() {
     const message = await helpMessage("generalProcessHelp");
-    log.info(`${chalk.red("simba help:")}${message}`);
+    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
 }
 
 async function helpMessage(
