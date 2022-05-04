@@ -11,7 +11,7 @@ import {
 import {
     promisifiedReadFile,
     walkDirForContracts,
-} from "../exportcontract";
+} from "./";
 import * as fs from "fs";
 interface Dictionary<T> {
     [Key: string]: T;

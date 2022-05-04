@@ -290,6 +290,41 @@
       "artifacts": [
         "GreeterStrIntNoImport"
       ]
+    },
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/GreeterStrIntNoImp1.sol": {
+      "lastModificationDate": 1651675002014,
+      "contentHash": "026588c80d9cf646837c9ac33b889439",
+      "sourceName": "contracts/GreeterStrIntNoImp1.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "GreeterStrIntNoImp1"
+      ]
     }
   }
 }

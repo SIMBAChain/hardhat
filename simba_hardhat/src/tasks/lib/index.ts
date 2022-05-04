@@ -6,6 +6,10 @@ it is just included here for now for testing purposes
 export {log} from './logger';
 export {SimbaConfig} from './config';
 export {
+    promisifiedReadFile,
+    walkDirForContracts,
+} from "./contractfinder";
+export {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     getApp,
