@@ -4,7 +4,7 @@ import { log } from "./lib";
 import {default as prompt} from 'prompts';
 import {
     promisifiedReadFile,
-} from "./exportcontract";
+} from "./lib";
 import {default as chalk} from 'chalk';
 
 const LOGIN = "login";

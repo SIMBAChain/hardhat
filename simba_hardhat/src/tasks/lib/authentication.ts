@@ -34,6 +34,20 @@ interface KeycloakDeviceVerificationInfo {
     interval: number;
 }
 
+interface AuthErrors {
+    headersError: string;
+    keycloakCertsError: string;
+    verificationInfoError: string;
+    authTokenError: string;
+}
+
+const KeycloakAuthErrors: AuthErrors = {
+    headersError: `${chalk.red('simba: Error acquiring auth headers. Please make sure keycloak certs are not expired.')}`,
+    keycloakCertsError: `${chalk.red('simba: Error obtaining certs from keycloak. Please make sure keycloak certs are not expired.')}`,
+    verificationInfoError: `${chalk.red('simba: Error acquiring verification info. Please make sure keycloak certs are not expired.')}`,
+    authTokenError: `${chalk.red('simba: Error acquiring auth token. Please make sure keycloak certs are not expired')}`,
+}
+
 interface KeycloakAccessToken {
     access_token: string;
     expires_in: number;
@@ -57,10 +71,11 @@ class KeycloakHandler {
     private verificationInfo: KeycloakDeviceVerificationInfo;
     private tokenExpirationPad: number;
     private configBase: string;
+    private authErrors: AuthErrors;
     private _loggedIn: boolean;
     constructor(
-        config: Configstore,
-        projectConfig: Configstore,
+        config?: Configstore,
+        projectConfig?: Configstore,
         tokenExpirationPad: number = 60,
     ) {
         this.config = SimbaConfig.ConfigStore;
@@ -71,6 +86,7 @@ class KeycloakHandler {
         this.realm = this.projectConfig.get('realm');
         this.configBase = this.baseURL.split(".").join("_");
         this.tokenExpirationPad = tokenExpirationPad;
+        this.authErrors = KeycloakAuthErrors;
     }
 
     protected getConfigBase(): string {
@@ -181,14 +197,20 @@ class KeycloakHandler {
         }
     }
 
-    public async loginUser(): Promise<void> {
+    public async loginUser(): Promise<void | string> {
         log.debug(`:: ENTER :`);
         if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
-        log.info(`\n${chalk.red('simba: ')}Please navigate to the following URI to log in: ${verificationCompleteURI}`);
+        // the following line is where we begin the flow of handling not acquiring verification info
+        if (!verificationCompleteURI) {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.keycloakCertsError}`);
+            return
+        }
+        log.info(`\n${chalk.red('simba: ')}Please navigate to the following URI to log in: ${chalk.green(verificationCompleteURI)}`);
         log.debug(`:: EXIT :`);
+        return verificationCompleteURI;
     }
 
     public async getAuthToken(
@@ -197,12 +219,16 @@ class KeycloakHandler {
             interval: 3000,
         },
         refreshing: boolean = false,
-    ): Promise<KeycloakAccessToken | Error> {
+    ): Promise<KeycloakAccessToken | void> {
         log.debug(`:: ENTER :`);
         const maxAttempts = pollingConfig.maxAttempts;
         const interval = pollingConfig.interval;
         if (!this.isLoggedIn()) {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
+        }
+        if (!this.verificationInfo) {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.verificationInfoError}`);
+            return;
         }
         const deviceCode = this.verificationInfo.device_code;
         const params = new URLSearchParams();
@@ -236,7 +262,7 @@ class KeycloakHandler {
                 }
             }
             log.debug(`:: EXIT : attempts exceeded, timedout`);
-            return new Error("attempts exceeded, timedout");
+            return
         } else {
             log.debug(`:: entering refresh logic`);
             const authToken = this.getConfig("authToken");
@@ -256,7 +282,7 @@ class KeycloakHandler {
                 return newAuthToken;
             } catch (error) {
                 log.error(`:: refresh error : ${JSON.stringify(error)}`)
-                return error as Error;
+                return;
             }
         }
     }
@@ -301,17 +327,22 @@ class KeycloakHandler {
         return false;
     }
 
-    public async refreshToken(): Promise<any> {
+    public async refreshToken(): Promise<KeycloakAccessToken | void> {
         log.debug(`:: ENTER :`);
-        log.debug(`:: this.configBase : ${this.configBase}`);
         if (!this.tokenExpired()) {
             log.debug(`:: EXIT : authToken still valid`);
             return;
         }
         if (this.refreshTokenExpired()) {
             this.deleteAuthInfo();
-            await this.loginAndGetAuthToken();
-            return;
+            const authToken = await this.loginAndGetAuthToken();
+            if (authToken) {
+                log.debug(`:: EXIT : ${JSON.stringify(authToken)}`);
+                return authToken;
+            } else {
+                log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                return;
+            }
         }
         log.debug(`:: entering logic to refresh token`);
         const pollingConfig: PollingConfig = {
@@ -323,41 +354,57 @@ class KeycloakHandler {
             pollingConfig,
             refreshing,
         );
-        log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
+        if (newAuthToken) {
+            log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
+            return newAuthToken;
+        } else {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            return;
+        }
     }
 
     public async loginAndGetAuthToken(
         refreshing: boolean = false,
-    ): Promise<KeycloakAccessToken> {
+    ): Promise<KeycloakAccessToken | void> {
         log.debug(`:: ENTER :`);
+        let verificationCompleteURI;
         if (!refreshing) {
             this.logout();
-            await this.loginUser();
+            verificationCompleteURI = await this.loginUser();
         }
-        // let authToken = this.getConfig("authToken");
-        const pollingConfig: PollingConfig = {
-            maxAttempts: 60,
-            interval: 3000,
-        };
-        const authToken = await this.getAuthToken(pollingConfig, refreshing) as KeycloakAccessToken;
-        log.debug(`:: EXIT : authToken : ${JSON.stringify(authToken)}`);
-        this.setLoggedInStatus(true);
-        return authToken;
+        if (verificationCompleteURI) {
+            const pollingConfig: PollingConfig = {
+                maxAttempts: 60,
+                interval: 3000,
+            };
+            const authToken = await this.getAuthToken(pollingConfig, refreshing) as KeycloakAccessToken;
+            log.debug(`:: EXIT : authToken : ${JSON.stringify(authToken)}`);
+            this.setLoggedInStatus(true);
+            return authToken;
+        } else {
+            log.debug(`:: EXIT : ${this.authErrors.verificationInfoError}`);
+            return;
+        }
     }
 
-    public async accessTokenHeader(): Promise<Record<any, any>> {
+    public async accessTokenHeader(): Promise<Record<any, any> | void> {
         log.debug(`:: ENTER :`);
         console.log(`config for object: ${JSON.stringify(this.config)}`);
-        const authToken = this.getConfig("authToken");
+        let authToken = this.getConfig("authToken");
         if (!authToken) {
-            await this.loginAndGetAuthToken(false);
+            authToken = await this.loginAndGetAuthToken(false);
         }
-        const accessToken = authToken.access_token;
-        const headers = {
-            Authorization: `Bearer ${accessToken}`,
-        };
-        log.debug(`:: EXIT : headers: ${JSON.stringify(headers)}`);
-        return headers;
+        if (authToken) {
+            const accessToken = authToken.access_token;
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+            log.debug(`:: EXIT : headers: ${JSON.stringify(headers)}`);
+            return headers;
+        } else {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            return;
+        }
     }
 
     public buildURL(
@@ -385,43 +432,53 @@ class KeycloakHandler {
         log.debug(`:: ENTER : ${JSON.stringify(funcParams)}`);
         if (this.tokenExpired()) {
             if (this.refreshTokenExpired()) {
-                // this.logout();
                 log.info(`:: INFO : token expired, please log in again`);
-                await this.loginAndGetAuthToken();
+                const authToken = await this.loginAndGetAuthToken();
+                if (!authToken) {
+                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                    return new Error(`${this.authErrors.authTokenError}`);
+                }
             } else {
                 log.info(`:: INFO : refreshing token`);
-                await this.refreshToken();
+                const newAuthToken = await this.refreshToken();
+                if (!newAuthToken) {
+                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`)
+                    return new Error(`${this.authErrors.authTokenError}`);
+                }
             }
         }
         const queryParams = _queryParams ? _queryParams : {};
         const headers = await this.accessTokenHeader();
-        if (!contentType) {
-            headers["accept"] = "application/json";
-        } else {
-            headers["content-type"] = contentType;
-        }
-        const params = new URLSearchParams();
-        params.append('client_id', this.clientID);
-        for (const [key, value] of Object.entries(queryParams)) {
-            params.append(key, value);
-        }
-        const config = {
-            headers: headers,
-        }
-        try {
-            if (_buildURL) {
-                url = this.buildURL(url);
+        if (headers) {
+            if (!contentType) {
+                headers["accept"] = "application/json";
+            } else {
+                headers["content-type"] = contentType;
             }
-            const res = await axios.get(url, config);
-            const resData: Record<any, any> = res.data;
-            log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
-            return resData;
-        } catch (error) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
-            return error as Error;
+            const params = new URLSearchParams();
+            params.append('client_id', this.clientID);
+            for (const [key, value] of Object.entries(queryParams)) {
+                params.append(key, value);
+            }
+            const config = {
+                headers: headers,
+            }
+            try {
+                if (_buildURL) {
+                    url = this.buildURL(url);
+                }
+                const res = await axios.get(url, config);
+                const resData: Record<any, any> = res.data;
+                log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
+                return resData;
+            } catch (error) {
+                log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
+                return error as Error;
+            }
+        } else {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            return new Error(`${this.authErrors.authTokenError}`);
         }
-
-
     }
 
     public async doKeycloakGetRequest(
@@ -458,32 +515,46 @@ class KeycloakHandler {
         if (this.tokenExpired()) {
             if (this.refreshTokenExpired()) {
                 log.info(`:: INFO : token expired, please log in again`);
-                await this.loginAndGetAuthToken();
+                const authToken = await this.loginAndGetAuthToken();
+                if (!authToken) {
+                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                    return new Error(`${this.authErrors.authTokenError}`);
+                }
             } else {
-                await this.refreshToken();
+                log.info(`:: INFO : refreshing token`);
+                const newAuthToken = await this.refreshToken();
+                if (!newAuthToken) {
+                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`)
+                    return new Error(`${this.authErrors.authTokenError}`);
+                }
             }
         }
         const postData = _postData ? _postData : {};
         const headers = await this.accessTokenHeader();
-        if (!contentType) {
-            headers["content-type"] = "application/json";
-        } else {
-            headers["content-type"] = contentType;
-        }
-        const config = {
-            headers: headers,
-        }
-        try {
-            if (_buildURL) {
-                url = this.buildURL(url);
+        if (headers) {
+            if (!contentType) {
+                headers["content-type"] = "application/json";
+            } else {
+                headers["content-type"] = contentType;
             }
-            const res = await axios.post(url, postData, config);
-            const resData: Record<any, any> = res.data;
-            log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
-            return resData;
-        } catch (error) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
-            return error as Error;
+            const config = {
+                headers: headers,
+            }
+            try {
+                if (_buildURL) {
+                    url = this.buildURL(url);
+                }
+                const res = await axios.post(url, postData, config);
+                const resData: Record<any, any> = res.data;
+                log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
+                return resData;
+            } catch (error) {
+                log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
+                return error as Error;
+            }
+        } else {
+            log.error(`:: EXIT : ERROR : ${this.authErrors.headersError}`);
+            return new Error(`${this.authErrors.headersError}`);
         }
     }
 

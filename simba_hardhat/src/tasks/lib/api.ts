@@ -415,6 +415,7 @@ export async function getStorages(
     return choices;
 };
 
+// the following code is for merging AST for a contract into build artifact for that contract
 async function getABIForPrimaryContract(
 ) {
     log.debug(`:: ENTER :`);

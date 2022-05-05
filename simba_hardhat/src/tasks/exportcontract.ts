@@ -168,7 +168,11 @@ const exportContract = async (
         );
         if (!SimbaConfig.ProjectConfigStore.has('design_id')) {
             SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
-            log.info(`Saved to Contract Design ID ${resp.id}`);
+            if (resp.id) {
+                log.info(`${chalk.red('simba: ')}Saved to Contract Design ID ${resp.id}`);
+            } else {
+                log.error(`${chalk.red('simba: ')}Error exporting contract to SIMBA Chain`);
+            }
         }
     } catch (e) {
         if (e instanceof StatusCodeError) {

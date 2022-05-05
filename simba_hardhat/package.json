@@ -1,9 +1,9 @@
 {
-  "name": "hardhat-ts-plugin-boilerplate",
+  "name": "simba-hardhat",
   "version": "0.0.1",
-  "description": "Hardhat TypeScript plugin boilerplate",
-  "repository": "github:nomiclabs/hardhat-ts-plugin-boilerplate",
-  "author": "Nomic Labs LLC",
+  "description": "Simba Chain plugin for hardhat",
+  "repository": "https://github.com/SIMBAChain/hardhat",
+  "author": "SIMBA Chain",
   "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

@@ -36,5 +36,8 @@
     "prompts": "^2.3.2",
     "request-promise": "^4.2.6",
     "tslog": "^3.3.3"
+  },
+  "peerDependencies": {
+    "hardhat": "^2.0.0"
   }
 }
