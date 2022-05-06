@@ -212,7 +212,7 @@ class KeycloakHandler {
             log.debug(`:: EXIT : ${JSON.stringify(this.verificationInfo)}`);
             return verificationInfo;
         } catch (error) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
+            log.error(`${chalk.redBright(`simba: EXIT : ${JSON.stringify(error)}`)}`);
             return error as Error;
         }
     }
@@ -225,10 +225,10 @@ class KeycloakHandler {
         const verificationCompleteURI = this.verificationInfo.verification_uri_complete;
         // the following line is where we begin the flow of handling not acquiring verification info
         if (!verificationCompleteURI) {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.keycloakCertsError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.keycloakCertsError}`)}`);
             return
         }
-        log.info(`\n${chalk.cyanBright('simba: ')}Please navigate to the following URI to log in: ${chalk.greenBright(verificationCompleteURI)}`);
+        log.info(`\n${chalk.cyanBright('\nsimba: Please navigate to the following URI to log in: ')} ${chalk.greenBright(verificationCompleteURI)}`);
         log.debug(`:: EXIT :`);
         return verificationCompleteURI;
     }
@@ -247,7 +247,7 @@ class KeycloakHandler {
             this.verificationInfo = await this.getVerificationInfo() as KeycloakDeviceVerificationInfo;
         }
         if (!this.verificationInfo) {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.verificationInfoError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.verificationInfoError}`)}`);
             return;
         }
         const deviceCode = this.verificationInfo.device_code;
@@ -276,7 +276,7 @@ class KeycloakHandler {
                     return authToken;
                 } catch (error) {
                     if (attempts%5 == 0) {
-                        log.info(`still waiting for user to login`)
+                        log.info(`${chalk.cyanBright(`\nsimba: still waiting for user to login...`)}`);
                     }
                     attempts += 1;
                 }
@@ -301,7 +301,7 @@ class KeycloakHandler {
                 log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
                 return newAuthToken;
             } catch (error) {
-                log.error(`:: refresh error : ${JSON.stringify(error)}`)
+                log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`)
                 return;
             }
         }
@@ -360,7 +360,7 @@ class KeycloakHandler {
                 log.debug(`:: EXIT : ${JSON.stringify(authToken)}`);
                 return authToken;
             } else {
-                log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
                 return;
             }
         }
@@ -378,7 +378,7 @@ class KeycloakHandler {
             log.debug(`:: EXIT : ${JSON.stringify(newAuthToken)}`);
             return newAuthToken;
         } else {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
             return;
         }
     }
@@ -421,7 +421,7 @@ class KeycloakHandler {
             log.debug(`:: EXIT : headers: ${JSON.stringify(headers)}`);
             return headers;
         } else {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
             return;
         }
     }
@@ -454,14 +454,14 @@ class KeycloakHandler {
                 log.info(`:: INFO : token expired, please log in again`);
                 const authToken = await this.loginAndGetAuthToken();
                 if (!authToken) {
-                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                    log.error(`${chalk.red(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
                     return new Error(`${this.authErrors.authTokenError}`);
                 }
             } else {
                 log.info(`:: INFO : refreshing token`);
                 const newAuthToken = await this.refreshToken();
                 if (!newAuthToken) {
-                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`)
+                    log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`)
                     return new Error(`${this.authErrors.authTokenError}`);
                 }
             }
@@ -491,11 +491,11 @@ class KeycloakHandler {
                 log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
                 return resData;
             } catch (error) {
-                log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
+                log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
                 return error as Error;
             }
         } else {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
             return new Error(`${this.authErrors.authTokenError}`);
         }
     }
@@ -512,7 +512,7 @@ class KeycloakHandler {
         const contentType = 'application/x-www-form-urlencoded;charset=utf-8';
         const resData = await this.doGetRequest(url, contentType, _queryParams, false);
         if (resData instanceof Error) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(resData)}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(resData)}`)}`);
             return resData;
         }
         log.debug(`:: EXIT : result data : ${JSON.stringify(resData)}`);
@@ -536,14 +536,14 @@ class KeycloakHandler {
                 log.info(`:: INFO : token expired, please log in again`);
                 const authToken = await this.loginAndGetAuthToken();
                 if (!authToken) {
-                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`);
+                    log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`);
                     return new Error(`${this.authErrors.authTokenError}`);
                 }
             } else {
                 log.info(`:: INFO : refreshing token`);
                 const newAuthToken = await this.refreshToken();
                 if (!newAuthToken) {
-                    log.error(`:: EXIT : ERROR : ${this.authErrors.authTokenError}`)
+                    log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.authTokenError}`)}`)
                     return new Error(`${this.authErrors.authTokenError}`);
                 }
             }
@@ -568,11 +568,11 @@ class KeycloakHandler {
                 log.debug(`:: EXIT : ${JSON.stringify(resData)}`);
                 return resData;
             } catch (error) {
-                log.error(`:: EXIT : ERROR : ${JSON.stringify(error)}`);
+                log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
                 return error as Error;
             }
         } else {
-            log.error(`:: EXIT : ERROR : ${this.authErrors.headersError}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${this.authErrors.headersError}`)}`);
             return new Error(`${this.authErrors.headersError}`);
         }
     }
@@ -589,7 +589,7 @@ class KeycloakHandler {
         const contentType = 'application/x-www-form-urlencoded;charset=utf-8';
         const resData = await this.doPostRequest(url, _postData, contentType, false);
         if (resData instanceof Error) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(resData)}`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(resData)}`)}`);
             return resData;
         }
         log.debug(`:: EXIT : result data : ${JSON.stringify(resData)}`);
