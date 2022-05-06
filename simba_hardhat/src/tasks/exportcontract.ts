@@ -28,56 +28,6 @@ interface Request {
     import_data: Data;
 }
 
-// async function walkDirForContracts(
-//     dir: string,
-//     extension: string,
-// ): Promise<string[] | any> {
-//     let files: string[] = [];
-//     let isSolDirectoryName = true;
-//     try {
-//         const entries = await fsPromises.readdir(dir);
-//         log.debug(`:: directory entries : ${JSON.stringify(entries)}`);
-//         for (const entry of entries) {
-//             if (entry.endsWith(".sol")) {
-//                 isSolDirectoryName = true;
-//             }
-//             if (entry.isFile() || !isSolDirectoryName) {
-//                 const filePath = path.join(dir, entry.name);
-//                 console.log(`filePath: ${filePath}`);
-//                 if (!extension || (extension && path.parse(filePath).ext === extension)) {
-//                     files.push(filePath);
-//                 }
-//             } else if (entry.isDirectory()) {
-//                 try {
-//                     const subFiles = await walkDirForContracts(path.join(dir, entry.name), extension);
-//                     files = files.concat(subFiles);
-//                 } catch (err) {
-//                     log.error(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
-//                     return err as any;
-//                 }
-//             }
-//         }
-//     } catch (err) {
-//         log.error(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
-//         return err as any;
-//     }
-//     return files;
-// }
-
-
-// async function asyncReadFile(
-//     filePath: fs.PathLike,
-//     options: { encoding?: null; flag?: string },
-// ): Promise<Buffer | Error | void> {
-//     try {
-//         const data = await fsPromises.readFile(filePath, options);
-//         return data;
-//     } catch (err) {
-//         log.error(`:: EXTI : ERROR : ${JSON.stringify(err)}`);
-//         return err as any;
-//     }
-// }
-
 const exportContract = async (
     hre: HardhatRuntimeEnvironment,
     primary?: string,
@@ -97,10 +47,10 @@ const exportContract = async (
     } catch (e) {
         const err = e as any;
         if (err.code === 'ENOENT') {
-            log.error(`:: EXIT : ERROR : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`)}`);
             return;
         }
-        log.error(`:: EXIT : ERROR : ${JSON.stringify(err)}`);
+        log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(err)}`)}`);
         return;
     }
 
@@ -134,7 +84,7 @@ const exportContract = async (
         if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
         } else {
-            log.error(`:: EXIT : ERROR : Primary contract ${primary} is not the name of a contract in this project`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
             return;
         }
     } else {
@@ -146,18 +96,13 @@ const exportContract = async (
         });
 
         if (!chosen.contract) {
-            log.error(`:: EXIT : ERROR : No primary contract chosen!`);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : No primary contract chosen!`)}`);
             return;
         }
 
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
     }
 
-    // if (!SimbaConfig.ProjectConfigStore.has("primary")) {
-
-    // }
-
-    // after the above code runs, go through importData and remove info for all contracts not pertaining to primary
     if (deleteNonExportedArtifacts) {
         const primaryName = SimbaConfig.ProjectConfigStore.get('primary');
         for (let i = 0; i < contractNames.length; i++) {
@@ -187,16 +132,16 @@ const exportContract = async (
         );
         SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
         if (resp.id) {
-            log.info(`${chalk.cyanBright('simba: ')}${chalk.greenBright(`Saved to Contract Design ID ${resp.id}`)}`);
+            log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
         } else {
-            log.error(`${chalk.red('simba: ')}Error exporting contract to SIMBA Chain`);
+            log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
         }
     } catch (e) {
         if (e instanceof StatusCodeError) {
             if('errors' in e.error && Array.isArray(e.error.errors)){
                 e.error.errors.forEach((error: any)=>{
                     log.error(
-                        `${chalk.red('simba export: ')}[STATUS:${
+                        `${chalk.red('\nsimba export: ')}[STATUS:${
                             error.status
                         }|CODE:${
                             error.code
@@ -207,7 +152,7 @@ const exportContract = async (
                 });
             } else {
                 log.error(
-                    `${chalk.red('simba export: ')}[STATUS:${
+                    `${chalk.red('\nsimba export: ')}[STATUS:${
                         e.error.errors[0].status
                     }|CODE:${
                         e.error.errors[0].code
@@ -223,7 +168,7 @@ const exportContract = async (
         if ('errors' in err) {
             if (Array.isArray(err.errors)) {
                 log.error(
-                    `${chalk.red('simba export: ')}[STATUS:${err.errors[0].status}|CODE:${
+                    `${chalk.red('\nsimba export: ')}[STATUS:${err.errors[0].status}|CODE:${
                         err.errors[0].code
                     }] Error Saving contract ${err.errors[0].detail}`,
                 );

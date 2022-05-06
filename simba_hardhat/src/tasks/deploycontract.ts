@@ -32,8 +32,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
     if (!config.ProjectConfigStore.has("design_id")) {
-        log.error(':: EXIT : ERROR : Please export your contracts first with "truffle run simba export".');
-        // return Promise.resolve(new Error('Not exported!'));
+        log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contracts first with "truffle run simba export".`)}`);
         return;
     }
 
@@ -44,8 +43,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         try {
             await chooseApplicationFromList(config);
         } catch (e) {
-            log.error(`:: EXIT : ERROR : ${JSON.stringify(e)}`);
-            // return Promise.resolve(e);
+            log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(e)}`)}`);
             return;
         }
     }
@@ -71,22 +69,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             choices: storageList,
             initial: 0,
         },
-        // {
-        //     type: 'text',
-        //     name: 'args',
-        //     message: 'Please enter any arguments for the contract as a JSON dictionary.',
-        //     validate: (contractArgs: string): boolean => {
-        //         if (!contractArgs) {
-        //             return true;
-        //         } // Allow empty strings
-        //         try {
-        //             JSON.parse(contractArgs);
-        //             return true;
-        //         } catch {
-        //             return false;
-        //         }
-        //     },
-        // },
     ];
     log.debug(`:: before primaryContractRequiresArgs`);
     const constructorRequiresParams = await primaryConstructorRequiresArgs();
@@ -115,8 +97,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         });
 
         if (!promptChosen.input_method) {
-            log.error(`:: EXIT : ERROR : no param input method chosen!`)
-            // return Promise.resolve(new Error('no param input method chosen!'));
+            log.error(`${chalk.redBright(`\nsimba: EXIT : no param input method chosen!`)}`)
             return;
         }
 
@@ -167,26 +148,22 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     }
 
     if (!chosen.api) {
-        log.error(`:: EXIT : ERROR : No API Name chosen!`);
-        // return Promise.resolve(new Error('No API Name chosen!'));
+        log.error(`${chalk.redBright(`\nsimba: EXIT : No API Name chosen!`)}`);
         return;
     }
 
     if (!chosen.blockchain) {
-        log.error(`:: EXIT : ERROR : No blockchain chosen!`);
-        // return Promise.resolve(new Error('No blockchain chosen!'));
+        log.error(`${chalk.redBright(`\nsimba: EXIT :  No blockchain chosen!`)}`);
         return;
     }
 
     if (!chosen.storage) {
-        log.error(`:: EXIT : ERROR : No storage chosen!`)
-        // return Promise.resolve(new Error('No storage chosen!'));
+        log.error(`${chalk.redBright(`\nsimba: EXIT : No storage chosen!`)}`)
         return;
     }
 
     if (constructorRequiresParams && !chosen.args && !inputsChosen) {
-        log.error(`:: EXIT : ERROR : Your contract requires constructor arguments`)
-        // return Promise.resolve(new Error('Your contract requires constructor arguments'));
+        log.error(`${chalk.redBright(`\nsimba: EXIT :  Your contract requires constructor arguments`)}`)
         return;
     }
 
@@ -276,7 +253,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             if('errors' in err.error && Array.isArray(err.error.errors)){
                 err.error.errors.forEach((error: any)=>{
                     log.error(
-                        `${chalk.red('simba export: ')}[STATUS:${
+                        `${chalk.red('\nsimba export: ')}[STATUS:${
                             error.status
                         }|CODE:${
                             error.code
@@ -287,7 +264,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 });
             } else {
                 log.error(
-                    `${chalk.red('simba export: ')}[STATUS:${
+                    `${chalk.red('\nsimba export: ')}[STATUS:${
                         err.error.errors[0].status
                     }|CODE:${
                         err.error.errors[0].code
