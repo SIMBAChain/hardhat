@@ -220,27 +220,27 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                     if (lastState !== state) {
                         lastState = state;
                         log.info(
-                            `${chalk.cyanBright('simba deploy: Your contract deployment has been initialised...')}`,
+                            `${chalk.cyanBright('\nsimba deploy: Your contract deployment has been initialised...')}`,
                         );
                     }
                     break;
                 case 'EXECUTING':
                     if (lastState !== state) {
                         lastState = state;
-                        log.info(`${chalk.cyanBright('simba deploy: deployment is executing...')}`);
+                        log.info(`${chalk.cyanBright('\nsimba deploy: deployment is executing...')}`);
                     }
                     break;
                 case 'COMPLETED':
                     deployed = true;
                     config.ProjectConfigStore.set('deployment_address', check_resp.primary.address);
                     log.info(
-                        `${chalk.cyanBright(`simba deploy: Your contract was deployed to ${check_resp.primary.address}`)}`,
+                        `${chalk.cyanBright(`\nsimba deploy: Your contract was deployed to ${check_resp.primary.address}`)}`,
                     );
                     break;
                 case 'ABORTED':
                     deployed = true;
-                    log.error(`${chalk.red('simba deploy: Your contract deployment was aborted...')}`);
-                    log.error(`${chalk.red(`simba deploy: ${check_resp.error}`)}${check_resp.error}`);
+                    log.error(`${chalk.red('\nsimba deploy: Your contract deployment was aborted...')}`);
+                    log.error(`${chalk.red(`\nsimba deploy: ${check_resp.error}`)}${check_resp.error}`);
                     retVal = new Error(check_resp.error);
                     break;
             }
@@ -279,7 +279,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         if ('errors' in err) {
             if (Array.isArray(err.errors)) {
                 log.error(
-                    `${chalk.red('simba deploy: ')}[STATUS:${err.errors[0].status}|CODE:${
+                    `${chalk.red('\nsimba deploy: ')}[STATUS:${err.errors[0].status}|CODE:${
                         err.errors[0].code
                     }] Error Saving contract ${err.errors[0].detail}`,
                 );

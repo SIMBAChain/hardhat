@@ -62,7 +62,7 @@ const exportContract = async (
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
             continue;
         }
-        log.info(`${chalk.green('simba export: ')}- ${file}`);
+        log.info(`${chalk.green(`simba export: exporting file: ${file}`)}`);
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         if (!(buf instanceof Buffer)) {
             continue;
@@ -121,7 +121,7 @@ const exportContract = async (
         import_data: importData,
     };
 
-    log.info(`${chalk.cyanBright('simba: Sending to SIMBA Chain SCaaS')}`);
+    log.info(`${chalk.cyanBright('\nsimba: Sending to SIMBA Chain SCaaS')}`);
 
     try {
         const resp = await SimbaConfig.authStore.doPostRequest(
