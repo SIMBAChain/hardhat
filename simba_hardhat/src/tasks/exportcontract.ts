@@ -81,8 +81,13 @@ interface Request {
 const exportContract = async (
     hre: HardhatRuntimeEnvironment,
     primary?: string,
+    deleteNonExportedArtifacts: boolean = true,
 ) => {
-    log.debug(`:: ENTER :`);
+    const entryParams = {
+        primary,
+        deleteNonExportedArtifacts,
+    };
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     // Not putting any "isLoggedIn()" logic here because SimbaConfig.authStore.doGetRequest handles that
     const buildDir = SimbaConfig.buildDirectory;
     let files: string[] = [];
@@ -100,7 +105,8 @@ const exportContract = async (
     }
 
     const choices = [];
-    const import_data: Data = {};
+    const importData: Data = {};
+    const contractNames = [];
 
     for (const file of files) {
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
@@ -115,27 +121,26 @@ const exportContract = async (
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
         const _astSourceAndCompiler = await writeAndReturnASTSourceAndCompiler(name, contractSourceName);
-        import_data[name]
-        import_data[name] = JSON.parse(buf.toString());
-        import_data[name].ast = _astSourceAndCompiler.ast;
-        import_data[name].source = _astSourceAndCompiler.source; 
-        import_data[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler} //NOTE(Adam): Find this info inside of artifacts/build-info/
-        // import_data[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
-        // import_data[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
+        contractNames.push(name);
+        importData[name] = JSON.parse(buf.toString());
+        importData[name].ast = _astSourceAndCompiler.ast;
+        importData[name].source = _astSourceAndCompiler.source;
+        log.info(`_astSourceAndCompiler.source: ${JSON.stringify(_astSourceAndCompiler.source)}`)
+        importData[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler} //NOTE(Adam): Find this info inside of artifacts/build-info/
+        // importData[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
+        // importData[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
 
         choices.push({title: name, value: name});
     }
 
     if (primary) {
-        if ((primary as string) in import_data) {
+        if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
         } else {
             log.error(`:: EXIT : ERROR : Primary contract ${primary} is not the name of a contract in this project`);
             return;
         }
-    }
-
-    if (!SimbaConfig.ProjectConfigStore.has("primary")) {
+    } else {
         const chosen = await prompt({
             type: 'select',
             name: 'contract',
@@ -151,13 +156,30 @@ const exportContract = async (
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
     }
 
+    // if (!SimbaConfig.ProjectConfigStore.has("primary")) {
+
+    // }
+
+    // after the above code runs, go through importData and remove info for all contracts not pertaining to primary
+    if (deleteNonExportedArtifacts) {
+        const primaryName = SimbaConfig.ProjectConfigStore.get('primary');
+        for (let i = 0; i < contractNames.length; i++) {
+            const contractName = contractNames[i];
+            if (contractName !== primaryName) {
+                delete importData[contractName];
+            }
+        }
+    }
+
+    log.debug(`importData: ${JSON.stringify(importData)}`);
+
     const request = {
         version: '0.0.2',
         primary: SimbaConfig.ProjectConfigStore.get('primary'),
-        import_data,
+        import_data: importData,
     };
 
-    log.info(`:: INFO : Sending to SIMBA Chain SCaaS`);
+    log.info(`${chalk.cyanBright('simba: Sending to SIMBA Chain SCaaS')}`);
 
     try {
         const resp = await SimbaConfig.authStore.doPostRequest(
@@ -166,13 +188,11 @@ const exportContract = async (
             "application/json",
             true,
         );
-        if (!SimbaConfig.ProjectConfigStore.has('design_id')) {
-            SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
-            if (resp.id) {
-                log.info(`${chalk.red('simba: ')}Saved to Contract Design ID ${resp.id}`);
-            } else {
-                log.error(`${chalk.red('simba: ')}Error exporting contract to SIMBA Chain`);
-            }
+        SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
+        if (resp.id) {
+            log.info(`${chalk.cyanBright('simba: ')}${chalk.greenBright(`Saved to Contract Design ID ${resp.id}`)}`);
+        } else {
+            log.error(`${chalk.red('simba: ')}Error exporting contract to SIMBA Chain`);
         }
     } catch (e) {
         if (e instanceof StatusCodeError) {
@@ -218,8 +238,9 @@ const exportContract = async (
 }
 
 task("export", "export contract(s) to Blocks")
-    .setAction(async (hre) => {
-        await exportContract(hre);
+    .setAction(async (taskArgs, hre) => {
+        const {primary, deleteNonExportedArtifacts} = taskArgs;
+        await exportContract(hre, primary, deleteNonExportedArtifacts);
     });
 
 export default exportContract;

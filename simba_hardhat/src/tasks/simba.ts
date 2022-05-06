@@ -5,7 +5,10 @@ import exportContract from "./exportcontract";
 import deployContract from "./deploycontract";
 import logout from "./logout";
 import help from "./help";
-
+import {
+    log,
+} from "./lib";
+import {default as chalk} from 'chalk';
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
@@ -18,14 +21,27 @@ const simba = async (
     hre: HardhatRuntimeEnvironment,
     cmd: string,
     helpTopic?: string,
+    primary?: string,
+    deleteNonExportedArtifacts?: string,
     ) => {
+    const entryParams = {
+        cmd,
+        helpTopic,
+        primary,
+        deleteNonExportedArtifacts,
+    }
+    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     switch(cmd) {
         case "login": { 
            await login(hre);
            break; 
         }
         case "export": {
-            await exportContract(hre);
+            let _deleteNonExportedArtifacts = true;
+            if (deleteNonExportedArtifacts === "false") {
+                _deleteNonExportedArtifacts = false;
+            }
+            await exportContract(hre, primary, _deleteNonExportedArtifacts);
             break;
         }
         case "deploy": {
@@ -49,10 +65,12 @@ const simba = async (
 
 task("simba", "base simba cli that takes args")
     .addPositionalParam("cmd", "command to call through simba")
-    .addOptionalPositionalParam("helpTopic", "pass 'help' to ask for help")
+    .addOptionalPositionalParam("helpTopic", "pass optional help topic when cmd == 'help'")
+    .addOptionalParam("prm", "used to specify a primary artifact when exporting export")
+    .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, helpTopic} = taskArgs;
-        await simba(hre, cmd, helpTopic);
+        const {cmd, helpTopic, prm, dltnon} = taskArgs;
+        await simba(hre, cmd, helpTopic, prm, dltnon);
     });
 
 export default simba;

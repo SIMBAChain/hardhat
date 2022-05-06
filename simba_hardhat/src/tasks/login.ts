@@ -11,6 +11,7 @@ import {
     SimbaConfig,
     log,
 } from "./lib";
+import {default as chalk} from 'chalk';
 
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     log.debug(`:: ENTER :`);
@@ -23,7 +24,7 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     if (!app) {
         return Promise.resolve(new Error('No Application Selected!'));
     }
-    log.info(`Logged in with organisation ${org.display_name} and application ${app.display_name}`);
+    log.info(`${chalk.cyanBright('Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
 }
 
 task("login", "keycloak device and blocks login")

@@ -35,6 +35,8 @@ declare module "hardhat/types/runtime" {
     simba: (
       hre: HardhatRuntimeEnvironment,
       cmd: string,
+      primary?: string,
+      deleteNonExportedArtifacts?: string,
     ) => Promise<void>;
     deploy: (
       hre: HardhatRuntimeEnvironment,

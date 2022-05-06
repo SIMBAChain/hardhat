@@ -39,6 +39,10 @@ interface AuthErrors {
     keycloakCertsError: string;
     verificationInfoError: string;
     authTokenError: string;
+    noClientIDError: string;
+    noBaseURLError: string;
+    noAuthURLError: string;
+    noRealmError: string;
 }
 
 const KeycloakAuthErrors: AuthErrors = {
@@ -46,6 +50,10 @@ const KeycloakAuthErrors: AuthErrors = {
     keycloakCertsError: `${chalk.red('simba: Error obtaining certs from keycloak. Please make sure keycloak certs are not expired.')}`,
     verificationInfoError: `${chalk.red('simba: Error acquiring verification info. Please make sure keycloak certs are not expired.')}`,
     authTokenError: `${chalk.red('simba: Error acquiring auth token. Please make sure keycloak certs are not expired')}`,
+    noClientIDError: `${chalk.red('simba: Error acquiring clientID. Please make sure "clientID" is configured in simba.json')}`,
+    noBaseURLError: `${chalk.red('simba: Error acquiring baseURL. Please make sure "baseURL" is configured in simba.json')}`,
+    noAuthURLError: `${chalk.red('simba: Error acquiring authURL. Please make sure "authURLID" is configured in simba.json')}`,
+    noRealmError: `${chalk.red('simba: Error acquiring realm. Please make sure "realm" is configured in simba.json')}`,
 }
 
 interface KeycloakAccessToken {
@@ -78,15 +86,28 @@ class KeycloakHandler {
         projectConfig?: Configstore,
         tokenExpirationPad: number = 60,
     ) {
+        this.authErrors = KeycloakAuthErrors;
         this.config = SimbaConfig.ConfigStore;
         this.projectConfig = SimbaConfig.ProjectConfigStore;
-        this.clientID = this.projectConfig.get('clientID');
+        this.clientID = this.projectConfig.get('clientID') ? this.projectConfig.get('clientID') : this.projectConfig.get('clientId');
+        if (!this.clientID) {
+            log.error(`:: ${this.authErrors.noClientIDError}`);
+        }
         this.baseURL = this.projectConfig.get('baseURL') ? this.projectConfig.get('baseURL') : this.projectConfig.get('baseUrl');
+        if (!this.baseURL) {
+            log.error(`:: ${this.authErrors.noBaseURLError}`);
+        }
         this.authURL = this.projectConfig.get('authURL') ? this.projectConfig.get('authURL') : this.projectConfig.get('authUrl');
+        if (!this.authURL) {
+            log.error(`:: ${this.authErrors.noAuthURLError}`);
+        }
         this.realm = this.projectConfig.get('realm');
+        if (!this.realm) {
+            log.error(`:: ${this.authErrors.noRealmError}`);
+        }
         this.configBase = this.baseURL.split(".").join("_");
         this.tokenExpirationPad = tokenExpirationPad;
-        this.authErrors = KeycloakAuthErrors;
+        
     }
 
     protected getConfigBase(): string {
@@ -154,7 +175,6 @@ class KeycloakHandler {
         if (!this.config.has(this.configBase)) {
             this.config.set(this.configBase, {});
         }
-        console.log(`this.configBase: ${this.configBase}`);
         const dict = this.config.get(this.configBase);
         dict[key] = value;
         this.config.set(this.configBase, dict);
@@ -208,7 +228,7 @@ class KeycloakHandler {
             log.error(`:: EXIT : ERROR : ${this.authErrors.keycloakCertsError}`);
             return
         }
-        log.info(`\n${chalk.red('simba: ')}Please navigate to the following URI to log in: ${chalk.green(verificationCompleteURI)}`);
+        log.info(`\n${chalk.cyanBright('simba: ')}Please navigate to the following URI to log in: ${chalk.greenBright(verificationCompleteURI)}`);
         log.debug(`:: EXIT :`);
         return verificationCompleteURI;
     }
@@ -389,7 +409,6 @@ class KeycloakHandler {
 
     public async accessTokenHeader(): Promise<Record<any, any> | void> {
         log.debug(`:: ENTER :`);
-        console.log(`config for object: ${JSON.stringify(this.config)}`);
         let authToken = this.getConfig("authToken");
         if (!authToken) {
             authToken = await this.loginAndGetAuthToken(false);

@@ -97,7 +97,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     if (constructorRequiresParams) {
         const constructorInputs = await primaryConstructorInputs();
         const allParamsByJson = "enter all params as json object";
-        const paramsOneByOne = "enter params one by one";
+        const paramsOneByOne = "enter params one by one from prompts";
         const paramInputChoices = [allParamsByJson, paramsOneByOne]
         const paramChoices = [];
         for (let i = 0; i < paramInputChoices.length; i++) {
@@ -110,7 +110,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         const promptChosen = await prompt({
             type: 'select',
             name: 'input_method',
-            message: 'Your constructor parameters can be input as either a single json object or one by one. Which would you prefer?',
+            message: 'Your constructor parameters can be input as either a single json object or one by one from prompts. Which would you prefer?',
             choices: paramChoices,
         });
 
@@ -222,7 +222,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         );
         const deployment_id = resp.deployment_id;
         config.ProjectConfigStore.set('deployment_id', deployment_id);
-        log.info(`${chalk.red('simba deploy: ')}Contract deployment ID ${deployment_id}`);
+        log.info(`${chalk.cyanBright(`simba deploy: Contract deployment ID ${deployment_id}`)}`);
 
         let deployed = false;
         let lastState = null;
@@ -243,27 +243,27 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                     if (lastState !== state) {
                         lastState = state;
                         log.info(
-                            `${chalk.red('simba deploy: ')}Your contract deployment has been initialised...`,
+                            `${chalk.cyanBright('simba deploy: Your contract deployment has been initialised...')}`,
                         );
                     }
                     break;
                 case 'EXECUTING':
                     if (lastState !== state) {
                         lastState = state;
-                        log.info(`${chalk.red('simba deploy: ')}Your contract deployment is executing...`);
+                        log.info(`${chalk.cyanBright('simba deploy: deployment is executing...')}`);
                     }
                     break;
                 case 'COMPLETED':
                     deployed = true;
                     config.ProjectConfigStore.set('deployment_address', check_resp.primary.address);
                     log.info(
-                        `${chalk.red('simba deploy: ')}Your contract was deployed to ${check_resp.primary.address}!`,
+                        `${chalk.cyanBright(`simba deploy: Your contract was deployed to ${check_resp.primary.address}`)}`,
                     );
                     break;
                 case 'ABORTED':
                     deployed = true;
-                    log.error(`${chalk.red('simba deploy: ')}Your contract deployment was aborted...`);
-                    log.error(`${chalk.red('simba deploy: ')}${check_resp.error}`);
+                    log.error(`${chalk.red('simba deploy: Your contract deployment was aborted...')}`);
+                    log.error(`${chalk.red(`simba deploy: ${check_resp.error}`)}${check_resp.error}`);
                     retVal = new Error(check_resp.error);
                     break;
             }

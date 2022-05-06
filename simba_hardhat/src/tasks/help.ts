@@ -93,32 +93,32 @@ export async function help(
 
 async function loginHelp() {
     const message = await helpMessage("loginHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function exportHelp() {
     const message = await helpMessage("exportHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function deployHelp() {
     const message = await helpMessage("deployHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function logoutHelp() {
     const message = await helpMessage("logoutHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function simbaJsonHelp() {
     const message = await helpMessage("simbaJsonHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function generalProcessHelp() {
     const message = await helpMessage("generalProcessHelp");
-    log.info(`${chalk.red("simba help:")}${chalk.green(message)}`);
+    log.info(`${chalk.greenBright("simba help:")}${chalk.cyanBright(message)}`);
 }
 
 async function helpMessage(

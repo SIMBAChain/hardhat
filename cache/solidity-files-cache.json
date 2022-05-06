@@ -36,10 +36,10 @@
         "console"
       ]
     },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/OnlyStringNoImp.sol": {
-      "lastModificationDate": 1651763764316,
-      "contentHash": "50717fd1a95a067d7461d83b1305ce13",
-      "sourceName": "contracts/OnlyStringNoImp.sol",
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/testInts11.sol": {
+      "lastModificationDate": 1651801138327,
+      "contentHash": "bcf9414e1f27278124954740fde07725",
+      "sourceName": "contracts/testInts11.sol",
       "solcConfig": {
         "version": "0.8.4",
         "settings": {
@@ -68,7 +68,42 @@
         "^0.8.0"
       ],
       "artifacts": [
-        "OnlyStringNoImp"
+        "TestInts11"
+      ]
+    },
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/testInts12.sol": {
+      "lastModificationDate": 1651801127088,
+      "contentHash": "f87a76cdd2e54bade72d4dbd84ab5917",
+      "sourceName": "contracts/testInts12.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "TestInts12"
       ]
     }
   }
