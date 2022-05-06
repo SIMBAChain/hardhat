@@ -202,7 +202,6 @@ async function astSourceAndCompiler(
         if (!(file.endsWith(_buildInfoJsonName))) {
             continue;
         } else {
-            log.debug(`:: file : ${JSON.stringify(file)}`);
             const buf = await promisifiedReadFile(file, {flag: 'r'});
             const parsed = JSON.parse(buf.toString());
             const output = parsed.output;
@@ -270,7 +269,6 @@ export async function writeAndReturnASTSourceAndCompiler(
     const filePath = `${buildDir}/${sourceFileName}/${contractName}.json`;
     const files = await walkDirForContracts(buildDir, ".json");
     for (const file of files) {
-        log.info(`:: file : ${JSON.stringify(file)}`);
         if (!(file.endsWith(`${contractName}.json`))) {
             continue;
         }

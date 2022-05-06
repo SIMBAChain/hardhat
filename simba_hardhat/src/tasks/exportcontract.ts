@@ -125,10 +125,7 @@ const exportContract = async (
         importData[name] = JSON.parse(buf.toString());
         importData[name].ast = _astSourceAndCompiler.ast;
         importData[name].source = _astSourceAndCompiler.source;
-        log.info(`_astSourceAndCompiler.source: ${JSON.stringify(_astSourceAndCompiler.source)}`)
-        importData[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler} //NOTE(Adam): Find this info inside of artifacts/build-info/
-        // importData[name].source = '' //NOTE(Adam): Need to load in the solidity source code into this value
-        // importData[name].ast = {'absolutePath': 'blah'} //NOTE(Adam): Need to research if Hardhat can give us this
+        importData[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler}
 
         choices.push({title: name, value: name});
     }
