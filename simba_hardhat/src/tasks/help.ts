@@ -1,10 +1,10 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { log } from "./lib";
+import { log } from '@simbachain/web3-suites/dist/lib';
 import {default as prompt} from 'prompts';
 import {
     promisifiedReadFile,
-} from "./lib";
+} from '@simbachain/web3-suites/dist/lib';
 import {default as chalk} from 'chalk';
 
 const LOGIN = "login";

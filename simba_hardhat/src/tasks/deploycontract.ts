@@ -3,13 +3,13 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     chooseApplicationFromList,
-    // getApp,
+    getApp,
     getBlockchains,
     getStorages,
     primaryConstructorRequiresArgs,
     primaryConstructorInputs,
     log,
-} from './lib';
+} from '@simbachain/web3-suites/dist/lib';
 import { StatusCodeError } from 'request-promise/errors';
 // const log: Logger = new Logger({minLevel: "error"});
 import {default as prompt} from 'prompts';
@@ -199,7 +199,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         );
         const deployment_id = resp.deployment_id;
         config.ProjectConfigStore.set('deployment_id', deployment_id);
-        log.info(`${chalk.cyanBright(`simba deploy: Contract deployment ID ${deployment_id}`)}`);
+        log.info(`${chalk.cyanBright(`\nsimba deploy: Contract deployment ID ${deployment_id}`)}`);
 
         let deployed = false;
         let lastState = null;

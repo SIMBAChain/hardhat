@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     log,
     SimbaConfig,
-} from "./lib";
+} from '@simbachain/web3-suites/dist/lib';
 import {default as chalk} from 'chalk';
 
 const logout = async (hre: HardhatRuntimeEnvironment) => {

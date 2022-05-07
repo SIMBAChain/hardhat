@@ -5,17 +5,17 @@ import * as fs from "fs";
 import {
     SimbaConfig,
     log,
-} from './lib';
+} from '@simbachain/web3-suites/dist/lib';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import { StatusCodeError } from 'request-promise/errors';
 import {
     writeAndReturnASTSourceAndCompiler,
-} from "./lib/api"
+} from '@simbachain/web3-suites/dist/lib';
 import {
     promisifiedReadFile,
     walkDirForContracts,
-} from "./lib";
+} from '@simbachain/web3-suites/dist/lib';;
 
 interface Data {
     [key: string]: any;
@@ -62,7 +62,7 @@ const exportContract = async (
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
             continue;
         }
-        log.info(`${chalk.green(`simba export: exporting file: ${file}`)}`);
+        log.info(`${chalk.green(`\nsimba export: exporting file: ${file}`)}`);
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         if (!(buf instanceof Buffer)) {
             continue;

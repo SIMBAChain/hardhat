@@ -36,41 +36,6 @@
         "console"
       ]
     },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/testInts15.sol": {
-      "lastModificationDate": 1651852091002,
-      "contentHash": "393c3d31ed812389255b672d62cc6873",
-      "sourceName": "contracts/testInts15.sol",
-      "solcConfig": {
-        "version": "0.8.4",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "TestInts15"
-      ]
-    },
     "/Users/brendanbirch/development/simba/sep/hardhat/contracts/withimport.sol": {
       "lastModificationDate": 1651873474471,
       "contentHash": "344768bff325f7844c9184817a7a99c9",
@@ -106,6 +71,41 @@
       ],
       "artifacts": [
         "WithImport"
+      ]
+    },
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/testInts20.sol": {
+      "lastModificationDate": 1651908409027,
+      "contentHash": "ad1f6e14770a1f25e34a8b5f7ec91a62",
+      "sourceName": "contracts/testInts20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "TestInts20"
       ]
     }
   }

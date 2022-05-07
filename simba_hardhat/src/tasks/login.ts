@@ -10,7 +10,7 @@ import {
     chooseOrganisationFromList,
     SimbaConfig,
     log,
-} from "./lib";
+} from '@simbachain/web3-suites/dist/lib';
 import {default as chalk} from 'chalk';
 
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
