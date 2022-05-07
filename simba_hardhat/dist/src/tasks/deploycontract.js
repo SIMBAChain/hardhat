@@ -10,18 +10,18 @@ const errors_1 = require("request-promise/errors");
 // const log: Logger = new Logger({minLevel: "error"});
 const prompts_1 = __importDefault(require("prompts"));
 const chalk_1 = __importDefault(require("chalk"));
-const deployContract = async (hre) => {
+exports.deployContract = async (hre) => {
     web3_suites_1.log.debug(`:: ENTER :`);
     const config = new web3_suites_1.SimbaConfig();
     if (!config.ProjectConfigStore.has("design_id")) {
         web3_suites_1.log.error(`${chalk_1.default.redBright(`\nsimba: EXIT : Please export your contracts first with "truffle run simba export".`)}`);
         return;
     }
-    const blockchainList = await (0, web3_suites_1.getBlockchains)(config);
-    const storageList = await (0, web3_suites_1.getStorages)(config);
+    const blockchainList = await web3_suites_1.getBlockchains(config);
+    const storageList = await web3_suites_1.getStorages(config);
     if (!config.application) {
         try {
-            await (0, web3_suites_1.chooseApplicationFromList)(config);
+            await web3_suites_1.chooseApplicationFromList(config);
         }
         catch (e) {
             web3_suites_1.log.error(`${chalk_1.default.redBright(`\nsimba: EXIT : ${JSON.stringify(e)}`)}`);
@@ -52,13 +52,13 @@ const deployContract = async (hre) => {
         },
     ];
     web3_suites_1.log.debug(`:: before primaryContractRequiresArgs`);
-    const constructorRequiresParams = await (0, web3_suites_1.primaryConstructorRequiresArgs)();
+    const constructorRequiresParams = await web3_suites_1.primaryConstructorRequiresArgs();
     web3_suites_1.log.debug(`:: after primaryContractRequiresArgs`);
     const paramInputQuestions = [];
     let inputNameToTypeMap = {};
     let inputsAsJson = true;
     if (constructorRequiresParams) {
-        const constructorInputs = await (0, web3_suites_1.primaryConstructorInputs)();
+        const constructorInputs = await web3_suites_1.primaryConstructorInputs();
         const allParamsByJson = "enter all params as json object";
         const paramsOneByOne = "enter params one by one from prompts";
         const paramInputChoices = [allParamsByJson, paramsOneByOne];
@@ -70,7 +70,7 @@ const deployContract = async (hre) => {
                 value: entry,
             });
         }
-        const promptChosen = await (0, prompts_1.default)({
+        const promptChosen = await prompts_1.default({
             type: 'select',
             name: 'input_method',
             message: 'Your constructor parameters can be input as either a single json object or one by one from prompts. Which would you prefer?',
@@ -114,10 +114,10 @@ const deployContract = async (hre) => {
             }
         }
     }
-    chosen = await (0, prompts_1.default)(questions);
+    chosen = await prompts_1.default(questions);
     let inputsChosen;
     if (!inputsAsJson) {
-        inputsChosen = await (0, prompts_1.default)(paramInputQuestions);
+        inputsChosen = await prompts_1.default(paramInputQuestions);
         web3_suites_1.log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
         for (const key in inputsChosen) {
             if (inputNameToTypeMap[key].startsWith("int") || inputNameToTypeMap[key].startsWith("uint")) {
@@ -230,10 +230,9 @@ const deployContract = async (hre) => {
     }
     web3_suites_1.log.debug(`:: EXIT :`);
 };
-exports.deployContract = deployContract;
-(0, config_1.task)("deploy", "deploy contract(s) to Blocks")
+config_1.task("deploy", "deploy contract(s) to Blocks")
     .setAction(async (hre) => {
-    await (0, exports.deployContract)(hre);
+    await exports.deployContract(hre);
 });
 exports.default = exports.deployContract;
 //# sourceMappingURL=deploycontract.js.map

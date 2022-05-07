@@ -12,7 +12,7 @@ const logout = async (hre) => {
     web3_suites_1.log.info(`${chalk_1.default.cyanBright(`\nsimba: you have logged out.`)}`);
     web3_suites_1.log.debug(`:: EXIT :`);
 };
-(0, config_1.task)("logout", "export contract(s) to Blocks")
+config_1.task("logout", "export contract(s) to Blocks")
     .setAction(async (hre) => {
     await logout(hre);
 });

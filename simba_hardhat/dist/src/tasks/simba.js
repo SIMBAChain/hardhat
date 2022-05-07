@@ -26,7 +26,7 @@ const simba = async (hre, cmd, helpTopic, primary, deleteNonExportedArtifacts) =
     web3_suites_1.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     switch (cmd) {
         case "login": {
-            await (0, login_1.default)(hre);
+            await login_1.default(hre);
             break;
         }
         case "export": {
@@ -34,19 +34,19 @@ const simba = async (hre, cmd, helpTopic, primary, deleteNonExportedArtifacts) =
             if (deleteNonExportedArtifacts === "false") {
                 _deleteNonExportedArtifacts = false;
             }
-            await (0, exportcontract_1.default)(hre, primary, _deleteNonExportedArtifacts);
+            await exportcontract_1.default(hre, primary, _deleteNonExportedArtifacts);
             break;
         }
         case "deploy": {
-            await (0, deploycontract_1.default)(hre);
+            await deploycontract_1.default(hre);
             break;
         }
         case "logout": {
-            await (0, logout_1.default)(hre);
+            await logout_1.default(hre);
             break;
         }
         case "help": {
-            await (0, help_1.default)(hre, helpTopic);
+            await help_1.default(hre, helpTopic);
             break;
         }
         default: {
@@ -55,7 +55,7 @@ const simba = async (hre, cmd, helpTopic, primary, deleteNonExportedArtifacts) =
         }
     }
 };
-(0, config_1.task)("simba", "base simba cli that takes args")
+config_1.task("simba", "base simba cli that takes args")
     .addPositionalParam("cmd", "command to call through simba")
     .addOptionalPositionalParam("helpTopic", "pass optional help topic when cmd == 'help'")
     .addOptionalParam("prm", "used to specify a primary artifact when exporting export")

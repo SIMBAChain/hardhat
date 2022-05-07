@@ -21,7 +21,7 @@ const exportContract = async (hre, primary, deleteNonExportedArtifacts = true) =
     const buildDir = web3_suites_1.SimbaConfig.buildDirectory;
     let files = [];
     try {
-        files = await (0, web3_suites_3.walkDirForContracts)(buildDir, '.json');
+        files = await web3_suites_3.walkDirForContracts(buildDir, '.json');
     }
     catch (e) {
         const err = e;
@@ -40,14 +40,14 @@ const exportContract = async (hre, primary, deleteNonExportedArtifacts = true) =
             continue;
         }
         web3_suites_1.log.info(`${chalk_1.default.green(`\nsimba export: exporting file: ${file}`)}`);
-        const buf = await (0, web3_suites_3.promisifiedReadFile)(file, { flag: 'r' });
+        const buf = await web3_suites_3.promisifiedReadFile(file, { flag: 'r' });
         if (!(buf instanceof Buffer)) {
             continue;
         }
         const parsed = JSON.parse(buf.toString());
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
-        const _astSourceAndCompiler = await (0, web3_suites_2.writeAndReturnASTSourceAndCompiler)(name, contractSourceName);
+        const _astSourceAndCompiler = await web3_suites_2.writeAndReturnASTSourceAndCompiler(name, contractSourceName);
         contractNames.push(name);
         importData[name] = JSON.parse(buf.toString());
         importData[name].ast = _astSourceAndCompiler.ast;
@@ -65,7 +65,7 @@ const exportContract = async (hre, primary, deleteNonExportedArtifacts = true) =
         }
     }
     else {
-        const chosen = await (0, prompts_1.default)({
+        const chosen = await prompts_1.default({
             type: 'select',
             name: 'contract',
             message: 'Please select your primary contract',
@@ -125,7 +125,7 @@ const exportContract = async (hre, primary, deleteNonExportedArtifacts = true) =
         return;
     }
 };
-(0, config_1.task)("export", "export contract(s) to Blocks")
+config_1.task("export", "export contract(s) to Blocks")
     .setAction(async (taskArgs, hre) => {
     const { primary, deleteNonExportedArtifacts } = taskArgs;
     await exportContract(hre, primary, deleteNonExportedArtifacts);

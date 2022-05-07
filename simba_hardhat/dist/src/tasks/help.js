@@ -39,7 +39,7 @@ async function help(hre, topic) {
                 value: entry,
             });
         }
-        const helpTopicPrompt = await (0, prompts_1.default)({
+        const helpTopicPrompt = await prompts_1.default({
             type: 'select',
             name: 'help_topic',
             message: 'Please choose which commmand you would like help with',
@@ -108,12 +108,12 @@ async function generalProcessHelp() {
     web3_suites_1.log.info(`${chalk_1.default.cyanBright("simba help:")}${chalk_1.default.greenBright(message)}`);
 }
 async function helpMessage(topic) {
-    const buf = await (0, web3_suites_2.promisifiedReadFile)(PATHTOHELPJSON, { flag: 'r' });
+    const buf = await web3_suites_2.promisifiedReadFile(PATHTOHELPJSON, { flag: 'r' });
     const parsed = JSON.parse(buf.toString());
     const message = parsed[topic];
     return message;
 }
-(0, config_1.task)("help", "export contract(s) to Blocks")
+config_1.task("help", "export contract(s) to Blocks")
     .setAction(async (hre) => {
     await help(hre);
 });

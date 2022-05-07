@@ -18,7 +18,7 @@ require("./tasks/deploycontract");
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
 require("./type-extensions");
-(0, config_1.extendConfig)((config, userConfig) => {
+config_1.extendConfig((config, userConfig) => {
     var _a;
     // We apply our default config here. Any other kind of config resolution
     // or normalization should be placed here.
@@ -49,7 +49,7 @@ require("./type-extensions");
     }
     config.paths.newPath = newPath;
 });
-(0, config_1.extendEnvironment)((hre) => {
+config_1.extendEnvironment((hre) => {
     // We add a field to the Hardhat Runtime Environment here.
     // We use lazyObject to avoid initializing things until they are actually
     // needed.

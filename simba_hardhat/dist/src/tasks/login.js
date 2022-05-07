@@ -9,17 +9,17 @@ const chalk_1 = __importDefault(require("chalk"));
 const login = async (hre) => {
     web3_suites_1.log.debug(`:: ENTER :`);
     const simbaConfig = new web3_suites_1.SimbaConfig();
-    const org = await (0, web3_suites_1.chooseOrganisationFromList)(simbaConfig);
+    const org = await web3_suites_1.chooseOrganisationFromList(simbaConfig);
     if (!org) {
         return Promise.resolve(new Error('No Organisation Selected!'));
     }
-    const app = await (0, web3_suites_1.chooseApplicationFromList)(simbaConfig);
+    const app = await web3_suites_1.chooseApplicationFromList(simbaConfig);
     if (!app) {
         return Promise.resolve(new Error('No Application Selected!'));
     }
     web3_suites_1.log.info(`${chalk_1.default.cyanBright('\nsimba: Logged in with organisation')} ${chalk_1.default.greenBright(org.display_name)} ${chalk_1.default.cyanBright('and application')} ${chalk_1.default.greenBright(app.display_name)}`);
 };
-(0, config_1.task)("login", "keycloak device and blocks login")
+config_1.task("login", "keycloak device and blocks login")
     .setAction(async (hre) => {
     await login(hre);
 });
