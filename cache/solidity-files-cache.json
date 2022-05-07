@@ -71,10 +71,10 @@
         "TestInts15"
       ]
     },
-    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/testInts16.sol": {
-      "lastModificationDate": 1651852100239,
-      "contentHash": "72aa743928c178b5cd56fe7154f75e90",
-      "sourceName": "contracts/testInts16.sol",
+    "/Users/brendanbirch/development/simba/sep/hardhat/contracts/withimport.sol": {
+      "lastModificationDate": 1651873474471,
+      "contentHash": "344768bff325f7844c9184817a7a99c9",
+      "sourceName": "contracts/withimport.sol",
       "solcConfig": {
         "version": "0.8.4",
         "settings": {
@@ -98,12 +98,14 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "hardhat/console.sol"
+      ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
-        "TestInts16"
+        "WithImport"
       ]
     }
   }
