@@ -6,7 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "simba_hardhat/dist",
+    "outDir": "dist",
     "strict": true,
     "rootDirs": ["./src", "./test"],
     "esModuleInterop": true,
@@ -14,7 +14,7 @@
     "typeRoots": ["node_modules/@types"],
     "allowJs": true
   },
-  "exclude": ["simba_hardhat/dist", "node_modules"],
+  "exclude": ["dist", "node_modules"],
   "include": [
     "./test",
     "./src"
