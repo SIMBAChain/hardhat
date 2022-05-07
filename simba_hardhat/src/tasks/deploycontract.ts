@@ -9,7 +9,7 @@ import {
     primaryConstructorRequiresArgs,
     primaryConstructorInputs,
     log,
-} from '@simbachain/web3-suites/dist/lib';
+} from '@simbachain/web3-suites';
 import { StatusCodeError } from 'request-promise/errors';
 // const log: Logger = new Logger({minLevel: "error"});
 import {default as prompt} from 'prompts';

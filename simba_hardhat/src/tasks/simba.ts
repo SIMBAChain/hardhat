@@ -7,7 +7,7 @@ import logout from "./logout";
 import help from "./help";
 import {
     log,
-} from '@simbachain/web3-suites/dist/lib';
+} from '@simbachain/web3-suites';
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
