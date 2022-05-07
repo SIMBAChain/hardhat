@@ -1,30 +1,20 @@
-// tslint:disable-next-line no-implicit-dependencies
-import { assert } from "chai";
-import path from "path";
-
-// import { ExampleHardhatRuntimeEnvironmentField } from "./ExampleHardhatRuntimeEnvironmentField";
-
-import { useEnvironment } from "./helpers";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // describe("Integration tests examples", function () {
 //   describe("Hardhat Runtime Environment extension", function () {
 //     useEnvironment("hardhat-project");
-
 //     it("Should add the example field", function () {
 //       assert.instanceOf(
 //         this.hre.example,
 //         ExampleHardhatRuntimeEnvironmentField
 //       );
 //     });
-
 //     it("The example filed should say hello", function () {
 //       assert.equal(this.hre.example.sayHello(), "hello");
 //     });
 //   });
-
 //   describe("HardhatConfig extension", function () {
 //     useEnvironment("hardhat-project");
-
 //     it("Should add the newPath to the config", function () {
 //       assert.equal(
 //         this.hre.config.paths.newPath,
@@ -33,7 +23,6 @@ import { useEnvironment } from "./helpers";
 //     });
 //   });
 // });
-
 // describe("Unit tests examples", function () {
 //   describe("ExampleHardhatRuntimeEnvironmentField", function () {
 //     describe("sayHello", function () {
@@ -44,3 +33,4 @@ import { useEnvironment } from "./helpers";
 //     });
 //   });
 // });
+//# sourceMappingURL=project.test.js.map
