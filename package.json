@@ -1,6 +1,6 @@
 {
     "name": "@simbachain/hardhat",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Simba Chain plugin for hardhat",
     "repository": "https://github.com/SIMBAChain/hardhat",
     "author": "SIMBA Chain",
@@ -11,7 +11,11 @@
         "ethereum",
         "smart-contracts",
         "hardhat",
-        "hardhat-plugin"
+        "hardhat-plugin",
+        "simba",
+        "simbachain",
+        "simba chain",
+        "blockchain"
     ],
     "scripts": {
         "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && tslint --fix --config tslint.json --project tsconfig.json",

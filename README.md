@@ -4,7 +4,7 @@ hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 
 ## Summary
 
-Do you love SIMBA Chain? Do you love hardhat? Then you're in luck! The hardhat plugin for SIMBA Chain allows you to deploy contracts your preferred blockchain through the SIMBA Blocks platform, using the same hardhat web3 suite that you're used to developing and testing your smart contracts with. All you have to do to use the plugin is install it in your hardhat project, along with the @simbachain/web3-suites plugin, compile your contracts, and then follow a few simple steps to deploy your smart contracts to chain through the Blocks platform. If you're not familiar with SIMBA's Blocks platform, it allows you to easily deploy smart contracts and automatically generate REST API endpoints that allow you to easily interact with your deployed smart contract.
+Do you love SIMBA Chain? Do you love hardhat? Then you're in luck! The hardhat plugin for SIMBA Chain allows you to deploy smart contracts to your preferred blockchain through the SIMBA Blocks platform, using the same hardhat web3 suite that you're used to developing and testing your smart contracts with. All you have to do to use the plugin is install it in your hardhat project, along with the @simbachain/web3-suites plugin, compile your contracts, and then follow a few simple steps to deploy your smart contracts to chain through the Blocks platform. If you're not familiar with SIMBA's Blocks platform, it allows you to easily deploy smart contracts and automatically generate REST API endpoints that allow you to easily interact with your deployed smart contract.
 
 ## Installation
 
