@@ -16,6 +16,8 @@ import {default as chalk} from 'chalk';
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();
+    // logging out by default when we run login
+    await simbaConfig.authStore.logout();
     const org = await chooseOrganisationFromList(simbaConfig);
     if (!org) {
         return Promise.resolve(new Error('No Organisation Selected!'));
