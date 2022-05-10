@@ -3,7 +3,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     chooseApplicationFromList,
-    getApp,
     getBlockchains,
     getStorages,
     primaryConstructorRequiresArgs,
