@@ -10,11 +10,11 @@ import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import { StatusCodeError } from 'request-promise/errors';
 import {
-    writeAndReturnASTSourceAndCompiler,
-} from '@simbachain/web3-suites';
-import {
+    getASTAndOtherInfo,
+    writeAndReturnASTAndOtherInfo,
     promisifiedReadFile,
     walkDirForContracts,
+    isLibrary,
 } from '@simbachain/web3-suites';;
 
 interface Data {
@@ -57,6 +57,7 @@ const exportContract = async (
     const choices = [];
     const importData: Data = {};
     const contractNames = [];
+    const supplementalInfo = {} as any;
 
     for (const file of files) {
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
@@ -70,13 +71,21 @@ const exportContract = async (
         const parsed = JSON.parse(buf.toString());
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
-        const _astSourceAndCompiler = await writeAndReturnASTSourceAndCompiler(name, contractSourceName);
+        const astAndOtherInfo = await getASTAndOtherInfo(name, contractSourceName) as any;
+        log.info(`astAndOtherInfo: ${JSON.stringify(astAndOtherInfo)}`);
+        await writeAndReturnASTAndOtherInfo(name, contractSourceName);
+        supplementalInfo[name] = {} as any;
         contractNames.push(name);
         importData[name] = JSON.parse(buf.toString());
-        importData[name].ast = _astSourceAndCompiler.ast;
-        importData[name].source = _astSourceAndCompiler.source;
-        importData[name].compiler = {'name': 'solc', 'version': _astSourceAndCompiler.compiler}
-
+        importData[name].ast = astAndOtherInfo.ast;
+        importData[name].source = astAndOtherInfo.source;
+        importData[name].compiler = {'name': 'solc', 'version': astAndOtherInfo.compiler}
+        log.info(`astAndOtherInfo.isLib: ${astAndOtherInfo.isLib}`);
+        supplementalInfo[name].isLib = astAndOtherInfo.isLib;
+        // supplementalInfo[name].contractName = astAndOtherInfo.contractName;
+        // supplementalInfo[name].contractSourceName = astAndOtherInfo.contractSourceName;
+        supplementalInfo[name].language = astAndOtherInfo.language;
+        supplementalInfo[name].sourceCode = astAndOtherInfo.source;
         choices.push({title: name, value: name});
     }
 
@@ -100,7 +109,12 @@ const exportContract = async (
             return;
         }
 
+        // the following are things we need to store for deploy, but don't put into
+        // importData above, because we don't need the info in our export call
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
+        SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[chosen.contract].isLib);
+        SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[chosen.contract].sourceCode)
+        SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[chosen.contract].language);
     }
 
     if (deleteNonExportedArtifacts) {
