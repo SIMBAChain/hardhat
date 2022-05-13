@@ -7,8 +7,6 @@ import {
     getStorages,
     primaryConstructorRequiresArgs,
     primaryConstructorInputs,
-    log,
-    isLibrary,
 } from '@simbachain/web3-suites';
 import { StatusCodeError } from 'request-promise/errors';
 // const log: Logger = new Logger({minLevel: "error"});
@@ -30,13 +28,14 @@ interface DeploymentRequest {
     code?: string;
     pre_txn_hook?: string;
     lib_name?: string;
+    libraries?: Record<any, any>;
 }
 
 export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
-    log.debug(`:: ENTER :`);
+    SimbaConfig.log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
     if (!config.ProjectConfigStore.has("design_id")) {
-        log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contracts first with "truffle run simba export".`)}`);
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contracts first with "truffle run simba export".`)}`);
         return;
     }
 
@@ -47,7 +46,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         try {
             await chooseApplicationFromList(config);
         } catch (e) {
-            log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(e)}`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(e)}`)}`);
             return;
         }
     }
@@ -99,7 +98,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         });
 
         if (!promptChosen.input_method) {
-            log.error(`${chalk.redBright(`\nsimba: EXIT : no param input method chosen!`)}`)
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : no param input method chosen!`)}`)
             return;
         }
 
@@ -141,7 +140,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     let inputsChosen = {} as any;
     if (!inputsAsJson) {
         inputsChosen = await prompt(paramInputQuestions);
-        log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
+        SimbaConfig.log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
         for (const key in inputsChosen) {
             if (inputNameToTypeMap[key].startsWith("int") ||inputNameToTypeMap[key].startsWith("uint")) {
                 inputsChosen[key] = parseInt(inputsChosen[key]);
@@ -150,22 +149,22 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     }
 
     if (!chosen.api) {
-        log.error(`${chalk.redBright(`\nsimba: EXIT : No API Name chosen!`)}`);
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No API Name chosen!`)}`);
         return;
     }
 
     if (!chosen.blockchain) {
-        log.error(`${chalk.redBright(`\nsimba: EXIT :  No blockchain chosen!`)}`);
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT :  No blockchain chosen!`)}`);
         return;
     }
 
     if (!chosen.storage) {
-        log.error(`${chalk.redBright(`\nsimba: EXIT : No storage chosen!`)}`)
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No storage chosen!`)}`)
         return;
     }
 
     if (constructorRequiresParams && !chosen.args && !inputsChosen) {
-        log.error(`${chalk.redBright(`\nsimba: EXIT : Your contract requires constructor arguments`)}`)
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Your contract requires constructor arguments`)}`)
         return;
     }
 
@@ -208,8 +207,8 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             app_name: config.application.name,
             display_name: config.application.name,
             args: deployArgs,
+            libraries: config.ProjectConfigStore.get("library_addresses") ? config.ProjectConfigStore.get("library_addresses") : {},
         };
-
     }
 
     try {
@@ -219,9 +218,13 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             "application/json",
             true,
         );
+        if (!resp) {
+            SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error deploying contract`)}`);
+            return;
+        }
         const deployment_id = resp.deployment_id;
         config.ProjectConfigStore.set('deployment_id', deployment_id);
-        log.info(`${chalk.cyanBright(`\nsimba deploy: Contract deployment ID ${deployment_id}`)}`);
+        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: Contract deployment ID`)} ${chalk.greenBright(`${deployment_id}`)}`);
 
         let deployed = false;
         let lastState = null;
@@ -232,17 +235,21 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             const check_resp = await config.authStore.doGetRequest(
                 checkDeployURL,
             );
+            if (!check_resp) {
+                SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error checking deployment URL`)}`);
+                return;
+            }
             if (check_resp instanceof Error) {
                 throw new Error(check_resp.message);
             }
             const state: any = check_resp.state;
-            log.debug(`:: state : ${state}`);
+            SimbaConfig.log.debug(`:: state : ${state}`);
 
             switch (state) {
                 case 'INITIALISED':
                     if (lastState !== state) {
                         lastState = state;
-                        log.info(
+                        SimbaConfig.log.info(
                             `${chalk.cyanBright('\nsimba deploy: Your contract deployment has been initialised...')}`,
                         );
                     }
@@ -250,15 +257,36 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 case 'EXECUTING':
                     if (lastState !== state) {
                         lastState = state;
-                        log.info(`${chalk.cyanBright('\nsimba deploy: deployment is executing...')}`);
+                        SimbaConfig.log.info(`${chalk.cyanBright('\nsimba deploy: deployment is executing...')}`);
                     }
                     break;
                 case 'COMPLETED':
                     deployed = true;
                     if (!_isLibrary) {
-                        config.ProjectConfigStore.set('deployment_address', check_resp.primary.address);
-                        log.info(
-                            `${chalk.cyanBright(`\nsimba deploy: Your contract was deployed to ${check_resp.primary.address}`)}`,
+                        const contractAddress = check_resp.primary.address;
+                        const contractName = config.ProjectConfigStore.get("primary");
+                        let contractsInfo = config.ProjectConfigStore.get("contracts_info");
+                        if (contractsInfo) {
+                            contractsInfo[contractName] = {}
+                            contractsInfo[contractName].address = contractAddress;
+                            contractsInfo[contractName].deployment_id = deployment_id;
+                            contractsInfo[contractName].contract_type = "contract";
+                        } else {
+                            contractsInfo = {};
+                            contractsInfo[contractName] = {};
+                            contractsInfo[contractName].address = contractAddress;
+                            contractsInfo[contractName].deployment_id = deployment_id;
+                            contractsInfo[contractName].contract_type = "contract";
+                        }
+                        config.ProjectConfigStore.set("contracts_info", contractsInfo);
+                        const most_recent_deployment_info = {
+                            address: contractAddress,
+                            deployment_id,
+                            type: "contract"
+                        };
+                        config.ProjectConfigStore.set('most_recent_deployment_info', most_recent_deployment_info);
+                        SimbaConfig.log.info(
+                            `${chalk.cyanBright(`\nsimba deploy: Your contract was deployed to`)} ${chalk.greenBright(`${contractAddress}`)} . ${chalk.cyanBright(`Information pertaining to this deployment can be found in your simba.json.`)}`
                         );
                     } else {
                         const deploymentInfo = check_resp.deployment;
@@ -269,24 +297,42 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                                 continue;
                             }
                             const libraryAddress = entry.address;
-                            const deployedArtifactId = entry.deployed_artifact_id;
-                            let libraryAddresses = config.ProjectConfigStore.get("libraryAddresses") as any;
+                            let contractsInfo = config.ProjectConfigStore.get("contracts_info") as any;
+                            if (contractsInfo) {
+                                contractsInfo[libraryName] = {}
+                                contractsInfo[libraryName].address = libraryAddress;
+                                contractsInfo[libraryName].deployment_id = deployment_id;
+                                contractsInfo[libraryName].contract_type = "library";
+                            } else {
+                                contractsInfo = {} as any;
+                                contractsInfo[libraryName] = {};
+                                contractsInfo[libraryName].address = libraryAddress;
+                                contractsInfo[libraryName].deployment_id = deployment_id;
+                                contractsInfo[libraryName].contract_type = "library";
+                            }
+                            config.ProjectConfigStore.set("contracts_info", contractsInfo);
+                            const most_recent_deployment_info = {
+                                address: libraryAddress,
+                                deployment_id,
+                                type: "library",
+                            };
+                            let libraryAddresses = config.ProjectConfigStore.get("library_addresses") as any;
                             if (libraryAddresses) {
                                 libraryAddresses[libraryName] = libraryAddress;
                             } else {
-                                libraryAddresses = {} as any;
+                                libraryAddresses = {}
                                 libraryAddresses[libraryName] = libraryAddress;
                             }
-                            config.ProjectConfigStore.set("libraryAddresses", libraryAddresses);
-                            config.ProjectConfigStore.set("deployed_artifact_id", deployedArtifactId)
-                            log.info(`${chalk.cyanBright(`simba: your library was deployed to address ${chalk.greenBright(`${libraryAddress}`)}, with deployment_id ${chalk.greenBright(`${deployment_id}`)}`)}`)
+                            config.ProjectConfigStore.set("library_addresses", libraryAddresses);
+                            config.ProjectConfigStore.set("most_recent_deployment_info", most_recent_deployment_info);
+                            SimbaConfig.log.info(`${chalk.cyanBright(`simba: your library was deployed to address ${chalk.greenBright(`${libraryAddress}`)}, with deployment_id ${chalk.greenBright(`${deployment_id}`)}. Information pertaining to this deployment can be found in your simba.json`)}`);
                         }
                     }
                     break;
                 case 'ABORTED':
                     deployed = true;
-                    log.error(`${chalk.red('\nsimba deploy: Your contract deployment was aborted...')}`);
-                    log.error(`${chalk.red(`\nsimba deploy: ${check_resp.error}`)}${check_resp.error}`);
+                    SimbaConfig.log.error(`${chalk.red('\nsimba deploy: Your contract deployment was aborted...')}`);
+                    SimbaConfig.log.error(`${chalk.red(`\nsimba deploy: ${check_resp.error}`)}${check_resp.error}`);
                     retVal = new Error(check_resp.error);
                     break;
             }
@@ -298,7 +344,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         if (err instanceof StatusCodeError) {
             if('errors' in err.error && Array.isArray(err.error.errors)){
                 err.error.errors.forEach((error: any)=>{
-                    log.error(
+                    SimbaConfig.log.error(
                         `${chalk.red('\nsimba export: ')}[STATUS:${
                             error.status
                         }|CODE:${
@@ -309,7 +355,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                     );
                 });
             } else {
-                log.error(
+                SimbaConfig.log.error(
                     `${chalk.red('\nsimba export: ')}[STATUS:${
                         err.error.errors[0].status
                     }|CODE:${
@@ -324,7 +370,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
         if ('errors' in err) {
             if (Array.isArray(err.errors)) {
-                log.error(
+                SimbaConfig.log.error(
                     `${chalk.red('\nsimba deploy: ')}[STATUS:${err.errors[0].status}|CODE:${
                         err.errors[0].code
                     }] Error Saving contract ${err.errors[0].detail}`,
@@ -334,7 +380,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
         throw e;
     }
-    log.debug(`:: EXIT :`);
+    SimbaConfig.log.debug(`:: EXIT :`);
 }
 
 task("deploy", "deploy contract(s) to Blocks")

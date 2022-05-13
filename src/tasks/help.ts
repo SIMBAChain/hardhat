@@ -1,15 +1,21 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { log } from '@simbachain/web3-suites';
+import { 
+    SimbaConfig,
+} from '@simbachain/web3-suites';
 import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';
 
-const LOGIN = "login";
-const EXPORT = "export";
-const DEPLOY = "deploy";
-const LOGOUT = "logout";
-const SIMBAJSON = "simbajson";
-const GENERALPROCESS = "generalprocess";
+enum HelpCommands {
+    LOGIN = "login",
+    EXPORT = "export",
+    DEPLOY = "deploy",
+    LOGOUT = "logout",
+    SIMBAJSON = "simbajson",
+    GENERALPROCESS = "generalprocess",
+    LOGLEVEL = "loglevel",
+}
+
 
 export async function help(
     hre: HardhatRuntimeEnvironment,
@@ -18,17 +24,18 @@ export async function help(
     let helpTopic: string;
 
     if (topic) {
-        log.debug(`topic: ${topic}`);
+        SimbaConfig.log.debug(`topic: ${topic}`);
         helpTopic = topic;
     } else {
 
         const paramInputChoices = [
-            LOGIN,
-            EXPORT,
-            DEPLOY,
-            LOGOUT,
-            SIMBAJSON,
-            GENERALPROCESS,
+            HelpCommands.LOGIN,
+            HelpCommands.EXPORT,
+            HelpCommands.DEPLOY,
+            HelpCommands.LOGOUT,
+            HelpCommands.SIMBAJSON,
+            HelpCommands.GENERALPROCESS,
+            HelpCommands.LOGLEVEL,
         ];
         const paramChoices = [];
         for (let i = 0; i < paramInputChoices.length; i++) {
@@ -46,7 +53,7 @@ export async function help(
         });
 
         if (!helpTopicPrompt.help_topic) {
-            log.error(`:: EXIT : ERROR : no help topic selected!`)
+            SimbaConfig.log.error(`:: EXIT : ERROR : no help topic selected!`)
             return;
         }
 
@@ -54,32 +61,36 @@ export async function help(
     }
 
     switch(helpTopic) {
-        case LOGIN: { 
+        case HelpCommands.LOGIN: { 
            await loginHelp();
            break; 
         }
-        case EXPORT: {
+        case HelpCommands.EXPORT: {
             await exportHelp();
             break;
         }
-        case DEPLOY: {
+        case HelpCommands.DEPLOY: {
             await deployHelp();
             break;
         }
-        case LOGOUT: {
+        case HelpCommands.LOGOUT: {
             await logoutHelp();
             break;
         }
-        case SIMBAJSON: {
+        case HelpCommands.SIMBAJSON: {
             await simbaJsonHelp();
             break;
         }
-        case GENERALPROCESS: {
+        case HelpCommands.GENERALPROCESS: {
             await generalProcessHelp();
             break;
         }
+        case HelpCommands.LOGLEVEL: {
+            await logLevelHelp();
+            break;
+        }
         default: { 
-           console.log(`Please enter a valid topic for simba help: 'simbaJson', 'login', 'export', 'deploy', or 'logout'`);
+           console.log(`Please enter a valid topic for simba help: 'simbaJson', 'login', 'export', 'deploy', 'loglevel', or 'logout'`);
            break; 
         } 
     }
@@ -88,32 +99,37 @@ export async function help(
 
 async function loginHelp() {
     const message = await helpMessage("loginHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function exportHelp() {
     const message = await helpMessage("exportHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function deployHelp() {
     const message = await helpMessage("deployHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function logoutHelp() {
     const message = await helpMessage("logoutHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function simbaJsonHelp() {
     const message = await helpMessage("simbaJsonHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function generalProcessHelp() {
     const message = await helpMessage("generalProcessHelp");
-    log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+}
+
+async function logLevelHelp() {
+    const message = await helpMessage("logLevelHelp");
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
 async function helpMessage(
@@ -129,7 +145,8 @@ const helpOptions: any = {
     loginHelp: "\n\nOnce you have configured your simba.json file, you will be able to login. the hardhat plugin uses keycloack device login, so you will be given a URL that you can navigate to, to grant permission to your device. You will then be prompted to select the organization and application from SIMBA Chain that you wish to log into. To log in, simply run\n\n\t$ npx hardhat simba login\n\n",
     exportHelp: "\n\nOnce you have logged in, you will be able to export your contracts, which will save them to your organization's contracts. For this command, you can either run export without arguments, or with optional arguments. To export without optional arguments, run\n\n\t$ npx hardhat simba export\n\nIf you want to export with optional arguments, you can specify a primary contract by passing the --prm flag, followed by the contract name. You can also pass the --dltnon flag with argument 'false', which means your non-primary contract artifact info will not be deleted from the object that you export to SIMBA Chain, and thus will be exported. You pass this second argument if you are exporting more than one contract to Simba Chain simultaneously, though this is not standard practice, and most of the time you will not need to pass this flag. If you wanted to export multiple contracts, with the primary contract having name 'MyPrimaryContract', then you would call\n\n\t$ npx hardhat simba export --prm MyPrimaryContract --delnon false\n\n",
     deployHelp: "\n\nAfter you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the Blocks (Simba Chain) UI, or programatically through one of Simba's SDKs. To deploy, run\n\n\t$ npx hardhat simba deploy\n\nYou will then be prompted to:\n\n\t1. choose how you want to specify your contract's constructor parameters (as either a JSON object or one by one)\n\n\t2. choose an API name for your contract\n\n\t3. select the blockchain you want to deploy to\n\n\t4. choose which storage to use (AWS, Azure, etc., but this depends on what you have configured for your account)\n\n\t5. and finally, you will be asked to provide the parameters for your contract constructor, based on the response you gave to the first prompt\n\n",
-    logoutHelp: "\n\nIf you want to logout, then you can do so by running\n\n\t$ npx hardhat simba logout\n\nDoing so will delete your auth token in authconfig.json"
+    logoutHelp: "\n\nIf you want to logout, then you can do so by running\n\n\t$ npx hardhat simba logout\n\nDoing so will delete your auth token in authconfig.json",
+    logLevelHelp: "\n\nThe Simba hardhat plugin uses tslog for logging / debugging. Setting a log level through this command will set a MINIMUM log level. So for instance, if you set the log level to 'info', then logs of level SimbaConfig.log.info(...) as well as SimbaConfig.log.error(...) will be logged. Valid values for log levels are 'error', 'info', 'debug', 'silly', 'warn', 'trace', and 'fatal'. You can either run this command without any arguments, which will allow you to set a minimum log level from prompt:\n\n\t$ npx hardhat simba loglevel\n\nOr you can set the specific log level from the CLI:\n\n\t$ npx hardhat simba loglevel --lvl <desired log level>"
 }
 
 task("help", "export contract(s) to Blocks")

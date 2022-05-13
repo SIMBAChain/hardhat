@@ -9,12 +9,11 @@ import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     SimbaConfig,
-    log,
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
-    log.debug(`:: ENTER :`);
+    SimbaConfig.log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();
     // logging out by default when we run login
     await simbaConfig.authStore.logout();
@@ -26,7 +25,7 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     if (!app) {
         return Promise.resolve(new Error('No Application Selected!'));
     }
-    log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
+    SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
 }
 
 task("login", "keycloak device and blocks login")

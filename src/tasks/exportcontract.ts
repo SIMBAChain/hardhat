@@ -4,7 +4,6 @@ import * as path from 'path';
 import * as fs from "fs";
 import {
     SimbaConfig,
-    log,
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
@@ -14,7 +13,6 @@ import {
     writeAndReturnASTAndOtherInfo,
     promisifiedReadFile,
     walkDirForContracts,
-    isLibrary,
 } from '@simbachain/web3-suites';;
 
 interface Data {
@@ -37,7 +35,7 @@ const exportContract = async (
         primary,
         deleteNonExportedArtifacts,
     };
-    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
+    SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     // Not putting any "isLoggedIn()" logic here because SimbaConfig.authStore.doGetRequest handles that
     const buildDir = SimbaConfig.buildDirectory;
     let files: string[] = [];
@@ -47,10 +45,10 @@ const exportContract = async (
     } catch (e) {
         const err = e as any;
         if (err.code === 'ENOENT') {
-            log.error(`${chalk.redBright(`\nsimba: EXIT : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`)}`);
             return;
         }
-        log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(err)}`)}`);
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(err)}`)}`);
         return;
     }
 
@@ -63,7 +61,7 @@ const exportContract = async (
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
             continue;
         }
-        log.info(`${chalk.green(`\nsimba export: exporting file: ${file}`)}`);
+        SimbaConfig.log.info(`${chalk.green(`\nsimba export: exporting file: ${file}`)}`);
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         if (!(buf instanceof Buffer)) {
             continue;
@@ -72,7 +70,6 @@ const exportContract = async (
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
         const astAndOtherInfo = await getASTAndOtherInfo(name, contractSourceName) as any;
-        log.info(`astAndOtherInfo: ${JSON.stringify(astAndOtherInfo)}`);
         await writeAndReturnASTAndOtherInfo(name, contractSourceName);
         supplementalInfo[name] = {} as any;
         contractNames.push(name);
@@ -80,11 +77,10 @@ const exportContract = async (
         importData[name].ast = astAndOtherInfo.ast;
         importData[name].source = astAndOtherInfo.source;
         importData[name].compiler = {'name': 'solc', 'version': astAndOtherInfo.compiler}
-        log.info(`astAndOtherInfo.isLib: ${astAndOtherInfo.isLib}`);
         supplementalInfo[name].isLib = astAndOtherInfo.isLib;
         // supplementalInfo[name].contractName = astAndOtherInfo.contractName;
         // supplementalInfo[name].contractSourceName = astAndOtherInfo.contractSourceName;
-        supplementalInfo[name].language = astAndOtherInfo.language;
+        // supplementalInfo[name].language = astAndOtherInfo.language;
         supplementalInfo[name].sourceCode = astAndOtherInfo.source;
         choices.push({title: name, value: name});
     }
@@ -92,8 +88,11 @@ const exportContract = async (
     if (primary) {
         if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
+            SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[primary].isLib);
+            SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[primary].sourceCode)
+            // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[primary].language);
         } else {
-            log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
             return;
         }
     } else {
@@ -105,7 +104,7 @@ const exportContract = async (
         });
 
         if (!chosen.contract) {
-            log.error(`${chalk.redBright(`\nsimba: EXIT : No primary contract chosen!`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No primary contract chosen!`)}`);
             return;
         }
 
@@ -114,7 +113,7 @@ const exportContract = async (
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
         SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[chosen.contract].isLib);
         SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[chosen.contract].sourceCode)
-        SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[chosen.contract].language);
+        // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[chosen.contract].language);
     }
 
     if (deleteNonExportedArtifacts) {
@@ -127,7 +126,7 @@ const exportContract = async (
         }
     }
 
-    log.debug(`importData: ${JSON.stringify(importData)}`);
+    SimbaConfig.log.debug(`importData: ${JSON.stringify(importData)}`);
 
     const request = {
         version: '0.0.2',
@@ -135,7 +134,7 @@ const exportContract = async (
         import_data: importData,
     };
 
-    log.info(`${chalk.cyanBright('\nsimba: Sending to SIMBA Chain SCaaS')}`);
+    SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Sending to SIMBA Chain SCaaS')}`);
 
     try {
         const resp = await SimbaConfig.authStore.doPostRequest(
@@ -144,17 +143,21 @@ const exportContract = async (
             "application/json",
             true,
         );
+        if (!resp) {
+            SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error exporting contract`)}`);
+            return;
+        }
         SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
         if (resp.id) {
-            log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
+            SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
         } else {
-            log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
+            SimbaConfig.log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
         }
     } catch (e) {
         if (e instanceof StatusCodeError) {
             if('errors' in e.error && Array.isArray(e.error.errors)){
                 e.error.errors.forEach((error: any)=>{
-                    log.error(
+                    SimbaConfig.log.error(
                         `${chalk.red('\nsimba export: ')}[STATUS:${
                             error.status
                         }|CODE:${
@@ -165,7 +168,7 @@ const exportContract = async (
                     );
                 });
             } else {
-                log.error(
+                SimbaConfig.log.error(
                     `${chalk.red('\nsimba export: ')}[STATUS:${
                         e.error.errors[0].status
                     }|CODE:${
@@ -181,7 +184,7 @@ const exportContract = async (
         const err = e as any;
         if ('errors' in err) {
             if (Array.isArray(err.errors)) {
-                log.error(
+                SimbaConfig.log.error(
                     `${chalk.red('\nsimba export: ')}[STATUS:${err.errors[0].status}|CODE:${
                         err.errors[0].code
                     }] Error Saving contract ${err.errors[0].detail}`,

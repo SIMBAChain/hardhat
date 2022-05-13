@@ -47,5 +47,8 @@ declare module "hardhat/types/runtime" {
     logout: (
       hre: HardhatRuntimeEnvironment,
     ) => Promise<void>;
+    setLogLevel: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
   }
 }

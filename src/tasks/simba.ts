@@ -6,14 +6,26 @@ import deployContract from "./deploycontract";
 import logout from "./logout";
 import help from "./help";
 import {
-    log,
+    LogLevel,
+    SimbaConfig,
 } from '@simbachain/web3-suites';
+import setLogLevel from "./loglevel";
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
     export: "export your contract(s) to Blocks",
     deploy: "deploy your contract(s) to the blockchain using Blocks",
     logout: "logout of Blocks",
+    loglevel: "set level for tslog logger",
+};
+
+enum Commands {
+    LOGIN = "login",
+    EXPORT = "export",
+    DEPLOY = "deploy",
+    LOGOUT = "logout",
+    HELP = "help",
+    LOGLEVEL = "loglevel",
 };
 
 const simba = async (
@@ -22,6 +34,7 @@ const simba = async (
     helpTopic?: string,
     primary?: string,
     deleteNonExportedArtifacts?: string,
+    logLevel?: LogLevel,
     ) => {
     const entryParams = {
         cmd,
@@ -29,13 +42,13 @@ const simba = async (
         primary,
         deleteNonExportedArtifacts,
     }
-    log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
+    SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     switch(cmd) {
-        case "login": { 
+        case Commands.LOGIN: { 
            await login(hre);
            break; 
         }
-        case "export": {
+        case Commands.EXPORT: {
             let _deleteNonExportedArtifacts = true;
             if (deleteNonExportedArtifacts === "false") {
                 _deleteNonExportedArtifacts = false;
@@ -43,16 +56,20 @@ const simba = async (
             await exportContract(hre, primary, _deleteNonExportedArtifacts);
             break;
         }
-        case "deploy": {
+        case Commands.DEPLOY: {
             await deployContract(hre);
             break;
         }
-        case "logout": {
+        case Commands.LOGOUT: {
             await logout(hre);
             break;
         }
-        case "help": {
+        case Commands.HELP: {
             await help(hre, helpTopic);
+            break;
+        }
+        case Commands.LOGLEVEL: {
+            await setLogLevel(hre, logLevel);
             break;
         }
         default: { 
@@ -67,9 +84,10 @@ task("simba", "base simba cli that takes args")
     .addOptionalPositionalParam("helpTopic", "pass optional help topic when cmd == 'help'")
     .addOptionalParam("prm", "used to specify a primary artifact when exporting export")
     .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
+    .addOptionalParam("lvl", "minimum log level to set your logger to")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, helpTopic, prm, dltnon} = taskArgs;
-        await simba(hre, cmd, helpTopic, prm, dltnon);
+        const {cmd, helpTopic, prm, dltnon, lvl} = taskArgs;
+        await simba(hre, cmd, helpTopic, prm, dltnon, lvl);
     });
 
 export default simba;
