@@ -8,18 +8,18 @@ Do you love SIMBA Chain? Do you love hardhat? Then you're in luck! The hardhat p
 
 ## Installation
 
-This plugin should be used along with the @simbachain/web3-suites plugin:
+The objects/code that this plugin is built on are contained in @simbachain/web3-suites plugin, though all of this is abstracted away from the developer. Though if you want a brief summary of that code, you can check out the npm publication for that project.
+
+For installation, just run:
 
 ```bash
 $ npm install @simbachain/hardhat
-$ npm install @simbachain/web3-suites
 ```
 
-Import both plugins in your `hardhat.config.ts`:
+Import Simba hardhat plugin in your `hardhat.config.ts`:
 
 ```ts
 import "@simbachain/hardhat";
-import "@simbachain/web3-suites";
 ```
 
 ## Tasks
@@ -100,6 +100,21 @@ Your options for this optional argument are:
 - logout
 - simbajson
 - generalprocess
+- loglevel
+
+6. loglevel:
+
+The Simba hardhat plugin uses tslog for logging / debugging. Setting a log level through this command will set a MINIMUM log level. So for instance, if you set the log level to 'info', then logs of level SimbaConfig.log.info(...) as well as SimbaConfig.log.error(...) will be logged. Valid values for log levels are 'error', 'info', 'debug', 'silly', 'warn', 'trace', and 'fatal'. You can either run this command without any arguments, which will allow you to set a minimum log level from prompt:
+
+```
+$ npx hardhat simba loglevel
+```
+
+Or you can set the specific log level from the CLI:
+
+```
+$ npx hardhat simba loglevel --lvl <desired log level>
+```
 
 ## Environment extensions
 
@@ -110,6 +125,7 @@ This plugin extends the Hardhat Runtime Environment by adding the fields:
 - hre.logout
 - hre.deploy
 - hre.export
+- hre.setLogLevel
 
 ## Configuration
 
@@ -137,6 +153,16 @@ Your simba.json file should live in the top level of your hardhat project, and s
   "clientID": "simba-pkce"
 }
 ```
+
+In addition to these base configs, you can also specify a different contracts directory and build directory in simba.json, in case these directories are not located in the default location for  your web3 project:
+
+```
+...
+"buildDirectory": "custom build directory location",
+"contractDirectory": "custom contract directory location"
+```
+
+After different commands, you will see different fields populate in your simba.json file, with information pertaining to the org and app you logged into, and contracts you have deployed.
 
 2. Next, you'll need to login to SIMBA Chain. To do so, run
 
@@ -181,4 +207,16 @@ $ npx hardhat simba help deploy
 
 ```
 $ npx hardhat simba logout
+```
+
+7. To set your minimum log level, do so without optional arguments:
+
+```
+$ npx hardhat simba loglevel
+```
+
+Or you can set the specific log level from the CLI:
+
+```
+$ npx hardhat simba loglevel --lvl <desired log level>
 ```

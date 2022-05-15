@@ -129,7 +129,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 paramInputQuestions.push({
                     type: "text",
                     name: paramName,
-                    message: `please input value for param ${paramName} of type ${paramType}`
+                    message: `please input value for param ${chalk.greenBright(`${paramName}`)}  of type  ${chalk.greenBright(`${paramType}`)}`,
                 });
             }
         }
@@ -207,7 +207,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             app_name: config.application.name,
             display_name: config.application.name,
             args: deployArgs,
-            libraries: config.ProjectConfigStore.get("library_addresses") ? config.ProjectConfigStore.get("library_addresses") : {},
+            // libraries: config.ProjectConfigStore.get("library_addresses") ? config.ProjectConfigStore.get("library_addresses") : {},
         };
     }
 
@@ -267,7 +267,9 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                         const contractName = config.ProjectConfigStore.get("primary");
                         let contractsInfo = config.ProjectConfigStore.get("contracts_info");
                         if (contractsInfo) {
-                            contractsInfo[contractName] = {}
+                            contractsInfo[contractName] = contractsInfo[contractName] ?
+                                contractsInfo[contractName] :
+                                {};
                             contractsInfo[contractName].address = contractAddress;
                             contractsInfo[contractName].deployment_id = deployment_id;
                             contractsInfo[contractName].contract_type = "contract";
@@ -286,7 +288,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                         };
                         config.ProjectConfigStore.set('most_recent_deployment_info', most_recent_deployment_info);
                         SimbaConfig.log.info(
-                            `${chalk.cyanBright(`\nsimba deploy: Your contract was deployed to`)} ${chalk.greenBright(`${contractAddress}`)} . ${chalk.cyanBright(`Information pertaining to this deployment can be found in your simba.json.`)}`
+                            `${chalk.cyanBright(`\nsimba deploy: Your contract was deployed to`)} ${chalk.greenBright(`${contractAddress}`)} with deployment_id ${chalk.greenBright(`${deployment_id}`)} . ${chalk.cyanBright(`Information pertaining to this deployment can be found in your simba.json under contracts_info.${contractName}.`)}`
                         );
                     } else {
                         const deploymentInfo = check_resp.deployment;
@@ -299,7 +301,9 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                             const libraryAddress = entry.address;
                             let contractsInfo = config.ProjectConfigStore.get("contracts_info") as any;
                             if (contractsInfo) {
-                                contractsInfo[libraryName] = {}
+                                contractsInfo[libraryName] = contractsInfo[libraryName] ?
+                                    contractsInfo[libraryName] :
+                                    {};
                                 contractsInfo[libraryName].address = libraryAddress;
                                 contractsInfo[libraryName].deployment_id = deployment_id;
                                 contractsInfo[libraryName].contract_type = "library";

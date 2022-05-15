@@ -61,7 +61,7 @@ const exportContract = async (
         if (file.endsWith('Migrations.json') || file.endsWith('dbg.json')) {
             continue;
         }
-        SimbaConfig.log.info(`${chalk.green(`\nsimba export: exporting file: ${file}`)}`);
+        SimbaConfig.log.debug(`${chalk.green(`\nsimba export: reading file: ${file}`)}`);
         const buf = await promisifiedReadFile(file, {flag: 'r'});
         if (!(buf instanceof Buffer)) {
             continue;
@@ -84,12 +84,13 @@ const exportContract = async (
         supplementalInfo[name].sourceCode = astAndOtherInfo.source;
         choices.push({title: name, value: name});
     }
-
+    let currentContractName;
     if (primary) {
         if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
             SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[primary].isLib);
             SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[primary].sourceCode)
+            currentContractName = primary;
             // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[primary].language);
         } else {
             SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
@@ -113,6 +114,7 @@ const exportContract = async (
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
         SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[chosen.contract].isLib);
         SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[chosen.contract].sourceCode)
+        currentContractName = chosen.contract;
         // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[chosen.contract].language);
     }
 
@@ -128,14 +130,17 @@ const exportContract = async (
 
     SimbaConfig.log.debug(`importData: ${JSON.stringify(importData)}`);
 
+    const libraries = await SimbaConfig.ProjectConfigStore.get("library_addresses") ? SimbaConfig.ProjectConfigStore.get("library_addresses") : {};
+    SimbaConfig.log.debug(`libraries: ${JSON.stringify(libraries)}`);
     const request = {
         version: '0.0.2',
         primary: SimbaConfig.ProjectConfigStore.get('primary'),
         import_data: importData,
+        libraries: libraries,
     };
 
     SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Sending to SIMBA Chain SCaaS')}`);
-
+    SimbaConfig.log.debug(`${chalk.cyanBright(`\nsimba: request: ${JSON.stringify(request)}`)}`);
     try {
         const resp = await SimbaConfig.authStore.doPostRequest(
             `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
@@ -148,6 +153,13 @@ const exportContract = async (
             return;
         }
         SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
+        const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info") ?
+            SimbaConfig.ProjectConfigStore.get("contracts_info") :
+            {};
+        contractsInfo[currentContractName] = {
+            design_id: resp.id,
+        }
+        SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo)
         if (resp.id) {
             SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
         } else {
