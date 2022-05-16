@@ -2,6 +2,22 @@
 
 Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 
+# Table of Contents:
+1. [Summary](#summary)
+2. [Prerequisites](#prerequisites)
+3. [Installation](#installation)
+4. [Project Settings](#project-settings)
+5. [Usage](#usage)
+    - [Tasks](#tasks)
+      - login
+      - export
+      - deploy
+      - logout
+      - help
+      - loglevel
+6. [Environment Extensions](#environment-extensions)
+7. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
+
 ## Summary
 
 Do you love SIMBA Chain? Do you love Hardhat? Then you're in luck! The Hardhat plugin for SIMBA Chain allows you to deploy smart contracts to your preferred blockchain through the SIMBA Blocks platform, using the same Hardhat web3 suite that you're used to developing and testing your smart contracts with. All you have to do to use the plugin is install it in your Hardhat project, compile your contracts, and then follow a few simple steps to deploy your smart contracts to chain through the Blocks platform. If you're not familiar with SIMBA's Blocks platform, it allows you to deploy smart contracts and automatically generate REST API endpoints that allow you to easily interact with your deployed smart contract.
@@ -31,9 +47,15 @@ You will also need to create your Hardhat TypeScript project. To do so, follow t
   Quit
 ```
 
+If you already have a hardhat project written in JavaScript, then to convert it to a TypeScript project, run:
+
+```
+$ mv hardhat.config.js hardhat.config.ts
+```
+
 # Installation
 
-The objects/code that this plugin is built on are contained in @simbachain/web3-suites plugin, but all of this is abstracted away from the developer. Though if you want a brief summary of that code, you can check out the npm publication for that project.
+The objects/code that this plugin is built on are contained in @simbachain/web3-suites project, but all of this is abstracted away from the developer. Though if you want a brief summary of that code, you can check out the npm publication for that project.
 
 For installation, just run:
 
@@ -193,7 +215,8 @@ If your contract's constructor takes parameters, then you will see the following
 Then you will be asked to specify API name, blockchain you want to deploy to, offchain storage (AWS, Azure, no storage, etc., but this depends on what you have configured for your account), and the values for your contract's constructor, based on the way you answered the last prompt above:
 
 ```
-✔ Please choose an API name [^[w-]*$] … CoffeeERC721V1
+simba deploy: gathering info for deployment of contract CoffeeERC721 
+✔ Please choose an API name for contract CoffeeERC721 [^[w-]*$] … CoffeeERC721V1
 ✔ Please choose the blockchain to deploy to. › Quorum
 ✔ Please choose the storage to use. › No Storage
 ? Please enter any arguments for the contract as a JSON dictionary. › {"ownerName": "Brendan", "poundWeight": 13}
@@ -309,3 +332,13 @@ This plugin extends the Hardhat Runtime Environment by adding the fields:
 - hre.deploy
 - hre.export
 - hre.setLogLevel
+
+## Deploying and Linking Libraries
+A brief note here about deploying and linking libraries. You do not need to actively link libraries in this plugin. Once you have deployed your contract, SIMBA's Blocks platform handles that for you. All you need to do is make sure that if you are deploying a contractX that depends on libraryX, then first deploy libraryX. Then when you deploy contractX, the library linking will automatically be conducted by SIMBA. If you look in your simba.json after deploying a library, you will see a field for library_addresses (below) This field gets exported with other contracts, and is how SIMBA knows whether a contract needs to be linked to a library when it is deployed.
+
+```
+...
+	"library_addresses": {
+		"MetadataLib": "0x96E07C02A523f254E17F23Cd577f4518B0c9A855"
+	},
+```

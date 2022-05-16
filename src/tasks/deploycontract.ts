@@ -28,14 +28,13 @@ interface DeploymentRequest {
     code?: string;
     pre_txn_hook?: string;
     lib_name?: string;
-    libraries?: Record<any, any>;
 }
 
 export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
     if (!config.ProjectConfigStore.has("design_id")) {
-        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contracts first with "truffle run simba export".`)}`);
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contract first with "npx hardhat simba export".`)}`);
         return;
     }
 
@@ -50,12 +49,14 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             return;
         }
     }
+    const contractName = SimbaConfig.ProjectConfigStore.get("primary");
+    SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: gathering info for deployment of contract ${chalk.greenBright(`${contractName}`)}`)}`)
     let chosen: any = {};
     const questions: prompt.PromptObject[] = [
         {
             type: 'text',
             name: 'api',
-            message: 'Please choose an API name [^[w-]*$]',
+            message: `Please choose an API name for contract ${chalk.greenBright(`${contractName}`)} [^[w-]*$]`,
             validate: (str: string): boolean => !!/^[\w-]*$/.exec(str),
         },
         {
@@ -129,7 +130,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 paramInputQuestions.push({
                     type: "text",
                     name: paramName,
-                    message: `please input value for param ${chalk.greenBright(`${paramName}`)}  of type  ${chalk.greenBright(`${paramType}`)}`,
+                    message: `please input value for param ${chalk.greenBright(`${paramName}`)} of type ${chalk.greenBright(`${paramType}`)}`,
                 });
             }
         }
@@ -207,7 +208,6 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             app_name: config.application.name,
             display_name: config.application.name,
             args: deployArgs,
-            // libraries: config.ProjectConfigStore.get("library_addresses") ? config.ProjectConfigStore.get("library_addresses") : {},
         };
     }
 
@@ -224,7 +224,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         }
         const deployment_id = resp.deployment_id;
         config.ProjectConfigStore.set('deployment_id', deployment_id);
-        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: Contract deployment ID`)} ${chalk.greenBright(`${deployment_id}`)}`);
+        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: Contract deployment ID for contract ${contractName}:`)} ${chalk.greenBright(`${deployment_id}`)}`);
 
         let deployed = false;
         let lastState = null;
