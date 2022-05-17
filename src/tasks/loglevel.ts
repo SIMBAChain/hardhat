@@ -11,6 +11,7 @@ export const setLogLevel = async (
     hre: HardhatRuntimeEnvironment,
     level?: LogLevel,
 ) => {
+    SimbaConfig.log.debug(`:: ENTER : ${level}`);
     if (level) {
         const lowLevel = level.toLowerCase();
         if (!Object.values(LogLevel).includes(lowLevel as any)) {
@@ -19,6 +20,7 @@ export const setLogLevel = async (
         }
         SimbaConfig.logLevel = lowLevel as any;
         SimbaConfig.log.info(`${chalk.cyanBright(`simba: log level set to ${lowLevel}`)}`);
+        SimbaConfig.log.debug(`:: EXIT :`);
         return;
     } else {
         const paramInputChoices = [
@@ -47,10 +49,12 @@ export const setLogLevel = async (
 
         if (!logLevelPrompt.log_level) {
             SimbaConfig.log.error(`:: EXIT : ERROR : no log level selected!`)
+            SimbaConfig.log.debug(`:: EXIT :`);
             return;
         }
         SimbaConfig.logLevel = logLevelPrompt.log_level;
         SimbaConfig.log.info(`${chalk.cyanBright(`simba: log level set to ${logLevelPrompt.log_level}`)}`);
+        SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
 }

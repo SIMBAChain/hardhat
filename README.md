@@ -1,4 +1,4 @@
-# @simbachain/Hardhat
+# @simbachain/hardhat
 
 Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 
@@ -8,6 +8,7 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 3. [Installation](#installation)
 4. [Project Settings](#project-settings)
 5. [Usage](#usage)
+    - [Contract Compilation](#contract-compilation)
     - [Tasks](#tasks)
       - login
       - export
@@ -86,17 +87,19 @@ And then you should see the following:
     simbajson
     generalprocess
     loglevel
+    sync
+    viewcontracts
 ```
 
 ## Project Settings
 
-The only configuration necessary to use the SIMBA Chain Hardhat plugin is of your simba.json file. Your simba.json file should live in the top level of your Hardhat project, and should contain values for authURL (for Keycloak), clientID (for Keycloak), realm (for Keycloak), baseURL (for SIMBA Blocks), and web3Suite (should always be "Hardhat" for this plugin). An example would look like:
+To use the SIMBA Chain Hardhat plugin, you will need to configure your simba.json file. Your simba.json file should live in the top level of your Hardhat project, and should contain values for authURL (for Keycloak), clientID (for Keycloak), realm (for Keycloak), baseURL (for SIMBA Blocks), and web3Suite (should always be "hardhat" for this plugin). An example would look like:
 
-```
+```json
 {
   "baseURL": "https://simba-dev-api.platform.simbachain.com/v2",
   "realm": "simbachain",
-  "web3Suite": "Hardhat",
+  "web3Suite": "hardhat",
   "authURL": "https://simba-dev-sso.platform.simbachain.com",
   "clientID": "simba-pkce"
 }
@@ -104,7 +107,7 @@ The only configuration necessary to use the SIMBA Chain Hardhat plugin is of you
 
 In addition to these base configs, you can also specify a different contracts directory and build directory in simba.json, in case these directories are not located in the default location for your web3 project, BUT YOU SHOULD NOT CONFIGURE THE FOLLOWING FIELDS UNLESS THE LOCATION OF YOUR CONTRACTS OR BUILD ARTIFACTS HAS BEEN CHANGED FROM THEIR DEFAULT LOCATION FOR SOME REASON.
 
-```
+```json
 ...
 "buildDirectory": "custom build directory location",
 "contractDirectory": "custom contract directory location"
@@ -187,7 +190,11 @@ You will then be prompted to select the contract you want to export to Blocks:
     WatchUpgradable
 ```
 
-If you want to export with optional arguments, you can specify a primary contract by passing the --prm flag, followed by the contract name. 
+If you want to export with optional arguments, you can specify a primary contract by passing the --prm flag, followed by the contract name:
+
+```
+$ npx hardhat simba export --prm CoffeeERC721
+```
 
 *the following paragraph is for rarely used deployment behavior*
 You can also pass the --dltnon flag with argument 'false', which means your non-primary contract artifacts will not be deleted from the object that you export to SIMBA Chain. You pass this second argument if you are exporting more than one contract to Simba Chain simultaneously, though THIS IS NOT STANDARD PRACTICE, AND MOST OF THE TIME YOU WILL NOT USE THIS FLAG. So for instance, if you wanted to export multiple contracts, with the primary contract having name 'MyPrimaryContract', then you would run
@@ -198,7 +205,7 @@ $ npx hardhat simba export --prm <your primary contract> --delnon false
 
 3. deploy: 
 
-After you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the Blocks (Simba Chain) UI, or programatically through one of SIMBA's SDKs. To deploy, run
+After you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the SIMBA Blocks UI, or programatically through one of SIMBA's SDKs. To deploy, run
 
 ```
 $ npx hardhat simba deploy
@@ -224,7 +231,7 @@ simba deploy: gathering info for deployment of contract CoffeeERC721
 
 And just like that, your contract is deployed! If you want to view information on contract deployments you've made through the plugin, you can go to your simba.json, where you will find info similar to what's found below. So if you need ot reference any information, you can find it there.
 
-```
+```json
 	"most_recent_deployment_info": {
 		"address": "0x2B9d4cD4bEc9707Db7fE42d107C0F2D180B3dA45",
 		"deployment_id": "5b041a32-f1c4-465f-80bf-52e76379f66c",
@@ -264,13 +271,7 @@ To choose a help topic from a list, run
 $ npx hardhat simba help
 ```
 
-Or you can pass the specific topic you want help with as an optional argument after the "help" task. For instance, for help with the "deploy" task, run
-
-```
-$ npx hardhat simba help deploy
-```
-
-And you will be prompted to select from a list of available help topics:
+Which will prompt you to select a help topic
 
 ```
 ? Please choose which commmand you would like help with › - Use arrow-keys. Return to submit.
@@ -281,6 +282,14 @@ And you will be prompted to select from a list of available help topics:
     simbajson
     generalprocess
     loglevel
+    sync
+    viewcontracts
+```
+
+Or you can pass the specific topic you want help with as an optional argument after the "help" task. For instance, for help with the "deploy" task, run
+
+```
+$ npx hardhat simba help deploy
 ```
 
 As indicated above, the available help topics are:
@@ -292,6 +301,8 @@ As indicated above, the available help topics are:
 - simbajson
 - generalprocess
 - loglevel
+- sync
+- viewcontracts
 
 6. loglevel:
 
@@ -332,11 +343,13 @@ This plugin extends the Hardhat Runtime Environment by adding the fields:
 - hre.deploy
 - hre.export
 - hre.setLogLevel
+- hre.viewContracts
+- hre.sync
 
 ## Deploying and Linking Libraries
 A brief note here about deploying and linking libraries. You do not need to actively link libraries in this plugin. Once you have deployed your contract, SIMBA's Blocks platform handles that for you. All you need to do is make sure that if you are deploying a contractX that depends on libraryX, then first deploy libraryX. Then when you deploy contractX, the library linking will automatically be conducted by SIMBA. If you look in your simba.json after deploying a library, you will see a field for library_addresses (below) This field gets exported with other contracts, and is how SIMBA knows whether a contract needs to be linked to a library when it is deployed.
 
-```
+```json
 ...
 	"library_addresses": {
 		"MetadataLib": "0x96E07C02A523f254E17F23Cd577f4518B0c9A855"

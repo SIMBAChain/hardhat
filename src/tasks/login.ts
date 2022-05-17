@@ -19,10 +19,12 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     await simbaConfig.authStore.logout();
     const org = await chooseOrganisationFromList(simbaConfig);
     if (!org) {
+        SimbaConfig.log.debug(`:: EXIT :`);
         return Promise.resolve(new Error('No Organisation Selected!'));
     }
     const app = await chooseApplicationFromList(simbaConfig);
     if (!app) {
+        SimbaConfig.log.debug(`:: ENTER :`);
         return Promise.resolve(new Error('No Application Selected!'));
     }
     SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);

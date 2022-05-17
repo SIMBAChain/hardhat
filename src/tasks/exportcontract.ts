@@ -201,9 +201,11 @@ const exportContract = async (
                         err.errors[0].code
                     }] Error Saving contract ${err.errors[0].detail}`,
                 );
+                SimbaConfig.log.debug(`:: EXIT :`);
                 return Promise.resolve();
             }
         }
+        SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
 }

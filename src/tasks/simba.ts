@@ -1,5 +1,6 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {default as chalk} from 'chalk';
 import login from "./login";
 import exportContract from "./exportcontract";
 import deployContract from "./deploycontract";
@@ -10,6 +11,10 @@ import {
     SimbaConfig,
 } from '@simbachain/web3-suites';
 import setLogLevel from "./loglevel";
+import {
+    viewContracts,
+    sync,
+ } from "./contract";
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
@@ -17,6 +22,9 @@ const SIMBA_COMMANDS = {
     deploy: "deploy your contract(s) to the blockchain using Blocks",
     logout: "logout of Blocks",
     loglevel: "set level for tslog logger",
+    help: "get help for simba tasks",
+    viewcontracts: "view contracts for your organisation",
+    sync: "pull contract from Blocks and sync in local project"
 };
 
 enum Commands {
@@ -26,6 +34,8 @@ enum Commands {
     LOGOUT = "logout",
     HELP = "help",
     LOGLEVEL = "loglevel",
+    VIEWCONTRACTS = "viewcontracts",
+    SYNC = "sync",
 };
 
 const simba = async (
@@ -35,6 +45,7 @@ const simba = async (
     primary?: string,
     deleteNonExportedArtifacts?: string,
     logLevel?: LogLevel,
+    designID?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -72,11 +83,24 @@ const simba = async (
             await setLogLevel(hre, logLevel);
             break;
         }
+        case Commands.VIEWCONTRACTS: {
+            await viewContracts(hre);
+            break;
+        }
+        case Commands.SYNC: {
+            if (!designID) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: you must pass a designID to sync a contract`)}`);
+                break;
+            }
+            await sync(hre, designID)
+            break;
+        }
         default: { 
            console.log(`Please enter a valid simba command:\n${JSON.stringify(SIMBA_COMMANDS)}`);
            break; 
         } 
-     } 
+     }
+     SimbaConfig.log.debug(`:: EXIT :`);
 }
 
 task("simba", "base simba cli that takes args")
@@ -85,9 +109,10 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("prm", "used to specify a primary artifact when exporting export")
     .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
+    .addOptionalParam("id", "id of the contract you want to sync from Blocks")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, helpTopic, prm, dltnon, lvl} = taskArgs;
-        await simba(hre, cmd, helpTopic, prm, dltnon, lvl);
+        const {cmd, helpTopic, prm, dltnon, lvl, id} = taskArgs;
+        await simba(hre, cmd, helpTopic, prm, dltnon, lvl, id);
     });
 
 export default simba;

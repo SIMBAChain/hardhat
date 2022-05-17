@@ -36,6 +36,7 @@ declare module "hardhat/types/runtime" {
       cmd: string,
       primary?: string,
       deleteNonExportedArtifacts?: string,
+      designID?: string,
     ) => Promise<void>;
     deploy: (
       hre: HardhatRuntimeEnvironment,
@@ -48,6 +49,13 @@ declare module "hardhat/types/runtime" {
     ) => Promise<void>;
     setLogLevel: (
       hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
+    viewContracts: (
+      hre: HardhatRuntimeEnvironment,
+    ) => Promise<void>;
+    sync: (
+      hre: HardhatRuntimeEnvironment,
+      designID: string,
     ) => Promise<void>;
   }
 }

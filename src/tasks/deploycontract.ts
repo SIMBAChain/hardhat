@@ -336,7 +336,8 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 case 'ABORTED':
                     deployed = true;
                     SimbaConfig.log.error(`${chalk.red('\nsimba deploy: Your contract deployment was aborted...')}`);
-                    SimbaConfig.log.error(`${chalk.red(`\nsimba deploy: ${check_resp.error}`)}${check_resp.error}`);
+                    SimbaConfig.log.error(`${chalk.red(`\nsimba deploy: EXIT : ${check_resp.error}`)}${check_resp.error}`);
+                    SimbaConfig.log.debug(`:: EXIT :`);
                     retVal = new Error(check_resp.error);
                     break;
             }
@@ -369,7 +370,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                     } - ${err.error.errors[0].detail}`,
                 );
             }
-
+            SimbaConfig.log.debug(`:: EXIT :`);
             return Promise.resolve();
         }
         if ('errors' in err) {
@@ -382,6 +383,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                 Promise.resolve(e);
             }
         }
+        SimbaConfig.log.debug(`:: EXIT :`);
         throw e;
     }
     SimbaConfig.log.debug(`:: EXIT :`);
