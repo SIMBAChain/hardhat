@@ -286,10 +286,10 @@ Which will prompt you to select a help topic
     viewcontracts
 ```
 
-Or you can pass the specific topic you want help with as an optional argument after the "help" task. For instance, for help with the "deploy" task, run
+Or you can pass an optional --topic flag to specify which topic you would like help with. For instance, for help with the "deploy" task, run
 
 ```
-$ npx hardhat simba help deploy
+$ npx hardhat simba help --topic deploy
 ```
 
 As indicated above, the available help topics are:

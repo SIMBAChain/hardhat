@@ -41,7 +41,7 @@ enum Commands {
 const simba = async (
     hre: HardhatRuntimeEnvironment,
     cmd: string,
-    helpTopic?: string,
+    topic?: string,
     primary?: string,
     deleteNonExportedArtifacts?: string,
     logLevel?: LogLevel,
@@ -49,7 +49,7 @@ const simba = async (
     ) => {
     const entryParams = {
         cmd,
-        helpTopic,
+        topic,
         primary,
         deleteNonExportedArtifacts,
     }
@@ -76,7 +76,7 @@ const simba = async (
             break;
         }
         case Commands.HELP: {
-            await help(hre, helpTopic);
+            await help(hre, topic);
             break;
         }
         case Commands.LOGLEVEL: {
@@ -105,14 +105,14 @@ const simba = async (
 
 task("simba", "base simba cli that takes args")
     .addPositionalParam("cmd", "command to call through simba")
-    .addOptionalPositionalParam("helpTopic", "pass optional help topic when cmd == 'help'")
+    .addOptionalParam("topic", "pass optional help topic when cmd == 'help'")
     .addOptionalParam("prm", "used to specify a primary artifact when exporting export")
     .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, helpTopic, prm, dltnon, lvl, id} = taskArgs;
-        await simba(hre, cmd, helpTopic, prm, dltnon, lvl, id);
+        const {cmd, topic, prm, dltnon, lvl, id} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id);
     });
 
 export default simba;

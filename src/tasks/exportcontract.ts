@@ -149,7 +149,7 @@ const exportContract = async (
             true,
         );
         if (!resp) {
-            SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error exporting contract`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : error exporting contract`)}`);
             return;
         }
         SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
