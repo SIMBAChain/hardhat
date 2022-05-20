@@ -30,6 +30,11 @@ interface DeploymentRequest {
     lib_name?: string;
 }
 
+/**
+ * deploy contract to simbachain.com
+ * @param hre 
+ * @returns 
+ */
 export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const config = new SimbaConfig();

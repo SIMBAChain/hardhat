@@ -26,6 +26,13 @@ interface Request {
     import_data: Data;
 }
 
+/**
+ * export contract to simbachain.com (can also be thought of as "importing" contract to simbachain.com)
+ * @param hre 
+ * @param primary optional param specifying which contract to export. if not present, contract is selected from prompts
+ * @param deleteNonExportedArtifacts 
+ * @returns 
+ */
 const exportContract = async (
     hre: HardhatRuntimeEnvironment,
     primary?: string,

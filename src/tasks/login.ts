@@ -12,6 +12,11 @@ import {
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 
+/**
+ * obtain auth token and choose organisation and application to log into
+ * @param hre 
+ * @returns 
+ */
 const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();

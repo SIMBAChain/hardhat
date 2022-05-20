@@ -5,6 +5,10 @@ import {
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 
+/**
+ * deletes auth token from configstore (authconfig.json)
+ * @param hre 
+ */
 const logout = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     await SimbaConfig.authStore.logout();

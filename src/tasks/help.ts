@@ -19,6 +19,12 @@ enum HelpCommands {
     VIEWCONTRACTS = "viewcontracts",
 }
 
+/**
+ * get help info
+ * @param hre 
+ * @param topic 
+ * @returns 
+ */
 export async function help(
     hre: HardhatRuntimeEnvironment,
     topic?: string,
@@ -113,6 +119,9 @@ export async function help(
     }
 
 }
+/**
+ * the following functions call the helper function helpMessage
+ */
 
 async function loginHelp() {
     const message = await helpMessage("loginHelp");
@@ -163,6 +172,11 @@ async function viewContractsHelp() {
     SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
+/**
+ * grabs help message from helpOptions object
+ * @param topic 
+ * @returns 
+ */
 async function helpMessage(
     topic: string,
 ): Promise<string> {

@@ -5,6 +5,11 @@ import {
     SimbaConfig,
 } from '@simbachain/web3-suites';
 
+/**
+ * pull contractX from your org on simbachain.com and sync it with contractX in your project
+ * @param hre 
+ * @param designID 
+ */
 const sync = async (
     hre: HardhatRuntimeEnvironment,
     designID: string,

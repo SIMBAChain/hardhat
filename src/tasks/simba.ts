@@ -38,6 +38,17 @@ enum Commands {
     SYNC = "sync",
 };
 
+/**
+ * this is the main entry point for the CLI
+ * cmd is the main command to call (eg deploy, export, etc.)
+ * @param hre 
+ * @param cmd 
+ * @param topic 
+ * @param primary 
+ * @param deleteNonExportedArtifacts 
+ * @param logLevel 
+ * @param designID 
+ */
 const simba = async (
     hre: HardhatRuntimeEnvironment,
     cmd: string,

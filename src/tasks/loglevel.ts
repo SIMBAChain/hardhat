@@ -7,6 +7,12 @@ import {
 import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';
 
+/**
+ * set minimum log level for logger
+ * @param hre 
+ * @param level 
+ * @returns 
+ */
 export const setLogLevel = async (
     hre: HardhatRuntimeEnvironment,
     level?: LogLevel,
