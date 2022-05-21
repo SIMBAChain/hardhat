@@ -14,6 +14,7 @@ import setLogLevel from "./loglevel";
 import {
     viewContracts,
     sync,
+    addLib,
  } from "./contract";
 
 const SIMBA_COMMANDS = {
@@ -24,7 +25,8 @@ const SIMBA_COMMANDS = {
     loglevel: "set level for tslog logger",
     help: "get help for simba tasks",
     viewcontracts: "view contracts for your organisation",
-    sync: "pull contract from Blocks and sync in local project"
+    sync: "pull contract from Blocks and sync in local project",
+    addlib: "add external library so you can deploy contracts that depend on that library"
 };
 
 enum Commands {
@@ -36,6 +38,7 @@ enum Commands {
     LOGLEVEL = "loglevel",
     VIEWCONTRACTS = "viewcontracts",
     SYNC = "sync",
+    ADDLIB = "addlib",
 };
 
 /**
@@ -47,7 +50,9 @@ enum Commands {
  * @param primary 
  * @param deleteNonExportedArtifacts 
  * @param logLevel 
- * @param designID 
+ * @param designID
+ * @param libraryName
+ * @param libraryAddress
  */
 const simba = async (
     hre: HardhatRuntimeEnvironment,
@@ -57,12 +62,18 @@ const simba = async (
     deleteNonExportedArtifacts?: string,
     logLevel?: LogLevel,
     designID?: string,
+    libraryName?: string,
+    libraryAddress?: string,
     ) => {
     const entryParams = {
         cmd,
         topic,
         primary,
         deleteNonExportedArtifacts,
+        logLevel,
+        designID,
+        libraryName,
+        libraryAddress,
     }
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     switch(cmd) {
@@ -106,6 +117,10 @@ const simba = async (
             await sync(hre, designID)
             break;
         }
+        case Commands.ADDLIB: {
+            await addLib(hre, libraryName, libraryAddress);
+            break;
+        }
         default: { 
            console.log(`Please enter a valid simba command:\n${JSON.stringify(SIMBA_COMMANDS)}`);
            break; 
@@ -121,9 +136,11 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
+    .addOptionalParam("libname", "name of the library you want to add")
+    .addOptionalParam("libaddr", "address of the library you want to add")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr);
     });
 
 export default simba;

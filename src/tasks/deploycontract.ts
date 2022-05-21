@@ -148,9 +148,13 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         inputsChosen = await prompt(paramInputQuestions);
         SimbaConfig.log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
         for (const key in inputsChosen) {
-            if (inputNameToTypeMap[key].startsWith("int") ||inputNameToTypeMap[key].startsWith("uint")) {
+            if (inputNameToTypeMap[key].startsWith("int") || inputNameToTypeMap[key].startsWith("uint")) {
                 inputsChosen[key] = parseInt(inputsChosen[key]);
-            } 
+            } else if (inputsChosen[key].startsWith("{") &&
+                inputsChosen[key].endsWith("}") &&
+                !inputNameToTypeMap[key].startsWith("string")) {
+                inputsChosen[key] = JSON.parse(inputsChosen[key]);
+            }
         }
     }
 

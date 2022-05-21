@@ -355,3 +355,15 @@ A brief note here about deploying and linking libraries. You do not need to acti
 		"MetadataLib": "0x96E07C02A523f254E17F23Cd577f4518B0c9A855"
 	},
 ```
+
+Adding libraries: If a contract that you are trying to deploy requires an external library that you did not deploy to SIMBA Chain, but you have the name and address of that library, then you can add the library by running the following command, which does not take parameters:
+
+```
+$ npx hardhat simba addlib
+```
+
+and you will then be prompted to specify the name and address of your library. If you want to specify the name and address of the library from the CLI, then you can run:
+
+```$ npx hardhat simba addlib --libname <library name> --libaddr <library address>
+```
+
