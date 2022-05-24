@@ -61,7 +61,7 @@ The objects/code that this plugin is built on are contained in @simbachain/web3-
 For installation, just run:
 
 ```bash
-$ npm install @simbachain/Hardhat
+$ npm install @simbachain/hardhat
 ```
 
 Import Simba Hardhat plugin in your `Hardhat.config.ts`:
