@@ -13,6 +13,7 @@ import {
     writeAndReturnASTAndOtherInfo,
     promisifiedReadFile,
     walkDirForContracts,
+    getContractKind,
 } from '@simbachain/web3-suites';;
 
 interface Data {
@@ -77,6 +78,8 @@ const exportContract = async (
         const name = parsed.contractName;
         const contractSourceName = parsed.sourceName;
         const astAndOtherInfo = await getASTAndOtherInfo(name, contractSourceName) as any;
+        const ast = astAndOtherInfo.ast;
+        const contractType = getContractKind(ast);
         await writeAndReturnASTAndOtherInfo(name, contractSourceName);
         supplementalInfo[name] = {} as any;
         contractNames.push(name);
@@ -85,6 +88,7 @@ const exportContract = async (
         importData[name].source = astAndOtherInfo.source;
         importData[name].compiler = {'name': 'solc', 'version': astAndOtherInfo.compiler}
         supplementalInfo[name].isLib = astAndOtherInfo.isLib;
+        supplementalInfo[name].contractType = contractType;
         // supplementalInfo[name].contractName = astAndOtherInfo.contractName;
         // supplementalInfo[name].contractSourceName = astAndOtherInfo.contractSourceName;
         // supplementalInfo[name].language = astAndOtherInfo.language;
@@ -95,8 +99,6 @@ const exportContract = async (
     if (primary) {
         if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
-            SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[primary].isLib);
-            SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[primary].sourceCode)
             currentContractName = primary;
             // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[primary].language);
         } else {
@@ -119,8 +121,9 @@ const exportContract = async (
         // the following are things we need to store for deploy, but don't put into
         // importData above, because we don't need the info in our export call
         SimbaConfig.ProjectConfigStore.set('primary', chosen.contract);
-        SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[chosen.contract].isLib);
-        SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[chosen.contract].sourceCode)
+        // // no longer setting these in top level of simba.json
+        // SimbaConfig.ProjectConfigStore.set('isLib', supplementalInfo[chosen.contract].isLib);
+        // SimbaConfig.ProjectConfigStore.set('sourceCode', supplementalInfo[chosen.contract].sourceCode)
         currentContractName = chosen.contract;
         // SimbaConfig.ProjectConfigStore.set('language', supplementalInfo[chosen.contract].language);
     }
@@ -159,15 +162,21 @@ const exportContract = async (
             SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : error exporting contract`)}`);
             return;
         }
-        SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
-        const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info") ?
-            SimbaConfig.ProjectConfigStore.get("contracts_info") :
-            {};
-        contractsInfo[currentContractName] = {
-            design_id: resp.id,
-        }
-        SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo)
+
         if (resp.id) {
+            // // no longer setting top level field "design_id", since this should be set inside contracts_info field
+            // SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
+            const contractType = supplementalInfo[currentContractName].contractType;
+            const sourceCode = supplementalInfo[currentContractName].sourceCode;
+            const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info") ?
+                SimbaConfig.ProjectConfigStore.get("contracts_info") :
+                {};
+            contractsInfo[currentContractName] = {
+                design_id: resp.id,
+                contract_type: contractType,
+                source_code: sourceCode,
+            }
+            SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo)
             SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
         } else {
             SimbaConfig.log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);

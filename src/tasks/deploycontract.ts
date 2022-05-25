@@ -54,7 +54,40 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             return;
         }
     }
-    const contractName = SimbaConfig.ProjectConfigStore.get("primary");
+
+    const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info");
+
+    if (!contractsInfo) {
+        SimbaConfig.log.error(`${chalk.greenBright(`\nsimba: no contracts present in your contracts_info in simba.json. Did you forget to deploy contracts first by running ${chalk.greenBright(`$ npx hardhat simba export`)} ?`)}`);
+        return;
+    }
+    const choices = [];
+
+    for (const [contractName, _] of Object.entries(contractsInfo)) {
+        choices.push({title: contractName, value: contractName});
+    }
+
+    const response = await prompt({
+        type: 'select',
+        name: 'contract_name',
+        message: 'Please pick which contract you want to deploy',
+        choices,
+    });
+
+    if (!response.contract_name) {
+        SimbaConfig.log.error(`${chalk.redBright('\nsimba: EXIT : No contract selected for deployment!')}`);
+        throw new Error('No Contract Selected!');
+    }
+
+
+    // can introduce all the necessary logic above this line, I think, for allowing user to choose contract for deployment
+
+    const contractName = response.contract_name;
+    SimbaConfig.ProjectConfigStore.set("primary", contractName);
+    const contractInfo = contractsInfo[contractName];
+    const sourceCode = contractInfo.source_code;
+    const contractType = contractInfo.contract_type;
+    const _isLibrary = (contractType === "library") ? true : false;
     SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: gathering info for deployment of contract ${chalk.greenBright(`${contractName}`)}`)}`)
     let chosen: any = {};
     const questions: prompt.PromptObject[] = [
@@ -194,14 +227,12 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
             }
         }
     }
-    
-    const _isLibrary = SimbaConfig.ProjectConfigStore.get("isLib")
 
     let deployURL;
     let deployment: DeploymentRequest;
     if (_isLibrary) {
         deployURL = `organisations/${config.organisation.id}/deployed_artifacts/create/`;
-        const b64CodeBuffer = Buffer.from(config.ProjectConfigStore.get("sourceCode"))
+        const b64CodeBuffer = Buffer.from(sourceCode)
         const base64CodeString = b64CodeBuffer.toString('base64')
         deployment = {
             args: deployArgs,
@@ -284,13 +315,11 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                                 {};
                             contractsInfo[contractName].address = contractAddress;
                             contractsInfo[contractName].deployment_id = deployment_id;
-                            contractsInfo[contractName].contract_type = "contract";
                         } else {
                             contractsInfo = {};
                             contractsInfo[contractName] = {};
                             contractsInfo[contractName].address = contractAddress;
                             contractsInfo[contractName].deployment_id = deployment_id;
-                            contractsInfo[contractName].contract_type = "contract";
                         }
                         config.ProjectConfigStore.set("contracts_info", contractsInfo);
                         const most_recent_deployment_info = {
@@ -318,13 +347,11 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
                                     {};
                                 contractsInfo[libraryName].address = libraryAddress;
                                 contractsInfo[libraryName].deployment_id = deployment_id;
-                                contractsInfo[libraryName].contract_type = "library";
                             } else {
                                 contractsInfo = {} as any;
                                 contractsInfo[libraryName] = {};
                                 contractsInfo[libraryName].address = libraryAddress;
                                 contractsInfo[libraryName].deployment_id = deployment_id;
-                                contractsInfo[libraryName].contract_type = "library";
                             }
                             config.ProjectConfigStore.set("contracts_info", contractsInfo);
                             const most_recent_deployment_info = {
