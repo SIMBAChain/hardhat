@@ -122,7 +122,7 @@ const simba = async (
             break;
         }
         default: { 
-           console.log(`Please enter a valid simba command:\n${JSON.stringify(SIMBA_COMMANDS)}`);
+           console.log(`${chalk.redBright(`\nsimba: unrecognized command - Please enter a valid simba command:\n${chalk.cyanBright(`${JSON.stringify(SIMBA_COMMANDS)}`)}`)}`);
            break; 
         } 
      }
