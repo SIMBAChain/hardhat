@@ -67,7 +67,7 @@ $ npm install @simbachain/hardhat
 Import Simba Hardhat plugin in your `Hardhat.config.ts`:
 
 ```ts
-import "@simbachain/Hardhat";
+import "@simbachain/hardhat";
 ```
 
 Then run the following command to make sure everything is installed correctly:
