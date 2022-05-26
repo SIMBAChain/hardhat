@@ -69,7 +69,6 @@ const simba = async (
         cmd,
         topic,
         primary,
-        deleteNonExportedArtifacts,
         logLevel,
         designID,
         libraryName,
@@ -82,11 +81,7 @@ const simba = async (
            break; 
         }
         case Commands.EXPORT: {
-            let _deleteNonExportedArtifacts = true;
-            if (deleteNonExportedArtifacts === "false") {
-                _deleteNonExportedArtifacts = false;
-            }
-            await exportContract(hre, primary, _deleteNonExportedArtifacts);
+            await exportContract(hre, primary);
             break;
         }
         case Commands.DEPLOY: {
@@ -133,7 +128,6 @@ task("simba", "base simba cli that takes args")
     .addPositionalParam("cmd", "command to call through simba")
     .addOptionalParam("topic", "pass optional help topic when cmd == 'help'")
     .addOptionalParam("prm", "used to specify a primary contract for either export or deploy")
-    .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
     .addOptionalParam("libname", "name of the library you want to add")
