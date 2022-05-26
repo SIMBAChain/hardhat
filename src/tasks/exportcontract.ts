@@ -189,7 +189,7 @@ const exportContract = async (
         const chosen = await prompt({
             type: 'multiselect',
             name: 'contracts',
-            message: `${chalk.cyanBright(`Please select all contracts you want to export. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you.`)}`,
+            message: `${chalk.cyanBright(`Please select all contracts you want to export. Use -> to select a contract, and <- to un-select a contract. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you.`)}`,
             choices,
         });
 
@@ -213,13 +213,12 @@ const exportContract = async (
         const allContracts = libsArray.concat(nonLibsArray);
 
         for (let i = 0; i < allContracts.length; i++) {
-            
             const singleContractImportData = {} as any;
             currentContractName = allContracts[i];
             singleContractImportData[currentContractName] = importData[currentContractName]
             SimbaConfig.ProjectConfigStore.set('primary', currentContractName);
         
-            SimbaConfig.log.debug(`importData: ${JSON.stringify(importData)}`);
+            SimbaConfig.log.debug(`singleContractImportData: ${JSON.stringify(singleContractImportData)}`);
         
             const libraries = await SimbaConfig.ProjectConfigStore.get("library_addresses") ? SimbaConfig.ProjectConfigStore.get("library_addresses") : {};
             SimbaConfig.log.debug(`libraries: ${JSON.stringify(libraries)}`);
