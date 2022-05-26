@@ -180,27 +180,27 @@ Once you have logged in, you will be able to export your contracts, which will s
 $ npx hardhat simba export
 ```
 
-You will then be prompted to select the contract you want to export to Blocks:
+You will then be prompted to select all of the contract you want to export to Blocks:
 
 ```
-? Please select your primary contract › - Use arrow-keys. Return to submit.
-❯   CoffeeERC721
-    CoffeeUpgradable
-    WatchERC721
-    WatchUpgradable
+? Please select all contracts you want to export. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you. ›  
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    a: Toggle all
+    enter/return: Complete answer
+◯   CoffeeERC721
+◯   CoffeeUpgradable
+◯   WatchERC721
+◯   WatchUpgradable
 ```
 
-If you want to export with optional arguments, you can specify a primary contract by passing the --prm flag, followed by the contract name:
+As the prompt indicates, if you are going to be exporting contract X, and it depends on library Y, then you need to export library Y along with contract X. This does not mean that if you've ALREADY exported libray Y in a previous export command, you need to export it again. 
+
+If you want to export just one specific contract, you can specify a primary contract by passing the --prm flag, followed by the contract name:
 
 ```
 $ npx hardhat simba export --prm CoffeeERC721
-```
-
-*the following paragraph is for rarely used deployment behavior*
-You can also pass the --dltnon flag with argument 'false', which means your non-primary contract artifacts will not be deleted from the object that you export to SIMBA Chain. You pass this second argument if you are exporting more than one contract to Simba Chain simultaneously, though THIS IS NOT STANDARD PRACTICE, AND MOST OF THE TIME YOU WILL NOT USE THIS FLAG. So for instance, if you wanted to export multiple contracts, with the primary contract having name 'MyPrimaryContract', then you would run
-
-```
-$ npx hardhat simba export --prm <your primary contract> --delnon false
 ```
 
 3. deploy: 

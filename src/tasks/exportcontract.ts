@@ -92,7 +92,9 @@ const exportContract = async (
         if ((primary as string) in importData) {
             SimbaConfig.ProjectConfigStore.set('primary', primary);
             currentContractName = primary;
-        
+            const currentData = importData[currentContractName];
+            importData = {};
+            importData[currentContractName] = currentData;
             SimbaConfig.log.debug(`importData: ${JSON.stringify(importData)}`);
         
             const libraries = await SimbaConfig.ProjectConfigStore.get("library_addresses") ? SimbaConfig.ProjectConfigStore.get("library_addresses") : {};
