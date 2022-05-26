@@ -44,7 +44,6 @@ const exportContract = async (
         deleteNonExportedArtifacts,
     };
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
-    // Not putting any "isLoggedIn()" logic here because SimbaConfig.authStore.doGetRequest handles that
     const buildDir = SimbaConfig.buildDirectory;
     let files: string[] = [];
 
@@ -87,7 +86,6 @@ const exportContract = async (
         importData[name].ast = astAndOtherInfo.ast;
         importData[name].source = astAndOtherInfo.source;
         importData[name].compiler = {'name': 'solc', 'version': astAndOtherInfo.compiler}
-        supplementalInfo[name].isLib = astAndOtherInfo.isLib;
         supplementalInfo[name].contractType = contractType;
         // supplementalInfo[name].contractName = astAndOtherInfo.contractName;
         // supplementalInfo[name].contractSourceName = astAndOtherInfo.contractSourceName;

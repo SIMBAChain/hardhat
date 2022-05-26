@@ -214,7 +214,7 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         return;
     }
 
-    const id = config.ProjectConfigStore.get('design_id');
+    const id = contractInfo.design_id;
     let deployArgs: DeploymentArguments = {};
     if (chosen.args) {
         deployArgs = JSON.parse(chosen.args) as DeploymentArguments;
