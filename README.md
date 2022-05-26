@@ -205,10 +205,16 @@ $ npx hardhat simba export --prm <your primary contract> --delnon false
 
 3. deploy: 
 
-After you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the SIMBA Blocks UI, or programatically through one of SIMBA's SDKs. To deploy, run
+After you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the SIMBA Blocks UI, or programatically through one of SIMBA's SDKs. To deploy, you have two options. First, you can run
 
 ```
 $ npx hardhat simba deploy
+```
+
+If you run the above command, you will be prompted to selected which contract you want to deploy from a list of contracts you have exported. Second, you can specify the primary contract you want to deploy by running:
+
+```
+$ npx hardhat simba deploy --prm <contract name you want to deploy>
 ```
 
 If your contract's constructor takes parameters, then you will see the following prompt, asking you to specify how you would like to provide the values for these parameters:

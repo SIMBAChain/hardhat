@@ -35,10 +35,13 @@ interface DeploymentRequest {
  * @param hre 
  * @returns 
  */
-export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
+export const deployContract = async (
+    hre: HardhatRuntimeEnvironment,
+    primary?: string
+) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
-    if (!config.ProjectConfigStore.has("design_id")) {
+    if (!config.ProjectConfigStore.has("contracts_info")) {
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Please export your contract first with "npx hardhat simba export".`)}`);
         return;
     }
@@ -61,29 +64,38 @@ export const deployContract = async (hre: HardhatRuntimeEnvironment) => {
         SimbaConfig.log.error(`${chalk.greenBright(`\nsimba: no contracts present in your contracts_info in simba.json. Did you forget to deploy contracts first by running ${chalk.greenBright(`$ npx hardhat simba export`)} ?`)}`);
         return;
     }
-    const choices = [];
+    let contractName;
+    if (primary) {
+        if ((primary as string) in contractsInfo) {
+            SimbaConfig.ProjectConfigStore.set('primary', primary);
+            contractName = primary;
+        } else {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
+            return;
+        }
+    } else {
+        const choices = [];
 
-    for (const [contractName, _] of Object.entries(contractsInfo)) {
-        choices.push({title: contractName, value: contractName});
+        for (const [contractName, _] of Object.entries(contractsInfo)) {
+            choices.push({title: contractName, value: contractName});
+        }
+    
+        const response = await prompt({
+            type: 'select',
+            name: 'contract_name',
+            message: 'Please pick which contract you want to deploy',
+            choices,
+        });
+    
+        if (!response.contract_name) {
+            SimbaConfig.log.error(`${chalk.redBright('\nsimba: EXIT : No contract selected for deployment!')}`);
+            throw new Error('No Contract Selected!');
+        }
+    
+        contractName = response.contract_name;
+        SimbaConfig.ProjectConfigStore.set("primary", contractName);
     }
 
-    const response = await prompt({
-        type: 'select',
-        name: 'contract_name',
-        message: 'Please pick which contract you want to deploy',
-        choices,
-    });
-
-    if (!response.contract_name) {
-        SimbaConfig.log.error(`${chalk.redBright('\nsimba: EXIT : No contract selected for deployment!')}`);
-        throw new Error('No Contract Selected!');
-    }
-
-
-    // can introduce all the necessary logic above this line, I think, for allowing user to choose contract for deployment
-
-    const contractName = response.contract_name;
-    SimbaConfig.ProjectConfigStore.set("primary", contractName);
     const contractInfo = contractsInfo[contractName];
     const sourceCode = contractInfo.source_code;
     const contractType = contractInfo.contract_type;

@@ -90,7 +90,7 @@ const simba = async (
             break;
         }
         case Commands.DEPLOY: {
-            await deployContract(hre);
+            await deployContract(hre, primary);
             break;
         }
         case Commands.LOGOUT: {
@@ -132,7 +132,7 @@ const simba = async (
 task("simba", "base simba cli that takes args")
     .addPositionalParam("cmd", "command to call through simba")
     .addOptionalParam("topic", "pass optional help topic when cmd == 'help'")
-    .addOptionalParam("prm", "used to specify a primary artifact when exporting export")
+    .addOptionalParam("prm", "used to specify a primary contract for either export or deploy")
     .addOptionalParam("dltnon", "set to 'false' if exporting more than one contract simultaneously")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
