@@ -75,7 +75,7 @@ const exportContract = async (
         const contractSourceName = parsed.sourceName;
         const astAndOtherInfo = await getASTAndOtherInfo(name, contractSourceName) as any;
         const ast = astAndOtherInfo.ast;
-        const contractType = getContractKind(ast);
+        const contractType = getContractKind(name, ast);
         await writeAndReturnASTAndOtherInfo(name, contractSourceName);
         supplementalInfo[name] = {} as any;
         contractNames.push(name);
@@ -189,7 +189,7 @@ const exportContract = async (
         const chosen = await prompt({
             type: 'multiselect',
             name: 'contracts',
-            message: `${chalk.cyanBright(`Please select all contracts you want to export. Use -> to select a contract, and <- to un-select a contract. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you.`)}`,
+            message: `${chalk.cyanBright(`Please select all contracts you want to export. Use -> to select a contract, and <- to un-select a contract. Please note that if you're exporting contract X, and contract X depends on/imports library Y, then you need to export Library Y before, or simultaneously with, Contract X. Library linking will fail if you export Library Y AFTER you export contract X. SIMBA Chain will handle the library linking for you.`)}`,
             choices,
         });
 
