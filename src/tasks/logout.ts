@@ -11,7 +11,8 @@ import {default as chalk} from 'chalk';
  */
 const logout = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: ENTER :`);
-    await SimbaConfig.authStore.logout();
+    const authStore = await SimbaConfig.authStore();
+    await authStore.logout();
     SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: you have logged out.`)}`)
     SimbaConfig.log.debug(`:: EXIT :`);
 }

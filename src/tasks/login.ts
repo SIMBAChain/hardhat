@@ -21,7 +21,8 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();
     // logging out by default when we run login
-    await simbaConfig.authStore.logout();
+    const authStore = await SimbaConfig.authStore();
+    await authStore.logout();
     const org = await chooseOrganisationFromList(simbaConfig);
     if (!org) {
         SimbaConfig.log.debug(`:: EXIT :`);

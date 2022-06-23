@@ -266,8 +266,10 @@ export const deployContract = async (
         };
     }
 
+    const authStore = await SimbaConfig.authStore();
+
     try {
-        const resp = await config.authStore.doPostRequest(
+        const resp = await authStore.doPostRequest(
             deployURL,
             deployment,
             "application/json",
@@ -287,7 +289,7 @@ export const deployContract = async (
 
         do {
             const checkDeployURL = `organisations/${config.organisation.id}/deployments/${deployment_id}/`;
-            const check_resp = await config.authStore.doGetRequest(
+            const check_resp = await authStore.doGetRequest(
                 checkDeployURL,
             );
             if (!check_resp) {
