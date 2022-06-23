@@ -93,15 +93,12 @@ And then you should see the following:
 
 ## Project Settings
 
-To use the SIMBA Chain Hardhat plugin, you will need to configure your simba.json file. Your simba.json file should live in the top level of your Hardhat project, and should contain values for authURL (for Keycloak), clientID (for Keycloak), realm (for Keycloak), baseURL (for SIMBA Blocks), and web3Suite (should always be "hardhat" for this plugin). An example would look like:
+To use the SIMBA Chain Hardhat plugin, you will need to configure your simba.json file. Your simba.json file should live in the top level of your Hardhat project, and should contain values for baseURL and web3Suite:
 
 ```json
 {
   "baseURL": "https://simba-dev-api.platform.simbachain.com/v2",
-  "realm": "simbachain",
-  "web3Suite": "hardhat",
-  "authURL": "https://simba-dev-sso.platform.simbachain.com",
-  "clientID": "simba-pkce"
+  "web3Suite": "hardhat"
 }
 ```
 
