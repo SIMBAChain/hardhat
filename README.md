@@ -48,11 +48,9 @@ You will also need to create your Hardhat TypeScript project. To do so, follow t
   Quit
 ```
 
-If you already have a hardhat project written in JavaScript, then to convert it to a TypeScript project, run:
+We suggest you just create a TypeScript Hardhat project from scratch, as instructed above. However, if you already have a hardhat project written in JavaScript, then to convert it to a TypeScript project, please follow the very brief, very clear documentation that Hardhat provides:
 
-```
-$ mv hardhat.config.js hardhat.config.ts
-```
+https://hardhat.org/guides/typescript
 
 # Installation
 
