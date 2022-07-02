@@ -10,12 +10,12 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 5. [Usage](#usage)
     - [Contract Compilation](#contract-compilation)
     - [Tasks](#tasks)
-      - login
-      - export
-      - deploy
-      - logout
-      - help
-      - loglevel
+      - [login](#login)
+      - [export](#export)
+      - [deploy](#deploy)
+      - [logout](#logout)
+      - [help](#help)
+      - [loglevel](#loglevel)
 6. [Environment Extensions](#environment-extensions)
 7. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
 
@@ -133,7 +133,7 @@ npx hardhat simba <subtask> <optional args>
 
 Below, we explain the Hardhat tasks that you will use in the SIMBA plugin to deploy your contracts. They are listed and explained in the order that you would follow to login and deploy your contracts. Then, information is provided on other tasks, such as "help" and "loglevel".
 
-1. login
+### login
 
 *NOTE* : you need to have at least one app present in the SIMBA Chain org that you try to log into, otherwise the plugin will return an error during login. This is because, to deploy a contract, SIMBA needs to know which app you are deploying to. You can create an empty app, which is sufficient, by going to the UI, logging into your org, and creating an app there.
 
@@ -169,7 +169,7 @@ You will then be prompted to select your application, with something like:
     revisedApp
 ```
 
-2. export
+### export
 
 Once you have logged in, you will be able to export your contracts, which will save them to your organization's contracts (you can also think of this action as "importing" your contracts to Blocks). For this command, you can either run export without arguments, or with optional arguments. To export without optional arguments, run
 
@@ -177,7 +177,7 @@ Once you have logged in, you will be able to export your contracts, which will s
 $ npx hardhat simba export
 ```
 
-You will then be prompted to select all of the contract you want to export to Blocks:
+You will then be prompted to select all of the contracts you want to export to Blocks:
 
 ```
 ? Please select all contracts you want to export. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you. ›  
@@ -200,7 +200,7 @@ If you want to export just one specific contract, you can specify a primary cont
 $ npx hardhat simba export --prm CoffeeERC721
 ```
 
-3. deploy: 
+### deploy
 
 After you have logged in and exported your contract, you will be able to deploy your contract. This step will generate the REST API endpoints that you can use to interact with your smart contract's methods, and save them to your organization and app. You will then be able to access those endpoints through either the SIMBA Blocks UI, or programatically through one of SIMBA's SDKs. To deploy, you have two options. First, you can run
 
@@ -232,7 +232,7 @@ simba deploy: gathering info for deployment of contract CoffeeERC721
 ? Please enter any arguments for the contract as a JSON dictionary. › {"ownerName": "Brendan", "poundWeight": 13}
 ```
 
-And just like that, your contract is deployed! If you want to view information on contract deployments you've made through the plugin, you can go to your simba.json, where you will find info similar to what's found below. So if you need ot reference any information, you can find it there.
+And just like that, your contract is deployed! If you want to view information on contract deployments you've made through the plugin, you can go to your simba.json, where you will find info similar to what's found below. So if you need to reference any information, you can find it there.
 
 ```json
 	"most_recent_deployment_info": {
@@ -256,7 +256,7 @@ And just like that, your contract is deployed! If you want to view information o
 	}
 ```
 
-4. logout:
+### logout
 
 If you want to logout, then you can do so by running
 
@@ -266,7 +266,7 @@ $ npx hardhat simba logout
 
 Doing so will delete your auth token in authconfig.json
 
-5. help:
+### help
 
 To choose a help topic from a list, run
 
@@ -307,7 +307,7 @@ As indicated above, the available help topics are:
 - sync
 - viewcontracts
 
-6. loglevel:
+### loglevel
 
 The Simba Hardhat plugin uses tslog for logging / debugging. Setting a log level through this command will set a MINIMUM log level. So for instance, if you set the log level to 'info', then logs of level SimbaConfig.log.info(...) as well as SimbaConfig.log.error(...) will be logged. Valid values for log levels are 'error', 'info', 'debug', 'silly', 'warn', 'trace', and 'fatal'. You can either run this command without any arguments, which will allow you to set a minimum log level from prompt:
 

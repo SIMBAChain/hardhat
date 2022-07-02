@@ -12,6 +12,9 @@ import {default as chalk} from 'chalk';
 const logout = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const authStore = await SimbaConfig.authStore();
+    if (!authStore) {
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no authStore created. Please make sure your baseURL is properly configured in your simba.json`)}`)
+    }
     await authStore.logout();
     SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: you have logged out.`)}`)
     SimbaConfig.log.debug(`:: EXIT :`);
