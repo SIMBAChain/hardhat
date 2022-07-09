@@ -1,7 +1,5 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import * as path from 'path';
-import * as fs from "fs";
 import {
     SimbaConfig,
 } from '@simbachain/web3-suites';
