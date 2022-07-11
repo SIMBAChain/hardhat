@@ -7,6 +7,7 @@ import {
     getStorages,
     primaryConstructorRequiresArgs,
     primaryConstructorInputs,
+    authErrors,
 } from '@simbachain/web3-suites';
 import { StatusCodeError } from 'request-promise/errors';
 // const log: Logger = new Logger({minLevel: "error"});
@@ -267,6 +268,10 @@ export const deployContract = async (
     }
 
     const authStore = await SimbaConfig.authStore();
+    if (!authStore) {
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no authStore created. Please make sure your baseURL is properly configured in your simba.json`)}`);
+        return Promise.resolve(new Error(authErrors.badAuthProviderInfo));
+    }
 
     try {
         const resp = await authStore.doPostRequest(

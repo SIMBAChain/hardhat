@@ -9,6 +9,7 @@ import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     SimbaConfig,
+    authErrors,
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 import { AzureHandler, KeycloakHandler } from "@simbachain/web3-suites/dist/commands/lib/authentication";
@@ -22,6 +23,11 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const simbaConfig = new SimbaConfig();
     const authStore = await simbaConfig.authStore();
+
+    if (!authStore) {
+        SimbaConfig.log.error(authErrors.badAuthProviderInfo);
+        return Promise.resolve(new Error(authErrors.badAuthProviderInfo));
+    }
 
     if (authStore instanceof KeycloakHandler) {
         // logging out by default when we run login
