@@ -40,13 +40,13 @@ declare module "hardhat/types/runtime" {
     ) => Promise<void>;
     deploy: (
       hre: HardhatRuntimeEnvironment,
-    ) => Promise<void>;
+    ) => Promise<void | Error>;
     export: (
       hre: HardhatRuntimeEnvironment,
-    ) => Promise<void>;
+    ) => Promise<void | Error>;
     logout: (
       hre: HardhatRuntimeEnvironment,
-    ) => Promise<void>;
+    ) => Promise<void | Error>;
     setLogLevel: (
       hre: HardhatRuntimeEnvironment,
     ) => Promise<void>;
