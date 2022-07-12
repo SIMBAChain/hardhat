@@ -270,7 +270,7 @@ export const deployContract = async (
     const authStore = await SimbaConfig.authStore();
     if (!authStore) {
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no authStore created. Please make sure your baseURL is properly configured in your simba.json`)}`);
-        return Promise.resolve(new Error(authErrors.badAuthProviderInfo));
+        return Promise.reject(new Error(authErrors.badAuthProviderInfo));
     }
 
     try {
