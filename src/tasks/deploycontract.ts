@@ -107,7 +107,7 @@ export const deployContract = async (
         {
             type: 'text',
             name: 'api',
-            message: `Please choose an API name for contract ${chalk.greenBright(`${contractName}`)} [^[w-]*$]`,
+            message: `Please enter an API name for contract ${chalk.greenBright(`${contractName}`)} [^[w-]*$]`,
             validate: (str: string): boolean => !!/^[\w-]*$/.exec(str),
         },
         {

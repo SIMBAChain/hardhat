@@ -4,7 +4,7 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 
 # Table of Contents:
 1. [Summary](#summary)
-2. [Steps To Follow To Get Started](#steps-to-follow-to-get-started)
+2. [Installation Overview](#installation-overview)
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
 5. [Project Settings](#project-settings)
@@ -24,15 +24,16 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 
 Do you love SIMBA Chain? Do you love Hardhat? Then you're in luck! The Hardhat plugin for SIMBA Chain allows you to deploy smart contracts to your preferred blockchain through the SIMBA Blocks platform, using the same Hardhat web3 suite that you're used to developing and testing your smart contracts with. All you have to do to use the plugin is install it in your Hardhat project, compile your contracts, and then follow a few simple steps to deploy your smart contracts to chain through the Blocks platform. If you're not familiar with SIMBA's Blocks platform, it allows you to deploy smart contracts and automatically generate REST API endpoints that allow you to easily interact with your deployed smart contract.
 
-## Steps To Follow To Get Started
+## Installation Overview
 The following are the general steps to get going with the SIMBA Chain Hardhat plugin. The rest of the documentation provides details on these and other steps.
 
 1. create a directory for your Hardhat project.
 2. cd into that directory and start an npm project.
 3. install hardhat in that project / directory. This directory, where your package.json will live, is where you will run your Hardhat commands from.
-4. add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depeneding on which file your project has.
-5. create a simba.json file in the top level of your project, and populate that file with 'baseURL' and 'web3Suite' fields.
-6. run `npx hardhat simba help` to make sure the plugin is installed
+4. install the SIMBA Chain Hardhat plugin
+5. add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depeneding on which file your project has.
+6. create a simba.json file in the top level of your project, and populate that file with 'baseURL' and 'web3Suite' fields.
+7. run `npx hardhat simba help` to make sure the plugin is installed
 
 ## Prerequisites
 You should have a SIMBA Enterprise Platform Instance to communicate with. Additionally you must have a least one contract application created in the instance. To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
@@ -129,9 +130,12 @@ NOTE: the following baseURL is an example, and will likely be different for your
 In addition to these base configs, you can also specify a different contracts directory and build directory in simba.json, in case these directories are not located in the default location for your web3 project, BUT YOU SHOULD NOT CONFIGURE THE FOLLOWING FIELDS UNLESS THE LOCATION OF YOUR CONTRACTS OR BUILD ARTIFACTS HAS BEEN CHANGED FROM THEIR DEFAULT LOCATION FOR SOME REASON.
 
 ```json
-...
-"buildDirectory": "custom build directory location",
-"contractDirectory": "custom contract directory location"
+{
+    ...
+    "buildDirectory": "custom build directory location",
+    "contractDirectory": "custom contract directory location"
+}
+
 ```
 
 Then run the following command to make sure everything is installed correctly:
