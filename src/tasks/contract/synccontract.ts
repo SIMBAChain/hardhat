@@ -12,7 +12,7 @@ import {
  */
 const sync = async (
     hre: HardhatRuntimeEnvironment,
-    designID: string,
+    designID?: string,
 ) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     await syncContract(designID);

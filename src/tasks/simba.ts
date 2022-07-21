@@ -105,10 +105,6 @@ const simba = async (
             break;
         }
         case Commands.SYNC: {
-            if (!designID) {
-                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: you must pass a designID to sync a contract`)}`);
-                break;
-            }
             await sync(hre, designID)
             break;
         }

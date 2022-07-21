@@ -55,7 +55,7 @@ declare module "hardhat/types/runtime" {
     ) => Promise<void>;
     sync: (
       hre: HardhatRuntimeEnvironment,
-      designID: string,
+      designID?: string,
     ) => Promise<void>;
     addLib: (
       hre: HardhatRuntimeEnvironment,
