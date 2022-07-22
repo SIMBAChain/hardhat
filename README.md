@@ -16,6 +16,8 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
       - [deploy](#deploy)
       - [logout](#logout)
       - [help](#help)
+      - [sync](#sync)
+      - [viewcontracts](#viewcontracts)
       - [loglevel](#loglevel)
 7. [Environment Extensions](#environment-extensions)
 8. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
@@ -381,6 +383,33 @@ As indicated above, the available help topics are:
 - loglevel
 - sync
 - viewcontracts
+
+### sync
+This command is for syncing contract designs from SIMBA into your local project. It's a great tool for distributed teams to make sure they're all using the same versions of deployed contracts (kind of a lightweight web3 code repo). So for instance, if one team member exports contractX and contractY to SIMBA, and a second team member wants to make sure they are working with the same contracts, then that second team member can call:
+
+```
+$ npx hardhat simba sync
+```
+
+And then select contractX and contractY to sync. This will overwrite any local versions of contractX and contractY in your local project. You can also pass the --id flag if you want to sync a specific contract instead of selecting contracts from a prompt:
+
+```
+$ npx hardhat simba sync --id <contract ID>
+```
+
+Contract design IDs can be referenced in your simba.json file under contracts_info -> contract name -> design_id. Contract design IDs can also be viewed by running:
+
+```
+npx hardhat simba viewcontracts
+```
+
+### view contracts
+
+This command will return information pertaining to all contracts saved to your organisation on SIMBA Chain. Contract info includes: name, id, and version. For this command, just run:
+
+```
+$ npx hardhat simba viewcontracts
+```
 
 ### loglevel
 

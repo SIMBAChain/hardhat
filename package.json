@@ -1,6 +1,6 @@
 {
     "name": "@simbachain/hardhat",
-    "version": "1.1.40",
+    "version": "1.1.42",
     "description": "Simba Chain plugin for hardhat",
     "repository": "https://github.com/SIMBAChain/hardhat",
     "author": "SIMBA Chain",
