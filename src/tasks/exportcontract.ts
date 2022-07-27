@@ -5,7 +5,6 @@ import {
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
-import { StatusCodeError } from 'request-promise/errors';
 import {
     getASTAndOtherInfo,
     writeAndReturnASTAndOtherInfo,

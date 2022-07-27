@@ -11,6 +11,7 @@ import {
     SimbaConfig,
     authErrors,
 } from '@simbachain/web3-suites';
+import axios from "axios";
 import {default as chalk} from 'chalk';
 import { AzureHandler, KeycloakHandler } from "@simbachain/web3-suites/dist/commands/lib/authentication";
 
@@ -32,6 +33,8 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     if (authStore instanceof KeycloakHandler) {
         // logging out by default when we run login
         await authStore.logout();
+        // we don't have to run a login command with KeycloakHandler
+        // because login functionality is embedded in doGetRequest
         const org = await chooseOrganisationFromList(simbaConfig);
         if (!org) {
             SimbaConfig.log.debug(`:: EXIT :`);
@@ -68,8 +71,13 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
             }
             SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
 
-        } catch (e) {
-            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: ${e}`)}`)
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+            } else {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
+            }
+            return;
         }
     }
 }
