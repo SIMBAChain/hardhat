@@ -5,7 +5,6 @@ import {
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
-import { StatusCodeError } from 'request-promise/errors';
 import {
     getASTAndOtherInfo,
     writeAndReturnASTAndOtherInfo,
@@ -13,7 +12,8 @@ import {
     walkDirForContracts,
     getContractKind,
     authErrors,
-} from '@simbachain/web3-suites';;
+} from '@simbachain/web3-suites';
+import axios from "axios";
 
 interface Data {
     [key: string]: any;
@@ -127,8 +127,6 @@ const exportContract = async (
                 }
         
                 if (resp.id) {
-                    // // no longer setting top level field "design_id", since this should be set inside contracts_info field
-                    // SimbaConfig.ProjectConfigStore.set('design_id', resp.id);
                     const contractType = supplementalInfo[currentContractName].contractType;
                     const sourceCode = supplementalInfo[currentContractName].sourceCode;
                     const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info") ?
@@ -144,47 +142,12 @@ const exportContract = async (
                 } else {
                     SimbaConfig.log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
                 }
-            } catch (e) {
-                if (e instanceof StatusCodeError) {
-                    if('errors' in e.error && Array.isArray(e.error.errors)){
-                        e.error.errors.forEach((error: any)=>{
-                            SimbaConfig.log.error(
-                                `${chalk.red('\nsimba export: ')}[STATUS:${
-                                    error.status
-                                }|CODE:${
-                                    error.code
-                                }] Error Saving contract ${
-                                    error.title
-                                } - ${error.detail}`,
-                            );
-                        });
-                    } else {
-                        SimbaConfig.log.error(
-                            `${chalk.red('\nsimba export: ')}[STATUS:${
-                                e.error.errors[0].status
-                            }|CODE:${
-                                e.error.errors[0].code
-                            }] Error Saving contract ${
-                                e.error.errors[0].title
-                            } - ${e.error.errors[0].detail}`,
-                        );
-                    }
-        
-                    return Promise.resolve();
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response) {
+                    SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+                } else {
+                    SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
                 }
-                const err = e as any;
-                if ('errors' in err) {
-                    if (Array.isArray(err.errors)) {
-                        SimbaConfig.log.error(
-                            `${chalk.red('\nsimba export: ')}[STATUS:${err.errors[0].status}|CODE:${
-                                err.errors[0].code
-                            }] Error Saving contract ${err.errors[0].detail}`,
-                        );
-                        SimbaConfig.log.debug(`:: EXIT :`);
-                        return Promise.resolve();
-                    }
-                }
-                SimbaConfig.log.debug(`:: EXIT :`);
                 return;
             }
         } else {
@@ -266,49 +229,14 @@ const exportContract = async (
                     SimbaConfig.log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
                     return;
                 }
-            } catch (e) {
-                if (e instanceof StatusCodeError) {
-                    if('errors' in e.error && Array.isArray(e.error.errors)){
-                        e.error.errors.forEach((error: any)=>{
-                            SimbaConfig.log.error(
-                                `${chalk.red('\nsimba export: ')}[STATUS:${
-                                    error.status
-                                }|CODE:${
-                                    error.code
-                                }] Error Saving contract ${
-                                    error.title
-                                } - ${error.detail}`,
-                            );
-                        });
-                    } else {
-                        SimbaConfig.log.error(
-                            `${chalk.red('\nsimba export: ')}[STATUS:${
-                                e.error.errors[0].status
-                            }|CODE:${
-                                e.error.errors[0].code
-                            }] Error Saving contract ${
-                                e.error.errors[0].title
-                            } - ${e.error.errors[0].detail}`,
-                        );
-                    }
-        
-                    return Promise.resolve();
-                }
-                const err = e as any;
-                if ('errors' in err) {
-                    if (Array.isArray(err.errors)) {
-                        SimbaConfig.log.error(
-                            `${chalk.red('\nsimba export: ')}[STATUS:${err.errors[0].status}|CODE:${
-                                err.errors[0].code
-                            }] Error Saving contract ${err.errors[0].detail}`,
-                        );
-                        SimbaConfig.log.debug(`:: EXIT :`);
-                        return Promise.resolve();
-                    }
-                }
-                SimbaConfig.log.debug(`:: EXIT :`);
-                return;
+            } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+            } else {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
             }
+            return;
+        }
         }
     }
 
