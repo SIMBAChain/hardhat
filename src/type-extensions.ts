@@ -3,7 +3,9 @@
 // To extend one of Hardhat's types, you need to import the module where it has been defined, and redeclare it.
 import "hardhat/types/config";
 import "hardhat/types/runtime";
-
+import {
+  LogLevel,
+} from '@simbachain/web3-suites';
 
 declare module "hardhat/types/config" {
   // This is an example of an extension to one of the Hardhat config values.
@@ -34,15 +36,22 @@ declare module "hardhat/types/runtime" {
     simba: (
       hre: HardhatRuntimeEnvironment,
       cmd: string,
+      topic?: string,
       primary?: string,
       deleteNonExportedArtifacts?: string,
+      logLevel?: LogLevel,
       designID?: string,
+      libraryName?: string,
+      libraryAddress?: string,
+      interactive?: string,
     ) => Promise<void>;
     deploy: (
       hre: HardhatRuntimeEnvironment,
     ) => Promise<void | Error>;
     export: (
       hre: HardhatRuntimeEnvironment,
+      interactive: boolean,
+      primary: string
     ) => Promise<void | Error>;
     logout: (
       hre: HardhatRuntimeEnvironment,

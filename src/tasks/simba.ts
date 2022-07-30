@@ -64,6 +64,7 @@ const simba = async (
     designID?: string,
     libraryName?: string,
     libraryAddress?: string,
+    interactive?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -81,7 +82,29 @@ const simba = async (
            break; 
         }
         case Commands.EXPORT: {
-            await exportContract(hre, primary);
+            let _interactive: boolean;
+            if (interactive) {
+                interactive = interactive.toLowerCase();
+                switch (interactive) {
+                    case "false": {
+                        _interactive = false;
+                        await exportContract(hre, _interactive, primary);
+                        break;
+                    }
+                    case "true": {
+                        _interactive = true;
+                        await exportContract(hre, _interactive, primary);
+                        break;
+                    }
+                    default: { 
+                        console.log(`${chalk.redBright(`\nsimba: unrecognized value for "interactive" flag. Please enter '--interactive true' or '--interactive false' for this flag`)}`);
+                        break; 
+                     } 
+                }
+            } else {
+                _interactive = true;
+                await exportContract(hre, _interactive, primary);
+            }
             break;
         }
         case Commands.DEPLOY: {
@@ -128,9 +151,10 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
     .addOptionalParam("libname", "name of the library you want to add")
     .addOptionalParam("libaddr", "address of the library you want to add")
+    .addOptionalParam("interactive", "'true' or 'false' for interactive export")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive);
     });
 
 export default simba;

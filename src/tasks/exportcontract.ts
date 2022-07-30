@@ -1,12 +1,10 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import {
-    SimbaConfig,
-    SourceCodeComparer,
-} from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
 import {
+    SimbaConfig,
+    SourceCodeComparer,
     getASTAndOtherInfo,
     writeAndReturnASTAndOtherInfo,
     promisifiedReadFile,
@@ -35,6 +33,7 @@ interface Request {
  */
 const exportContract = async (
     hre: HardhatRuntimeEnvironment,
+    interactive: boolean = true,
     primary?: string,
 ) => {
     const entryParams = {
@@ -93,9 +92,8 @@ const exportContract = async (
         supplementalInfo[name].sourceCode = astAndOtherInfo.source;
         choices.push({title: name, value: name});
     }
-    // user sourceCodeComparer to prevent export of contracts that
+    // use sourceCodeComparer to prevent export of contracts that
     // do not have any changes:
-
     const exportStatuses = await sourceCodeComparer.exportStatuses(choices);
 
     let currentContractName;
@@ -166,12 +164,24 @@ const exportContract = async (
             return;
         }
     } else {
-        const chosen = await prompt({
-            type: 'multiselect',
-            name: 'contracts',
-            message: `${chalk.cyanBright(`Please select all contracts you want to export. Use the Space Bar to select or un-select a contract (You can also use -> to select a contract, and <- to un-select a contract). Hit Return/Enter when you are ready to export. If you have questions on exporting libraries, then please run 'npx hardhat simba help --topic libraries' .`)}`,
-            choices,
-        });
+        let chosen: Record<string, Array<any>>;
+        if (interactive) {
+            chosen = await prompt({
+                type: 'multiselect',
+                name: 'contracts',
+                message: `${chalk.cyanBright(`Please select all contracts you want to export. Use the Space Bar to select or un-select a contract (You can also use -> to select a contract, and <- to un-select a contract). Hit Return/Enter when you are ready to export. If you have questions on exporting libraries, then please run 'npx hardhat simba help --topic libraries' .`)}`,
+                choices,
+            });
+        } else {
+            const contracts: Array<any> = [];
+            for (let i = 0; i < choices.length; i++) {
+                const contractName = choices[i].title;
+                contracts.push(contractName);
+            }
+            chosen = {
+                contracts,
+            };
+        }
 
         SimbaConfig.log.debug(`chosen: ${JSON.stringify(chosen)}`);
 
@@ -246,8 +256,22 @@ const exportContract = async (
                 }
             } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
-                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`);
+                SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
+                let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
+                for (let contractName in attemptedExports) {
+                    const message = attemptedExports[contractName].message;
+                    attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
+                }
+                SimbaConfig.log.info(attemptsString);
             } else {
+                SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
+                let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
+                for (let contractName in attemptedExports) {
+                    const message = attemptedExports[contractName].message;
+                    attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
+                }
+                SimbaConfig.log.info(attemptsString);
                 SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
             }
             return;
@@ -255,16 +279,13 @@ const exportContract = async (
         }
         SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
         let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
-        for (let attempt in attemptedExports) {
-            const contractName = attempt;
+        for (let contractName in attemptedExports) {
             const message = attemptedExports[contractName].message;
             attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
         }
         SimbaConfig.log.info(attemptsString);
         SimbaConfig.log.debug(`:: EXIT :`);
     }
-
-
 }
 
 task("export", "export contract(s) to Blocks")

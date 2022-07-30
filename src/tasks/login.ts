@@ -59,6 +59,7 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
 
     if (authStore instanceof AzureHandler) {
         try {
+            authStore.logout();
             if (!authStore.isLoggedIn()) {
                 await authStore.performLogin();
             } else {
