@@ -100,7 +100,7 @@ const exportContract = async (
     if (primary) {
         if ((primary as string) in importData) {
             if (!exportStatuses[primary].newOrChanged) {
-                SimbaConfig.log.info(`${chalk.cyanBright(`simba: Export statuses:\n${exportStatuses[primary]}: ${exportStatuses[primary].message}`)}`);
+                SimbaConfig.log.info(`${chalk.cyanBright(`simba: Export results:\n${exportStatuses[primary]}: ${exportStatuses[primary].message}`)}`);
                 SimbaConfig.log.debug(`:: EXIT :`);
                 return;
             }
@@ -258,7 +258,7 @@ const exportContract = async (
             if (axios.isAxiosError(error) && error.response) {
                 SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`);
                 SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
-                let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
+                let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
                 for (let contractName in attemptedExports) {
                     const message = attemptedExports[contractName].message;
                     attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
@@ -266,7 +266,7 @@ const exportContract = async (
                 SimbaConfig.log.info(attemptsString);
             } else {
                 SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
-                let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
+                let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
                 for (let contractName in attemptedExports) {
                     const message = attemptedExports[contractName].message;
                     attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
@@ -278,7 +278,7 @@ const exportContract = async (
             }
         }
         SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
-        let attemptsString = `${chalk.cyanBright(`\nsimba: Export statuses:`)}`;
+        let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
         for (let contractName in attemptedExports) {
             const message = attemptedExports[contractName].message;
             attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
