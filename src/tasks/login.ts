@@ -20,14 +20,25 @@ import { AzureHandler, KeycloakHandler } from "@simbachain/web3-suites/dist/comm
  * @param hre 
  * @returns 
  */
-const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
-    SimbaConfig.log.debug(`:: ENTER :`);
+const login = async (
+    hre: HardhatRuntimeEnvironment,
+    interactive: boolean = true,
+    org?: string,
+    app?: string,
+    ): Promise<void | Error> => {
+    SimbaConfig.log.debug(`:: ENTER : interactive: ${interactive}, org: ${org}, app: ${app}`);
     const simbaConfig = new SimbaConfig();
     const authStore = await simbaConfig.authStore();
 
     if (!authStore) {
         SimbaConfig.log.error(authErrors.badAuthProviderInfo);
         return Promise.resolve(new Error(authErrors.badAuthProviderInfo));
+    }
+
+    if (!interactive && (!org || !app)) {
+        const message = "\nsimba: if logging in with --interactive false, then you must specify an org and app using --org <org> --app <app> syntax";
+        SimbaConfig.log.error(`${chalk.redBright(`${message}`)}`);
+        return Promise.resolve(new Error(`${message}`));
     }
 
     if (authStore instanceof KeycloakHandler) {
@@ -58,6 +69,21 @@ const login = async (hre: HardhatRuntimeEnvironment): Promise<void | Error> => {
     }
 
     if (authStore instanceof AzureHandler) {
+        if (!interactive) {
+            authStore.logout();
+            try {
+                await authStore.performLogin();
+                await chooseOrganisationFromName(org);
+                await chooseApplicationFromName(app);
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response) {
+                    SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+                } else {
+                    SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
+                }
+                return;
+            }
+        }
         try {
             authStore.logout();
             if (!authStore.isLoggedIn()) {
