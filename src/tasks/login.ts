@@ -8,6 +8,8 @@ import {
 import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
+    chooseApplicationFromName,
+    chooseOrganisationFromName,
     SimbaConfig,
     authErrors,
 } from '@simbachain/web3-suites';
@@ -70,11 +72,18 @@ const login = async (
 
     if (authStore instanceof AzureHandler) {
         if (!interactive) {
+            if (!org || !app) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : org and app must both be specified when using non-interactive mode.`)}`);
+                return;
+            }
             authStore.logout();
             try {
-                await authStore.performLogin();
-                await chooseOrganisationFromName(org);
-                await chooseApplicationFromName(app);
+                await authStore.performLogin(interactive, org, app);
+                await chooseOrganisationFromName(simbaConfig, org);
+                await chooseApplicationFromName(simbaConfig, app);
+                SimbaConfig.log.info(`${chalk.greenBright(`Logged in to SIMBA Chain!`)}`);
+                SimbaConfig.log.debug(`:: EXIT :`);
+                return;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response) {
                     SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
