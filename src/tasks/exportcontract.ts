@@ -48,7 +48,7 @@ const exportContract = async (
     } catch (e) {
         const err = e as any;
         if (err.code === 'ENOENT') {
-            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile" ?\n`)}`);
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Simba was not able to find any build artifacts.\nDid you forget to run: "npx hardhat compile"? If you've compiled and this persists, then check to make sure your "web3Suite" field in simba.json is set to "hardhat"\n`)}`);
             return;
         }
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(err)}`)}`);

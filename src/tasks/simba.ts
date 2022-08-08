@@ -65,6 +65,8 @@ const simba = async (
     libraryName?: string,
     libraryAddress?: string,
     interactive?: string,
+    org?: string,
+    app?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -74,37 +76,38 @@ const simba = async (
         designID,
         libraryName,
         libraryAddress,
+        interactive,
+        org,
+        app,
     }
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
+    let _interactive: boolean = true;
+    if (interactive) {
+        interactive = interactive.toLowerCase();
+        switch (interactive) {
+            case "false": {
+                _interactive = false;
+                break;
+            }
+            case "true": {
+                _interactive = true;
+                break;
+            }
+            default: { 
+                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "interactive" flag. Please enter '--interactive true' or '--interactive false' for this flag`)}`);
+                return;
+            } 
+        }
+    } else {
+        _interactive = true;
+    }
     switch(cmd) {
         case Commands.LOGIN: { 
-           await login(hre);
+           await login(hre, _interactive, org, app);
            break; 
         }
         case Commands.EXPORT: {
-            let _interactive: boolean;
-            if (interactive) {
-                interactive = interactive.toLowerCase();
-                switch (interactive) {
-                    case "false": {
-                        _interactive = false;
-                        await exportContract(hre, _interactive, primary);
-                        break;
-                    }
-                    case "true": {
-                        _interactive = true;
-                        await exportContract(hre, _interactive, primary);
-                        break;
-                    }
-                    default: { 
-                        console.log(`${chalk.redBright(`\nsimba: unrecognized value for "interactive" flag. Please enter '--interactive true' or '--interactive false' for this flag`)}`);
-                        break; 
-                     } 
-                }
-            } else {
-                _interactive = true;
-                await exportContract(hre, _interactive, primary);
-            }
+            await exportContract(hre, _interactive, primary);
             break;
         }
         case Commands.DEPLOY: {
@@ -152,9 +155,11 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("libname", "name of the library you want to add")
     .addOptionalParam("libaddr", "address of the library you want to add")
     .addOptionalParam("interactive", "'true' or 'false' for interactive export")
+    .addOptionalParam("org", "SIMBA org that you want to log into non-interactively")
+    .addOptionalParam("app", "SIMBA app that you want to log into non-interactively")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app);
     });
 
 export default simba;
