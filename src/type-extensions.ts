@@ -62,9 +62,13 @@ declare module "hardhat/types/runtime" {
     viewContracts: (
       hre: HardhatRuntimeEnvironment,
     ) => Promise<void>;
-    sync: (
+    pull: (
       hre: HardhatRuntimeEnvironment,
       designID?: string,
+      contractName?: string,
+      pullSourceCode?: boolean,
+      pullSolFiles?: boolean,
+      interactive?: boolean,
     ) => Promise<void>;
     addLib: (
       hre: HardhatRuntimeEnvironment,

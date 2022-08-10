@@ -1,9 +1,9 @@
 import viewContracts from "./viewcontracts";
-import sync from "./synccontract";
+import pull from "./pullcontract";
 import addLib from "./addlibrary";
 
 export {
     viewContracts,
-    sync,
+    pull,
     addLib,
 }

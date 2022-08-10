@@ -16,7 +16,7 @@ import setLogLevel from "./tasks/loglevel";
 import "./tasks/loglevel";
 import {
   viewContracts,
-  sync,
+  pull,
   addLib,
 }
 from "./tasks/contract";
@@ -70,6 +70,6 @@ extendEnvironment((hre) => {
   hre.export = exportContract;
   hre.setLogLevel = setLogLevel;
   hre.viewContracts = viewContracts;
-  hre.sync = sync;
+  hre.pull = pull;
   hre.addLib = addLib;
 });

@@ -13,7 +13,7 @@ import {
 import setLogLevel from "./loglevel";
 import {
     viewContracts,
-    sync,
+    pull,
     addLib,
  } from "./contract";
 
@@ -25,7 +25,7 @@ const SIMBA_COMMANDS = {
     loglevel: "set level for tslog logger",
     help: "get help for simba tasks",
     viewcontracts: "view contracts for your organisation",
-    sync: "pull contract from Blocks and sync in local project",
+    pull: "pull sol files and simba.json source code from SIMBA Chain",
     addlib: "add external library so you can deploy contracts that depend on that library"
 };
 
@@ -37,7 +37,7 @@ enum Commands {
     HELP = "help",
     LOGLEVEL = "loglevel",
     VIEWCONTRACTS = "viewcontracts",
-    SYNC = "sync",
+    PULL = "pull",
     ADDLIB = "addlib",
 };
 
@@ -67,6 +67,9 @@ const simba = async (
     interactive?: string,
     org?: string,
     app?: string,
+    contractName?: string,
+    pullSourceCode?: string,
+    pullSolFiles?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -101,6 +104,46 @@ const simba = async (
     } else {
         _interactive = true;
     }
+    let _pullSourceCode: boolean = true;
+    if (pullSourceCode) {
+        pullSourceCode = pullSourceCode.toLowerCase();
+        switch (pullSourceCode) {
+            case "false": {
+                _pullSourceCode = false;
+                break;
+            }
+            case "true": {
+                _pullSourceCode = true;
+                break;
+            }
+            default: { 
+                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "pullsourcecode" flag. Please enter '--pullsourcecode true' or '--pullsourcecode false' for this flag`)}`);
+                return;
+            } 
+        }
+    } else {
+        _pullSourceCode = true;
+    }
+    let _pullSolFiles: boolean = true;
+    if (pullSolFiles) {
+        pullSolFiles = pullSolFiles.toLowerCase();
+        switch (pullSolFiles) {
+            case "false": {
+                _pullSolFiles = false;
+                break;
+            }
+            case "true": {
+                _pullSolFiles = true;
+                break;
+            }
+            default: { 
+                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "pullsolfiles" flag. Please enter '--pullsolfiles true' or '--pullsolfiles false' for this flag`)}`);
+                return;
+            } 
+        }
+    } else {
+        _pullSolFiles = false;
+    }
     switch(cmd) {
         case Commands.LOGIN: { 
            await login(hre, _interactive, org, app);
@@ -130,8 +173,18 @@ const simba = async (
             await viewContracts(hre);
             break;
         }
-        case Commands.SYNC: {
-            await sync(hre, designID)
+        case Commands.PULL: {
+            // we want non-interactive pull by default
+            if (!interactive) {
+                _interactive = false;
+            }
+            await pull(
+                hre,
+                designID,
+                contractName,
+                _pullSourceCode,
+                _pullSolFiles,
+                _interactive);
             break;
         }
         case Commands.ADDLIB: {
@@ -154,12 +207,15 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("id", "id of the contract you want to sync from Blocks")
     .addOptionalParam("libname", "name of the library you want to add")
     .addOptionalParam("libaddr", "address of the library you want to add")
-    .addOptionalParam("interactive", "'true' or 'false' for interactive export")
+    .addOptionalParam("interactive", "'true' or 'false' for interactive export, login, and pull")
     .addOptionalParam("org", "SIMBA org that you want to log into non-interactively")
     .addOptionalParam("app", "SIMBA app that you want to log into non-interactively")
+    .addOptionalParam("contractname", "contract name for pull command")
+    .addOptionalParam("pullsourcecode", "'true' or 'false' for whether or not source code should be pulled for simba.json. Defaults to 'true', and this should be the case, unless the user has a reason for not wanting to sync their simba.json")
+    .addOptionalParam("pullsolfiles", "'true' or 'false' for whether user wants to sync their .sol files in their /contracts/ directory")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles);
     });
 
 export default simba;

@@ -1,0 +1,81 @@
+import { task } from "hardhat/config";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {default as chalk} from 'chalk';
+import {
+    pullAllMostRecentSolFilesAndSourceCode,
+    pullMostRecentRecentSolFileFromContractName,
+    pullMostRecentSourceCodeFromContractName,
+    pullMostRecentFromContractName,
+    pullContractFromDesignId,
+    SimbaConfig,
+} from '@simbachain/web3-suites';
+
+/**
+ * pull contractX from your org on simbachain.com and sync it with contractX in your project
+ * @param hre
+ * @param designID
+ */
+const pull = async (
+    hre: HardhatRuntimeEnvironment,
+    designID?: string,
+    contractName?: string,
+    pullSourceCode: boolean = true,
+    pullSolFiles: boolean = false,
+    interactive: boolean = false,
+) => {
+    SimbaConfig.log.debug(`:: ENTER :`);
+    if (designID && contractName) {
+        const message = `${chalk.redBright(`\nsimba: designid and contractname were both specified. Only one of these parameters can be passed.`)}`;
+        SimbaConfig.log.error(message);
+        return;
+    }
+    if (designID && interactive) {
+        const message = `${chalk.redBright(`\nsimba: designid cannot be specified in interactive mode.`)}`;
+        SimbaConfig.log.error(message);
+        return;
+    }
+    if (contractName && interactive) {
+        const message = `${chalk.redBright(`\nsimba: contractname cannot be specified in interactive mode.`)}`;
+        SimbaConfig.log.error(message);
+        return;
+    }
+    if (designID) {
+        await pullContractFromDesignId(designID);
+        SimbaConfig.log.debug(`:: EXIT :`);
+        return;
+    }
+    if (contractName) {
+        if (pullSolFiles && pullSourceCode) {
+            await pullMostRecentFromContractName(contractName);
+            SimbaConfig.log.debug(`:: EXIT :`);
+            return;
+        }
+        if (pullSolFiles) {
+            await pullMostRecentRecentSolFileFromContractName(contractName);
+            SimbaConfig.log.debug(`:: EXIT :`);
+            return;
+        }
+        if (pullSourceCode) {
+            await pullMostRecentSourceCodeFromContractName(contractName);
+            SimbaConfig.log.debug(`:: EXIT :`);
+            return;
+        }
+        // default to pulling sol files and source code for simba.json
+        await pullMostRecentFromContractName(contractName);
+        SimbaConfig.log.debug(`:: EXIT :`);
+        return;
+    }
+    await pullAllMostRecentSolFilesAndSourceCode(
+        pullSourceCode,
+        pullSolFiles,
+        interactive,
+    );
+}
+
+task("pull", "pull contract from Blocks and sync in your local project")
+    .setAction(async (taskArgs, hre) => {
+        const {designID} = taskArgs;
+        await pull(hre, designID);
+    });
+
+export default pull;
