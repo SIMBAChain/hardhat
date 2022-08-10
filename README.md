@@ -278,7 +278,6 @@ However, if you specify an org, you must specify an app. The following will thro
 $ npx hardhat simba login --interactive false --org <myOrg>
 ```
 
-
 ### export
 
 Once you have logged in, you will be able to export your contracts, which will save them to your organization's contracts (you can also think of this action as "importing" your contracts to Blocks). For this command, you can either run export without arguments, or with optional arguments. To export without optional arguments, run
