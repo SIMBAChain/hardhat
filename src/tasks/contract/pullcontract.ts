@@ -10,11 +10,7 @@ import {
     SimbaConfig,
 } from '@simbachain/web3-suites';
 
-/**
- * pull contractX from your org on simbachain.com and sync it with contractX in your project
- * @param hre
- * @param designID
- */
+
 const pull = async (
     hre: HardhatRuntimeEnvironment,
     designID?: string,
@@ -64,6 +60,9 @@ const pull = async (
         await pullMostRecentFromContractName(contractName);
         SimbaConfig.log.debug(`:: EXIT :`);
         return;
+    }
+    if (interactive) {
+        pullSolFiles = true;
     }
     await pullAllMostRecentSolFilesAndSourceCode(
         pullSourceCode,
