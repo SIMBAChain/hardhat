@@ -200,11 +200,13 @@ The SIMBA Chain Hardhat plugin extends the tasks that are available to developer
 
 ## Tasks
 
-If you're not familiar with tasks in Hardhat, the best way to think about them is: "anything you can do in Hardhat is a task." So just think of tasks as commands. The SIMBA Chain plugin simply extends what tasks are available to developers while using Hardhat. The main CLI entry point task added by this plugin is the "simba" task. This task then takes a subtask as a parameter. Then, depending on the subtask selected, optional parameters can be passed. So the template CLI input for running a Simba Hardhat plugin task is:
+If you're not familiar with tasks in Hardhat, the best way to think about them is: "anything you can do in Hardhat is a task." So just think of tasks as commands. The SIMBA Chain plugin simply extends what tasks are available to developers while using Hardhat. The only true additional task in the Simba Hardhat plugin is the "simba" task: the main CLI entry point task added by this plugin is the "simba" task. This task then takes a subtask as a parameter. Then, depending on the subtask selected, optional parameters can be passed. So the template CLI input for running a Simba Hardhat plugin task is:
 
 ```
 npx hardhat simba <subtask> <optional args>
 ```
+
+So even though we refer to tasks such as "export" and "deploy," you can't run them directly from the "npx hardhat" command: running "npx hardhat export" will throw an error, but "npx hardhat simba export" will not. This is by design, to avoid collision with Hardhat native commands, such as "help".
 
 Below, we explain the Hardhat tasks that you will use in the SIMBA plugin to deploy your contracts. They are listed and explained in the order that you would follow to login and deploy your contracts. Then, information is provided on other tasks, such as "help" and "loglevel".
 
@@ -252,11 +254,30 @@ There is also a non-interactive login mode. This mode is mainly for CI/CD, but y
 
 NOTE: SIMBA_PLUGIN_AUTH_ENDPOINT defaults to '/o/' if not set.
 
-To run login in non-interactive mode, you will need to pass the name of the organisation (org) and application (app) that you would like to log into:
+To run login in non-interactive mode, you can run with org and app flag:
 
 ```
 $ npx hardhat simba login --interactive false --org <myOrg> --app <myApp>
 ```
+
+Or you can run with just the app flag, if you already have logged into an org before, and just want to switch your app:
+
+```
+$ npx hardhat simba login --interactive false --app <myApp>
+```
+
+If you already have an org and app set in simba.json, and want to use that org and app, you can just run:
+
+```
+$ npx hardhat simba login --interactive false
+```
+
+However, if you specify an org, you must specify an app. The following will throw an error:
+
+```
+$ npx hardhat simba login --interactive false --org <myOrg>
+```
+
 
 ### export
 
@@ -489,19 +510,6 @@ $ npx hardhat simba loglevel --lvl <desired log level>
 ```
 
 If you pass an invalid log level, then the plugin defaults to "info".
-
-## Environment extensions
-
-This plugin extends the Hardhat Runtime Environment by adding the fields:
-
-- hre.simba
-- hre.login
-- hre.logout
-- hre.deploy
-- hre.export
-- hre.setLogLevel
-- hre.viewContracts
-- hre.sync
 
 ## Deploying and Linking Libraries
 A brief note here about deploying and linking libraries. You do not need to actively link libraries in this plugin. Once you have deployed your contract, SIMBA's Blocks platform handles that for you. All you need to do is make sure that if you are deploying a contractX that depends on libraryX, then first deploy libraryX. Then when you deploy contractX, the library linking will automatically be conducted by SIMBA. If you look in your simba.json after deploying a library, you will see a field for library_addresses (below) This field gets exported with other contracts, and is how SIMBA knows whether a contract needs to be linked to a library when it is deployed.
