@@ -63,13 +63,6 @@ extendEnvironment((hre) => {
   // We add a field to the Hardhat Runtime Environment here.
   // We use lazyObject to avoid initializing things until they are actually
   // needed.
+
   hre.simba = simba;
-  hre.login = login;
-  hre.logout = logout;
-  hre.deploy = deployContract;
-  hre.export = exportContract;
-  hre.setLogLevel = setLogLevel;
-  hre.viewContracts = viewContracts;
-  hre.pull = pull;
-  hre.addLib = addLib;
 });

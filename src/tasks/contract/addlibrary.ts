@@ -22,10 +22,4 @@ const addLibrary = async (
     return;
 }
 
-task("addlib", "add a library name and address for contracts that depend on that library")
-    .setAction(async (taskArgs, hre) => {
-        const {name, addr} = taskArgs;
-        await addLibrary(hre, name, addr);
-    });
-
 export default addLibrary;

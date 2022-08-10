@@ -199,9 +199,4 @@ const helpOptions: any = {
     viewContractsHelp: "\n\nThis command will return information pertaining to all contracts saved to your organisation on SIMBA Chain. Contract info includes: name, id, and version. For this command, just run:\n\n\t$ npx hardhat simba viewcontracts\n\n",
 }
 
-task("help", "export contract(s) to Blocks")
-.setAction(async (hre) => {
-    await help(hre);
-});
-
 export default help;

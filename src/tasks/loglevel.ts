@@ -65,10 +65,4 @@ export const setLogLevel = async (
     }
 }
 
-task("loglevel", "set level for tslog logger")
-    .setAction(async (taskArgs, hre) => {
-        const {level} = taskArgs;
-        await setLogLevel(hre, level);
-    });
-
 export default setLogLevel;

@@ -413,9 +413,4 @@ export const deployContract = async (
     SimbaConfig.log.debug(`:: EXIT :`);
 }
 
-task("deploy", "deploy contract(s) to Blocks")
-    .setAction(async (hre) => {
-        await deployContract(hre);
-    });
-
 export default deployContract;

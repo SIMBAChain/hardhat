@@ -72,10 +72,4 @@ const pull = async (
     );
 }
 
-task("pull", "pull contract from Blocks and sync in your local project")
-    .setAction(async (taskArgs, hre) => {
-        const {designID} = taskArgs;
-        await pull(hre, designID);
-    });
-
 export default pull;

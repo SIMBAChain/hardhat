@@ -289,10 +289,4 @@ const exportContract = async (
     }
 }
 
-task("export", "export contract(s) to Blocks")
-    .setAction(async (taskArgs, hre) => {
-        const {primary} = taskArgs;
-        await exportContract(hre, primary);
-    });
-
 export default exportContract;

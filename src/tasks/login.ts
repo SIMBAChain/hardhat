@@ -141,9 +141,4 @@ const login = async (
     }
 }
 
-task("login", "keycloak device and blocks login")
-    .setAction(async (hre) => {
-        await login(hre);
-    });
-
 export default login;
