@@ -42,6 +42,16 @@ const exportContract = async (
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     const buildDir = SimbaConfig.buildDirectory;
     let files: string[] = [];
+    try {
+        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: cleaning up build artifacts`)}`);
+        await hre.run("clean");
+        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: compiling your contracts`)}`);
+        await hre.run("compile");
+    } catch (error) {
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: Hardhat was unable to compile your contracts. exiting without exporting`)}`);
+        SimbaConfig.log.debug(`:: EXIT :`);
+        return;
+    }
     const sourceCodeComparer = new SourceCodeComparer();
     try {
         files = await walkDirForContracts(buildDir, '.json');
@@ -288,11 +298,5 @@ const exportContract = async (
         SimbaConfig.log.debug(`:: EXIT :`);
     }
 }
-
-task("export", "export contract(s) to Blocks")
-    .setAction(async (taskArgs, hre) => {
-        const {primary} = taskArgs;
-        await exportContract(hre, primary);
-    });
 
 export default exportContract;

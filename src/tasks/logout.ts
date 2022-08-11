@@ -22,9 +22,4 @@ const logout = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: EXIT :`);
 }
 
-task("logout", "export contract(s) to Blocks")
-    .setAction(async (hre) => {
-        await logout(hre);
-    });
-
 export default logout;

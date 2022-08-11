@@ -15,9 +15,4 @@ const viewContracts = async (hre: HardhatRuntimeEnvironment) => {
     SimbaConfig.log.debug(`:: EXIT :`);
 }
 
-task("viewcontracts", "view info for all contracts in your organisation")
-    .setAction(async (hre) => {
-        await viewContracts(hre);
-    });
-
 export default viewContracts;
