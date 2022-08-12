@@ -21,7 +21,7 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
       - [loglevel](#loglevel)
 7. [Environment Extensions](#environment-extensions)
 8. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
-9. [CI/CD](#ci/cd)
+9. [CI/CD](#cicd)
 
 ## Summary
 
@@ -587,19 +587,28 @@ job_install_compile_and_run:
 
 The process for enabling CI/CD in your team’s workflow is very simple. We list the steps here:
 
+1. run git pull:
+```
 $ git pull
+```
 
-$ (truffle run / npx hardhat) simba pull
+2. run simba pull:
+```
+$ npx hardhat simba pull
+```
 
-this command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugins compare the source code they find in your simba.json to the source code they find in compiled artifacts. If there is a difference, then the plugins know that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
+this command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugin compares the source code it finds in your simba.json to the source code it finds in compiled artifacts. If there is a difference, then the plugin knows that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
 
-You may notice above in the pipeline that simba pull is run inside the pipeline. This is as a precaution, in case you forgot to run in your local environment. It’s never a bad idea to include simba pull in your CI/CD pipeline.
+You may notice above in the pipeline that simba pull is run inside the pipeline. This is as a precaution, in case you forgot to run in your local environment. It’s never a bad idea to include simba pull in your CI/CD pipeline, but it will make the pipeline run more slowly.
 
-modify contracts as desired within your project
+3. modify contracts as desired within your project
 
-compilation of contracts is optional. The Hardhat and Truffle plugins automatically compile your contracts when exported.
+4. compilation of contracts is optional. The Hardhat and Truffle plugins automatically compile your contracts when exported.
 
+5. run git push:
+```
 $ git push
+```
 
 And that’s it!
 
