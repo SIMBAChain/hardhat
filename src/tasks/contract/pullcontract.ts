@@ -18,6 +18,7 @@ const pull = async (
     pullSourceCode: boolean = true,
     pullSolFiles: boolean = false,
     interactive: boolean = false,
+    useSimbaPath: boolean = true,
 ) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     if (designID && contractName) {
@@ -36,18 +37,18 @@ const pull = async (
         return;
     }
     if (designID) {
-        await pullContractFromDesignId(designID);
+        await pullContractFromDesignId(designID, useSimbaPath);
         SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
     if (contractName) {
         if (pullSolFiles && pullSourceCode) {
-            await pullMostRecentFromContractName(contractName);
+            await pullMostRecentFromContractName(contractName, undefined, useSimbaPath);
             SimbaConfig.log.debug(`:: EXIT :`);
             return;
         }
         if (pullSolFiles) {
-            await pullMostRecentRecentSolFileFromContractName(contractName);
+            await pullMostRecentRecentSolFileFromContractName(contractName, undefined, useSimbaPath);
             SimbaConfig.log.debug(`:: EXIT :`);
             return;
         }
@@ -57,7 +58,7 @@ const pull = async (
             return;
         }
         // default to pulling sol files and source code for simba.json
-        await pullMostRecentFromContractName(contractName);
+        await pullMostRecentFromContractName(contractName, undefined, useSimbaPath);
         SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
@@ -68,6 +69,7 @@ const pull = async (
         pullSourceCode,
         pullSolFiles,
         interactive,
+        useSimbaPath,
     );
 }
 

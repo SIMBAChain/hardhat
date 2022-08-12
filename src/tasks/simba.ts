@@ -70,6 +70,7 @@ const simba = async (
     contractName?: string,
     pullSourceCode?: string,
     pullSolFiles?: string,
+    useSimbaPath?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -144,6 +145,26 @@ const simba = async (
     } else {
         _pullSolFiles = false;
     }
+    let _useSimbaPath: boolean = true;
+    if (useSimbaPath) {
+        useSimbaPath = useSimbaPath.toLowerCase();
+        switch (useSimbaPath) {
+            case "false": {
+                _useSimbaPath = false;
+                break;
+            }
+            case "true": {
+                _useSimbaPath = true;
+                break;
+            }
+            default: { 
+                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "useSimbaPath" flag. Please enter '--useSimbaPath true' or '--useSimbaPath false' for this flag`)}`);
+                return;
+            } 
+        }
+    } else {
+        _useSimbaPath = true;
+    }
     switch(cmd) {
         case Commands.LOGIN: { 
            await login(hre, _interactive, org, app);
@@ -184,7 +205,9 @@ const simba = async (
                 contractName,
                 _pullSourceCode,
                 _pullSolFiles,
-                _interactive);
+                _interactive,
+                _useSimbaPath
+            );
             break;
         }
         case Commands.ADDLIB: {
@@ -213,9 +236,10 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("contractname", "contract name for pull command")
     .addOptionalParam("pullsourcecode", "'true' or 'false' for whether or not source code should be pulled for simba.json. Defaults to 'true', and this should be the case, unless the user has a reason for not wanting to sync their simba.json")
     .addOptionalParam("pullsolfiles", "'true' or 'false' for whether user wants to sync their .sol files in their /contracts/ directory")
+    .addOptionalParam("usesimbapath", "'true' if you want to pull contracts to contracts/SimbaImports/, defaults to 'true'")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath);
     });
 
 export default simba;
