@@ -21,7 +21,7 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
       - [loglevel](#loglevel)
 7. [Environment Extensions](#environment-extensions)
 8. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
-9. [CI/CD](#cicd)
+9. [CI/CD](#continuous-integration-continuous-deployment)
 
 ## Summary
 
@@ -545,6 +545,7 @@ and you will then be prompted to specify the name and address of your library. I
 ```
 
 ## CI/CD
+### Continuous Integration Continuous Deployment
 
 SIMBA Chain’s web3 plugins offer CI/CD support, so that when you push your git project, you automatically export all of your recently changed contracts in your project to your SIMBA Chain org. In this process, any contracts that you have made recent changes to will be compiled and exported to SIMBA Chain. If no changes have been made to your contracts, then nothing will be exported to SIMBA Chain.
 
