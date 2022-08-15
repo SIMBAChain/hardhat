@@ -105,8 +105,9 @@ const exportContract = async (
     // use sourceCodeComparer to prevent export of contracts that
     // do not have any changes:
     const exportStatuses = await sourceCodeComparer.exportStatuses(choices);
-
+    const successfulExportMessage = `${chalk.greenBright(`Successfully exported`)}`;
     let currentContractName;
+
     if (primary) {
         if ((primary as string) in importData) {
             if (!exportStatuses[primary].newOrChanged) {
@@ -156,8 +157,8 @@ const exportContract = async (
                         contract_type: contractType,
                         source_code: sourceCode,
                     }
-                    SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo)
-                    SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Saved to Contract Design ID ')}${chalk.greenBright(`${resp.id}`)}`);
+                    SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo);
+                    SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: Successful Export! Saved Contract ${chalk.greenBright(`${currentContractName}`)} to Design ID `)}${chalk.greenBright(`${resp.id}`)}`);
                 } else {
                     SimbaConfig.log.error(`${chalk.red('\nsimba: EXIT : Error exporting contract to SIMBA Chain')}`);
                 }
@@ -174,6 +175,7 @@ const exportContract = async (
             return;
         }
     } else {
+        const attemptedExports: Record<any, any> = {};
         let chosen: Record<string, Array<any>>;
         if (interactive) {
             chosen = await prompt({
@@ -205,6 +207,7 @@ const exportContract = async (
         const nonLibsArray = [];
         for (let i = 0; i < chosen.contracts.length; i++) {
             const contractName = chosen.contracts[i];
+            attemptedExports[contractName] = exportStatuses[contractName];
             if (supplementalInfo[contractName].contractType === "library") {
                 libsArray.push(contractName);
             } else {
@@ -212,11 +215,9 @@ const exportContract = async (
             }
         }
         const allContracts = libsArray.concat(nonLibsArray);
-        const attemptedExports: Record<any, any> = {};
         for (let i = 0; i < allContracts.length; i++) {
             const singleContractImportData = {} as any;
             currentContractName = allContracts[i];
-            attemptedExports[currentContractName] = exportStatuses[currentContractName];
             if (!exportStatuses[currentContractName].newOrChanged) {
                 continue;
             }
@@ -249,6 +250,7 @@ const exportContract = async (
                 }
         
                 if (resp.id) {
+                    attemptedExports[currentContractName].message = successfulExportMessage;
                     const contractType = supplementalInfo[currentContractName].contractType;
                     const sourceCode = supplementalInfo[currentContractName].sourceCode;
                     const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info") ?
@@ -266,15 +268,15 @@ const exportContract = async (
                     return;
                 }
             } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`);
-                SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
-                let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
-                for (let contractName in attemptedExports) {
-                    const message = attemptedExports[contractName].message;
-                    attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
-                }
-                SimbaConfig.log.info(attemptsString);
+                if (axios.isAxiosError(error) && error.response) {
+                    SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`);
+                    SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
+                    let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
+                    for (let contractName in attemptedExports) {
+                        const message = attemptedExports[contractName].message;
+                        attemptsString += `\n${chalk.cyanBright(`${contractName}`)}: ${message}`; 
+                    }
+                    SimbaConfig.log.info(attemptsString);
             } else {
                 SimbaConfig.log.debug(`attemptedExports : ${JSON.stringify(attemptedExports)}`);
                 let attemptsString = `${chalk.cyanBright(`\nsimba: Export results:`)}`;
