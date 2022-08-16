@@ -66,6 +66,11 @@ const login = async (
 
     if (authStore instanceof AzureHandler) {
         if (!interactive) {
+            if (org && !app) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: if specifying an org in non-interactive mode, you must specify an app.`)}`);
+                SimbaConfig.log.debug(`:: EXIT :`);
+                return;
+            }
             if (!org || !app) {
                 const orgFromSimbaJson = SimbaConfig.ProjectConfigStore.get("organisation");
                 const orgName = orgFromSimbaJson.name;
@@ -85,6 +90,7 @@ const login = async (
                 }
             }
             authStore.logout();
+            SimbaConfig.resetSimbaJson();
             try {
                 await authStore.performLogin(interactive);
                 if (org) {
@@ -109,6 +115,7 @@ const login = async (
         }
         try {
             authStore.logout();
+            SimbaConfig.resetSimbaJson();
             if (!authStore.isLoggedIn()) {
                 await authStore.performLogin();
             } else {
