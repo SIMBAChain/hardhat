@@ -92,9 +92,6 @@ const login = async (
             authStore.logout();
             SimbaConfig.resetSimbaJson();
             try {
-                // const newOrgName = org ? org : SimbaConfig.ProjectConfigStore.get("organisation").name;
-                // const newAppName = app ? app : SimbaConfig.ProjectConfigStore.get("application").name;
-                // SimbaConfig.switchUserState(newOrgName, newAppName);
                 await authStore.performLogin(interactive);
                 if (org) {
                     await chooseOrganisationFromName(simbaConfig, org);
