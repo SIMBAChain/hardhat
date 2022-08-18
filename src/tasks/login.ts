@@ -31,7 +31,7 @@ const login = async (
     SimbaConfig.log.debug(`:: ENTER : interactive: ${interactive}, org: ${org}, app: ${app}`);
     const simbaConfig = new SimbaConfig();
     const authStore = await simbaConfig.authStore();
-
+    const previousSimbaJson = SimbaConfig.ProjectConfigStore.all;
     if (!authStore) {
         SimbaConfig.log.error(authErrors.badAuthProviderInfo);
         return Promise.resolve(new Error(authErrors.badAuthProviderInfo));
@@ -53,6 +53,7 @@ const login = async (
                 SimbaConfig.log.debug(`:: ENTER :`);
                 return Promise.resolve(new Error('No Application Selected!'));
             }
+            SimbaConfig.resetSimbaJson(previousSimbaJson, org);
             SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
@@ -90,17 +91,15 @@ const login = async (
                 }
             }
             authStore.logout();
-            SimbaConfig.resetSimbaJson();
             try {
                 await authStore.performLogin(interactive);
                 if (org) {
                     await chooseOrganisationFromName(simbaConfig, org);
                 }
-                // do no nothing if we found organisation.name in simba.json
                 if (app) {
                     await chooseApplicationFromName(simbaConfig, app);
                 }
-                // do nothing if we found application.name in simba.json
+                SimbaConfig.resetSimbaJson(previousSimbaJson, org);
                 SimbaConfig.log.info(`${chalk.greenBright(`Logged in to SIMBA Chain!`)}`);
                 SimbaConfig.log.debug(`:: EXIT :`);
                 return;
@@ -115,7 +114,6 @@ const login = async (
         }
         try {
             authStore.logout();
-            SimbaConfig.resetSimbaJson();
             if (!authStore.isLoggedIn()) {
                 await authStore.performLogin();
             } else {
@@ -135,6 +133,7 @@ const login = async (
                 SimbaConfig.log.debug(`:: ENTER :`);
                 return Promise.resolve(new Error('No Application Selected!'));
             }
+            SimbaConfig.resetSimbaJson(previousSimbaJson, org);
             SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
 
         } catch (error) {
