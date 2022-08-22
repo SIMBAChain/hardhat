@@ -48,7 +48,7 @@ const login = async (
             orgData = SimbaConfig.ProjectConfigStore.get("organisation");
             const orgName = orgData.name;
             if (!orgName) {
-                SimbaConfig.log.error(`${chalk.redBright(`no organisation specified in your login command, and no organisation present in your simba.json. Please login in non-interactive mode and choose your organisation, or use the --org <org> flag in your non-interactive login command.`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`no organisation specified in your login command, and no organisation present in your simba.json. Please login in interactive mode and choose your organisation, or use the --org <org> flag in your non-interactive login command.`)}`);
                 return;
             } else {
                 SimbaConfig.log.info(`${chalk.cyanBright(`no org was specified in login command; logging in using org ${orgName} from simba.json`)}`);
@@ -59,7 +59,7 @@ const login = async (
             appData = SimbaConfig.ProjectConfigStore.get("application");
             const appName = appData.name;
             if (!appName) {
-                SimbaConfig.log.error(`${chalk.redBright(`no app specified in your login command, and no application present in your simba.json. Please login in non-interactive mode and choose your application, or use the --app <app> flag in your non-interactive login command.`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`no app specified in your login command, and no application present in your simba.json. Please login in interactive mode and choose your application, or use the --app <app> flag in your non-interactive login command.`)}`);
                 return;
             } else {
                 SimbaConfig.log.info(`${chalk.cyanBright(`no app was specified in login command; logging in using app ${appName} from simba.json`)}`);
@@ -70,7 +70,7 @@ const login = async (
             const orgFromSimbaJson = SimbaConfig.ProjectConfigStore.get("organisation");
             const orgName = orgFromSimbaJson.name;
             if (!orgName) {
-                SimbaConfig.log.error(`${chalk.redBright(`no organisation specified in your login command, and no organisation present in your simba.json. Please login in non-interactive mode and choose your organisation, or use the --org <org> flag in your non-interactive login command.`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`no organisation specified in your login command, and no organisation present in your simba.json. Please login in interactive mode and choose your organisation, or use the --org <org> flag in your non-interactive login command.`)}`);
                 return;
             } else {
                 SimbaConfig.log.info(`${chalk.cyanBright(`no org was specified in login command; logging in using org ${orgName} from simba.json`)}`);
@@ -78,7 +78,7 @@ const login = async (
             const appFromSimbaJson = SimbaConfig.ProjectConfigStore.get("application");
             const appName = appFromSimbaJson.name;
             if (!appName) {
-                SimbaConfig.log.error(`${chalk.redBright(`no app specified in your login command, and no application present in your simba.json. Please login in non-inetractive mode and choose your application, or use the --app <app> flag in your non-interactive login command.`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`no app specified in your login command, and no application present in your simba.json. Please login in interactive mode and choose your application, or use the --app <app> flag in your non-interactive login command.`)}`);
                 return;
             } else {
                 SimbaConfig.log.info(`${chalk.cyanBright(`no app was specified in login command; logging in using app ${appName} from simba.json`)}`);
