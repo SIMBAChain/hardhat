@@ -1,6 +1,6 @@
 {
     "name": "@simbachain/hardhat",
-    "version": "2.2.11",
+    "version": "2.2.12",
     "description": "Simba Chain plugin for hardhat",
     "repository": "https://github.com/SIMBAChain/hardhat",
     "author": "SIMBA Chain",
@@ -32,7 +32,7 @@
         "README.md"
     ],
     "dependencies": {
-        "@simbachain/web3-suites": "^2.2.11",
+        "@simbachain/web3-suites": "^2.2.12",
         "@types/configstore": "^4.0.0",
         "@types/prompts": "^2.0.5",
         "@types/request-promise": "^4.1.48",
