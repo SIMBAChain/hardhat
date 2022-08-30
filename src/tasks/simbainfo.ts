@@ -2,16 +2,9 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
-    chooseApplicationFromList,
-    getBlockchains,
-    getStorages,
-    primaryConstructorRequiresArgs,
-    primaryConstructorInputs,
-    authErrors,
     SimbaInfo,
 } from '@simbachain/web3-suites';
 // const log: Logger = new Logger({minLevel: "error"});
-import {default as prompt} from 'prompts';
 import {default as chalk} from 'chalk';
 
 enum SimbaJsonFields {
@@ -87,7 +80,7 @@ export const getSimbaInfo = (
                 break;
             }
             case (SimbaJsonFields.DEPLOY): {
-                SimbaInfo.printWeb3Suite();
+                SimbaInfo.printMostRecentDeploymentInfo();
                 break;
             }
             case (SimbaJsonFields.BASEURL): {
@@ -96,6 +89,10 @@ export const getSimbaInfo = (
             }
             case (SimbaJsonFields.AUTHTOKEN): {
                 SimbaInfo.printAuthToken();
+                break;
+            }
+            case (SimbaJsonFields.W3): {
+                SimbaInfo.printWeb3Suite();
                 break;
             }
             default: {
