@@ -71,6 +71,7 @@ const simba = async (
     pullSourceCode?: string,
     pullSolFiles?: string,
     useSimbaPath?: string,
+    savemode?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -83,6 +84,7 @@ const simba = async (
         interactive,
         org,
         app,
+        savemode,
     }
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     let _interactive: boolean = true;
@@ -165,13 +167,21 @@ const simba = async (
     } else {
         _useSimbaPath = true;
     }
+    if (savemode) {
+        if (!(savemode == "new" || savemode == "update")) {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: Invalid value for savemode: must be 'new' or 'update'`)}`);
+            return;
+        }
+    } else {
+        savemode = "new"
+    }
     switch(cmd) {
         case Commands.LOGIN: { 
            await login(hre, _interactive, org, app);
            break; 
         }
         case Commands.EXPORT: {
-            await exportContract(hre, _interactive, primary);
+            await exportContract(hre, _interactive, primary, savemode);
             break;
         }
         case Commands.DEPLOY: {
@@ -237,9 +247,10 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("pullsourcecode", "'true' or 'false' for whether or not source code should be pulled for simba.json. Defaults to 'true', and this should be the case, unless the user has a reason for not wanting to sync their simba.json")
     .addOptionalParam("pullsolfiles", "'true' or 'false' for whether user wants to sync their .sol files in their /contracts/ directory")
     .addOptionalParam("usesimbapath", "'true' if you want to pull contracts to contracts/SimbaImports/, defaults to 'true'")
+    .addOptionalParam("savemode", "'new' to create save a new contract design, 'update' to update an existing one. Defaults to 'new'")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath);
+        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath, savemode} = taskArgs;
+        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath, savemode);
     });
 
 export default simba;
