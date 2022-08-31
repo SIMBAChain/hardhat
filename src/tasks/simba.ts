@@ -6,9 +6,11 @@ import exportContract from "./exportcontract";
 import deployContract from "./deploycontract";
 import logout from "./logout";
 import help from "./help";
+import getSimbaInfo from "./simbainfo";
 import {
     LogLevel,
     SimbaConfig,
+    SimbaInfo,
 } from '@simbachain/web3-suites';
 import setLogLevel from "./loglevel";
 import {
@@ -26,7 +28,8 @@ const SIMBA_COMMANDS = {
     help: "get help for simba tasks",
     viewcontracts: "view contracts for your organisation",
     pull: "pull sol files and simba.json source code from SIMBA Chain",
-    addlib: "add external library so you can deploy contracts that depend on that library"
+    addlib: "add external library so you can deploy contracts that depend on that library",
+    simbainfo: "grab info from your simba.json",
 };
 
 enum Commands {
@@ -39,6 +42,7 @@ enum Commands {
     VIEWCONTRACTS = "viewcontracts",
     PULL = "pull",
     ADDLIB = "addlib",
+    SIMBAINFO = "simbainfo",
 };
 
 /**
@@ -71,6 +75,8 @@ const simba = async (
     pullSourceCode?: string,
     pullSolFiles?: string,
     useSimbaPath?: string,
+    field?: string,
+    contract?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -83,6 +89,12 @@ const simba = async (
         interactive,
         org,
         app,
+        contractName,
+        pullSourceCode,
+        pullSolFiles,
+        useSimbaPath,
+        field,
+        contract,
     }
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     let _interactive: boolean = true;
@@ -214,6 +226,11 @@ const simba = async (
             await addLib(hre, libraryName, libraryAddress);
             break;
         }
+        case Commands.SIMBAINFO: {
+            console.log("simbainfo recognized")
+            getSimbaInfo(hre, field, contract);
+            break;
+        }
         default: { 
            console.log(`${chalk.redBright(`\nsimba: unrecognized command - Please enter a valid simba command:\n${chalk.cyanBright(`${JSON.stringify(SIMBA_COMMANDS)}`)}`)}`);
            break; 
@@ -237,9 +254,47 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("pullsourcecode", "'true' or 'false' for whether or not source code should be pulled for simba.json. Defaults to 'true', and this should be the case, unless the user has a reason for not wanting to sync their simba.json")
     .addOptionalParam("pullsolfiles", "'true' or 'false' for whether user wants to sync their .sol files in their /contracts/ directory")
     .addOptionalParam("usesimbapath", "'true' if you want to pull contracts to contracts/SimbaImports/, defaults to 'true'")
+    .addOptionalParam("field", "field to print from simba.json")
+    .addOptionalParam("contract", "contract to pull info for from simba.json. can be a contractName (without .sol) or 'all'")
     .setAction(async (taskArgs, hre) => {
-        const {cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath} = taskArgs;
-        await simba(hre, cmd, topic, prm, dltnon, lvl, id, libname, libaddr, interactive, org, app, contractname, pullsourcecode, pullsolfiles, usesimbapath);
+        const {
+            cmd,
+            topic,
+            prm,
+            dltnon,
+            lvl,
+            id,
+            libname,
+            libaddr,
+            interactive,
+            org,
+            app,
+            contractname,
+            pullsourcecode,
+            pullsolfiles,
+            usesimbapath,
+            field,
+            contract,
+        } = taskArgs;
+        await simba(
+            hre,
+            cmd,
+            topic,
+            prm,
+            dltnon,
+            lvl,
+            id,
+            libname,
+            libaddr,
+            interactive,
+            org,
+            app,
+            contractname,
+            pullsourcecode,
+            pullsolfiles,
+            usesimbapath,
+            field,
+            contract);
     });
 
 export default simba;
