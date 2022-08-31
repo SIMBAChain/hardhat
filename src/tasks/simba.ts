@@ -168,7 +168,7 @@ const simba = async (
         _useSimbaPath = true;
     }
     if (savemode) {
-        if (!(savemode == "new" || savemode == "update")) {
+        if (!(savemode === "new" || savemode === "update")) {
             SimbaConfig.log.error(`${chalk.redBright(`\nsimba: Invalid value for savemode: must be 'new' or 'update'`)}`);
             return;
         }
