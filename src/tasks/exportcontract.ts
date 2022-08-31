@@ -253,7 +253,7 @@ const exportContract = async (
             SimbaConfig.log.debug(`${chalk.cyanBright(`\nsimba: request: ${JSON.stringify(request)}`)}`);
             try {
                 let resp;
-                if (await sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
+                if (sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
                     savemode === 'update'
                 ) {
                     const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]
@@ -287,6 +287,7 @@ const exportContract = async (
                         design_id: resp.id,
                         contract_type: contractType,
                         source_code: sourceCode,
+                        organisation: SimbaConfig.organisation.name,
                     }
                     SimbaConfig.ProjectConfigStore.set("contracts_info", contractsInfo)
                     SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: Saved Contract ${chalk.greenBright(`${currentContractName}`)} to Design ID `)}${chalk.greenBright(`${resp.id}`)}`);

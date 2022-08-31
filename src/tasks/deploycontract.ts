@@ -333,6 +333,7 @@ export const deployContract = async (
                     contractsInfo[contractName] = contractsInfo[contractName] ?
                     contractsInfo[contractName] :
                     {};
+                    contractsInfo[contractName].application = SimbaConfig.application.name;
                     if (!_isLibrary) {
                         const contractAddress = check_resp.primary.address;
                         contractsInfo[contractName].address = contractAddress;
