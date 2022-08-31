@@ -35,6 +35,7 @@ const exportContract = async (
     hre: HardhatRuntimeEnvironment,
     interactive: boolean = true,
     primary?: string,
+    savemode: string = 'new',
 ) => {
     const entryParams = {
         primary,
@@ -135,12 +136,25 @@ const exportContract = async (
             SimbaConfig.log.debug(`${chalk.cyanBright(`\nsimba: request: ${JSON.stringify(request)}`)}`);
             
             try {
-                const resp = await authStore.doPostRequest(
-                    `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
-                    request,
-                    "application/json",
-                    true,
-                );
+                let resp;
+                if (await sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
+                    savemode === 'update'
+                ) {
+                    const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]
+                    resp = await authStore.doPutRequest(
+                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
+                        request,
+                        "application/json",
+                        true,
+                    );
+                } else {
+                    resp = await authStore.doPostRequest(
+                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
+                        request,
+                        "application/json",
+                        true,
+                    );
+                }
                 if (!resp) {
                     SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : error exporting contract`)}`);
                     return;
@@ -238,12 +252,25 @@ const exportContract = async (
             SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: exporting contract ${chalk.greenBright(`${currentContractName}`)} to SIMBA Chain`)}`);
             SimbaConfig.log.debug(`${chalk.cyanBright(`\nsimba: request: ${JSON.stringify(request)}`)}`);
             try {
-                const resp = await authStore.doPostRequest(
-                    `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
-                    request,
-                    "application/json",
-                    true,
-                );
+                let resp;
+                if (await sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
+                    savemode === 'update'
+                ) {
+                    const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]
+                    resp = await authStore.doPutRequest(
+                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
+                        request,
+                        "application/json",
+                        true,
+                    );
+                } else {
+                    resp = await authStore.doPostRequest(
+                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
+                        request,
+                        "application/json",
+                        true,
+                    );
+                }
                 if (!resp) {
                     SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : error exporting contract`)}`);
                     return;
