@@ -19,10 +19,12 @@ const setOrGetDir = (
     SimbaConfig.log.debug(`:: ENTER : entryParams : ${JSON.stringify(entryParams)}`);
     if (method.toLowerCase() === "get") {
         SimbaConfig.printChalkedDirs();
+        SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
     if (!dirName || !dirPath) {
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: must specify dirName and dirPath`)}`);
+        SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
     if (method.toLowerCase() === "set") {
