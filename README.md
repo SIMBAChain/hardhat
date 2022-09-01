@@ -22,7 +22,10 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 7. [Environment Extensions](#environment-extensions)
 8. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
 9. [CI/CD](#continuous-integration-continuous-deployment)
-10. [SimbaInfo](#simbainfo)
+10. [Retrieving information from simba.json and authconfig.json](#simbainfo)
+11. [Viewing current directory paths for your project](#getdirs)
+12. [Setting a directory path](#setdir)
+13. [Resetting directory paths to default settings](#resetdir)
 
 ## Summary
 
@@ -635,4 +638,35 @@ For the 'contract' parameter, you can either pass the name of a contract, eg 'My
 
 ```
 $ npx hardhat simba simbainfo --contract MyContract
+```
+
+### getdirs
+This command will retrieve and print the current path to relevant directories in your project: 'artifacts', 'contracts', and 'build'. Simply run:
+
+```
+$ npx hardhat simba getdirs
+```
+
+### setdir
+
+This command allows the user to set the absolute directory path for a relevant directory in their project. Most users won't need this, but there may be cases in which you've changed your default directory for 'contracts', 'build', or 'artifacts'. This would be the case if you're using a Foundry project that has been integrated into a Hardhat project. To set a new directory path, pass the -dirname and -dirpath parameters. Valid values for dirname are 'contract', 'contracts', 'artifact', 'artifacts', and 'build'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for instance, to change the absolute directory path for 'build' to '/myhomedir/dev/myproject/build/', just run:
+
+```
+$ npx hardhat simba setdir --dirname build --dirpath /myhomedir/dev/myproject/build/
+```
+
+Note that if you pass 'reset' as --dirpath, then the path to the directory specified in --dirname will be reset to its default path.
+
+### resetdir
+
+This command allows the user to reset a directory path for 'build', 'contracts', or 'artifacts' to default settings for their project. To reset a directory path with this command, just pass --dirname, which can be any of 'build', 'contract', 'contracts', 'artifact', 'artifacts', or 'all'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for example, to reset the path to your 'artifacts' directory, just run:
+
+```
+$ npx hardhat simba resetdir --dirname artifacts
+```
+
+To reset all three of 'contracts', 'build', and 'artifacts', run:
+
+```
+$ npx hardhat simba resetdir --dirname all
 ```

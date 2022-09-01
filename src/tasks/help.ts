@@ -19,6 +19,9 @@ enum HelpCommands {
     VIEWCONTRACTS = "viewcontracts",
     CICD = "cicd",
     SIMBAINFO = "simbainfo",
+    GETDIRS = "getdirs",
+    SETDIR = "setdir",
+    RESETDIR = "resetdir",
 }
 
 /**
@@ -46,6 +49,9 @@ export async function help(
         HelpCommands.VIEWCONTRACTS,
         HelpCommands.CICD,
         HelpCommands.SIMBAINFO,
+        HelpCommands.GETDIRS,
+        HelpCommands.SETDIR,
+        HelpCommands.RESETDIR,
     ];
 
     if (topic) {
@@ -124,6 +130,18 @@ export async function help(
             await simbaInfoHelp();
             break;
         }
+        case HelpCommands.GETDIRS: {
+            await getDirsHelp();
+            break;
+        }
+        case HelpCommands.SETDIR: {
+            await setDirHelp();
+            break;
+        }
+        case HelpCommands.RESETDIR: {
+            await resetDirHelp();
+            break;
+        }
         default: { 
            console.log(`${chalk.cyanBright(`\nsimba: Please enter a valid topic from these choices: ${chalk.greenBright(`${JSON.stringify(paramInputChoices)}.`)} For example, run '$ npx hardhat simba help --topic deploy' for help deploying your contract.`)}`);
            break; 
@@ -194,6 +212,21 @@ async function simbaInfoHelp() {
     SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
+async function getDirsHelp() {
+    const message = await helpMessage("getDirsHelp");
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+}
+
+async function setDirHelp() {
+    const message = await helpMessage("setDirHelp");
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+}
+
+async function resetDirHelp() {
+    const message = await helpMessage("resetDirHelp");
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+}
+
 /**
  * grabs help message from helpOptions object
  * @param topic 
@@ -221,6 +254,9 @@ const helpOptions: any = {
     viewContractsHelp: "\n\nThis command will return information pertaining to all contracts saved to your organisation on SIMBA Chain. Contract info includes: name, id, and version. For this command, just run:\n\n\t$ npx hardhat simba viewcontracts\n\n",
     cicdHelp: "\n\nFor CI/CD (continuous integration / continuous deployment) support in the Hardhat plugin, please see: https://www.npmjs.com/package/@simbachain/hardhat#continuous-integration-continuous-deployment\n\n",
     simbaInfoHelp: "\n\nThis command allows you to view info from your simba.json, as well as auth token (with token redacted) from authconfig.json. The command takes two optional parameters: 'field' and 'contract'. If you run the command without any parameters:\n\n\t$ npx hardhat simba simbainfo\n\nthen your simba.json will be printed in its entirety. For the 'field' parameter, you can either pass the exact name of a simba.json field (eg 'most_recent_deployment_info'), or you can pass one of the following abbreviations: 'org' for organisation info, 'app' for application info, 'deploy' for most recent deployment info, 'auth' for authProviderInfo, 'contracts' for all contracts (this would be the same as using the --contract all flag), 'web3' for web3Suite, 'baseurl' for 'baseURL', and 'authtoken' to retrieve info for your current auth credentials from authconfig.json. As an example, to retrieve most recent deployment info, you should run\n\n\t$ npx hardhat simba simbainfo --field deploy\n\nFor the 'contract' parameter, you can either pass the name of a contract, eg 'MyContract,' or you can pass 'all' to view info for all of your contracts in simba.json.contracts_info. An example of this call would be\n\n\t$ npx hardhat simba simbainfo --contract MyContract\n\n",
+    getDirsHelp: "\n\nThis command will retrieve and print the current path to relevant directories in your project: 'artifacts', 'contracts', and 'build'. Simply run:\n\n\t$ npx hardhat simba getdirs\n\n",
+    setDirHelp: "\n\nThis command allows the user to set the absolute directory path for a relevant directory in their project. Most users won't need this, but there may be cases in which you've changed your default directory for 'contracts', 'build', or 'artifacts'. This would be the case if you're using a Foundry project that has been integrated into a Hardhat project. To set a new directory path, pass the -dirname and -dirpath parameters. Valid values for dirname are 'contract', 'contracts', 'artifact', 'artifacts', and 'build'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for instance, to change the absolute directory path for 'build' to '/myhomedir/dev/myproject/build/', just run:\n\n\t$ npx hardhat simba setdir --dirname build --dirpath /myhomedir/dev/myproject/build/\n\nNote that if you pass 'reset' as --dirpath, then the path to the directory specified in --dirname will be reset to its default path.\n\n",
+    resetDirHelp: "\n\nThis command allows the user to reset a directory path for 'build', 'contracts', or 'artifacts' to default settings for their project. To reset a directory path with this command, just pass --dirname, which can be any of 'build', 'contract', 'contracts', 'artifact', 'artifacts', or 'all'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for example, to reset the path to your 'artifacts' directory, just run:\n\n\t$ npx hardhat simba resetdir --dirname artifacts\n\nTo reset all three of 'contracts', 'build', and 'artifacts', run:\n\n\t$ npx hardhat simba resetdir --dirname all\n\n",
 }
 
 export default help;
