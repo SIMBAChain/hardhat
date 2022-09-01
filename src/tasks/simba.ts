@@ -7,10 +7,11 @@ import deployContract from "./deploycontract";
 import logout from "./logout";
 import help from "./help";
 import getSimbaInfo from "./simbainfo";
+import getOrSetDir from "./dirs";
 import {
     LogLevel,
     SimbaConfig,
-    SimbaInfo,
+    AllDirs,
 } from '@simbachain/web3-suites';
 import setLogLevel from "./loglevel";
 import {
@@ -18,6 +19,7 @@ import {
     pull,
     addLib,
  } from "./contract";
+import setOrGetDir from "./dirs";
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
@@ -30,6 +32,9 @@ const SIMBA_COMMANDS = {
     pull: "pull sol files and simba.json source code from SIMBA Chain",
     addlib: "add external library so you can deploy contracts that depend on that library",
     simbainfo: "grab info from your simba.json",
+    setdir: "set directory. --dirPath can be either artifact, build, or contract",
+    getdirs: "see readout of current directory paths for your project",
+    resetdir: "reset directory path for 'build', 'artifact', or 'contract'"
 };
 
 enum Commands {
@@ -43,6 +48,9 @@ enum Commands {
     PULL = "pull",
     ADDLIB = "addlib",
     SIMBAINFO = "simbainfo",
+    SETDIR = "setdir",
+    GETDIRS = "getdirs",
+    RESETDIR = "resetdir"
 };
 
 /**
@@ -78,6 +86,8 @@ const simba = async (
     savemode?: string,
     field?: string,
     contract?: string,
+    dirName?: string,
+    dirPath?: string,
     ) => {
     const entryParams = {
         cmd,
@@ -90,13 +100,15 @@ const simba = async (
         interactive,
         org,
         app,
-        savemode,
         contractName,
         pullSourceCode,
         pullSolFiles,
         useSimbaPath,
+        savemode,
         field,
         contract,
+        dirName,
+        dirPath,
     }
     SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(entryParams)}`);
     let _interactive: boolean = true;
@@ -112,7 +124,7 @@ const simba = async (
                 break;
             }
             default: { 
-                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "interactive" flag. Please enter '--interactive true' or '--interactive false' for this flag`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized value for "interactive" flag. Please enter '--interactive true' or '--interactive false' for this flag`)}`);
                 return;
             } 
         }
@@ -132,7 +144,7 @@ const simba = async (
                 break;
             }
             default: { 
-                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "pullsourcecode" flag. Please enter '--pullsourcecode true' or '--pullsourcecode false' for this flag`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized value for "pullsourcecode" flag. Please enter '--pullsourcecode true' or '--pullsourcecode false' for this flag`)}`);
                 return;
             } 
         }
@@ -152,7 +164,7 @@ const simba = async (
                 break;
             }
             default: { 
-                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "pullsolfiles" flag. Please enter '--pullsolfiles true' or '--pullsolfiles false' for this flag`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized value for "pullsolfiles" flag. Please enter '--pullsolfiles true' or '--pullsolfiles false' for this flag`)}`);
                 return;
             } 
         }
@@ -172,7 +184,7 @@ const simba = async (
                 break;
             }
             default: { 
-                console.log(`${chalk.redBright(`\nsimba: unrecognized value for "useSimbaPath" flag. Please enter '--useSimbaPath true' or '--useSimbaPath false' for this flag`)}`);
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized value for "useSimbaPath" flag. Please enter '--useSimbaPath true' or '--useSimbaPath false' for this flag`)}`);
                 return;
             } 
         }
@@ -237,12 +249,64 @@ const simba = async (
             break;
         }
         case Commands.SIMBAINFO: {
-            console.log("simbainfo recognized")
             getSimbaInfo(hre, field, contract);
             break;
         }
+        case Commands.GETDIRS: {
+            getOrSetDir(hre, "get");
+            break;
+        }
+        case Commands.SETDIR: {
+            if (!dirName || !dirPath) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: you must specify both dirname and dirpath`)}`);
+                return;
+            }
+            if (dirName !== "contracts" && dirName !== "contract" && dirName !== "build" && dirName !== "artifact" && dirName !== "artifacts") {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: dirname param must be one of "contract", "contracts", "build", "artifact", or "artifacts`)}`);
+                return;
+            }
+            if (dirName === "contracts" || dirName === "contract") {
+                dirName = AllDirs.CONTRACTDIRECTORY
+            }
+            if (dirName === "build") {
+                dirName = AllDirs.BUILDDIRECTORY;
+            }
+            if (dirName === "artifact" || dirName === "artifacts") {
+                dirName = AllDirs.ARTIFACTDIRECTORY;
+            }
+            setOrGetDir(hre, "set", dirName as AllDirs, dirPath);
+            break;
+        }
+        case Commands.RESETDIR: {
+            if (!dirName) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: dirname must be specified.`)}`)
+                return;
+            }
+            if (dirName !== "contracts" && dirName !== "contract" && dirName !== "build" && dirName !== "artifact" && dirName !== "artifacts" && dirName !== "all") {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: dirname param must be one of "contract", "contracts", "build", "artifact", "artifacts"
+                , or "all"`)}`);
+                return;
+            }
+            if (dirName === "contracts" || dirName === "contract") {
+                dirName = AllDirs.CONTRACTDIRECTORY
+            }
+            if (dirName === "build") {
+                dirName = AllDirs.BUILDDIRECTORY;
+            }
+            if (dirName === "artifact" || dirName === "artifacts") {
+                dirName = AllDirs.ARTIFACTDIRECTORY;
+            }
+            if (dirName.toLowerCase() === "all") {
+                for (const value in AllDirs) {
+                    setOrGetDir(hre, "set", (AllDirs as any)[value] as AllDirs, "reset");
+                }
+                return;
+            }
+            setOrGetDir(hre, "set", dirName as AllDirs, "reset");
+            break;
+        }
         default: { 
-           console.log(`${chalk.redBright(`\nsimba: unrecognized command - Please enter a valid simba command:\n${chalk.cyanBright(`${JSON.stringify(SIMBA_COMMANDS)}`)}`)}`);
+           SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized command - Please enter a valid simba command:\n${chalk.cyanBright(`${JSON.stringify(SIMBA_COMMANDS)}`)}`)}`);
            break; 
         } 
      }
@@ -267,6 +331,8 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("savemode", "'new' to create save a new contract design, 'update' to update an existing one. Defaults to 'new'")
     .addOptionalParam("field", "field to print from simba.json")
     .addOptionalParam("contract", "contract to pull info for from simba.json. can be a contractName (without .sol) or 'all'")
+    .addOptionalParam("dirname", "name of directory to set using setdir command")
+    .addOptionalParam("dirpath", "can be either path to directory for setdir, or 'reset' to reset to default setting for directory")
     .setAction(async (taskArgs, hre) => {
         const {
             cmd,
@@ -284,9 +350,11 @@ task("simba", "base simba cli that takes args")
             pullsourcecode,
             pullsolfiles,
             usesimbapath,
+            savemode,
             field,
             contract,
-            savemode,
+            dirname,
+            dirpath,
         } = taskArgs;
         await simba(
             hre,
@@ -305,9 +373,12 @@ task("simba", "base simba cli that takes args")
             pullsourcecode,
             pullsolfiles,
             usesimbapath,
+            savemode,
             field,
             contract,
-            savemode);
+            dirname,
+            dirpath,
+            );
     });
 
 export default simba;
