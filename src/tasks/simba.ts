@@ -201,7 +201,7 @@ const simba = async (
     }
     switch(cmd) {
         case Commands.LOGIN: { 
-           await login(hre, _interactive, org, app);
+           await login(_interactive, org, app);
            break; 
         }
         case Commands.EXPORT: {

@@ -143,7 +143,7 @@ export async function help(
             break;
         }
         default: { 
-           console.log(`${chalk.cyanBright(`\nsimba: Please enter a valid topic from these choices: ${chalk.greenBright(`${JSON.stringify(paramInputChoices)}.`)} For example, run '$ npx hardhat simba help --topic deploy' for help deploying your contract.`)}`);
+           SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: Please enter a valid topic from these choices: ${chalk.greenBright(`${JSON.stringify(paramInputChoices)}.`)} For example, run '$ npx hardhat simba help --topic deploy' for help deploying your contract.`)}`);
            break; 
         } 
     }
