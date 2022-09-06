@@ -7,10 +7,10 @@ import {
 import {default as chalk} from 'chalk';
 
 /**
- * deletes auth token from configstore (authconfig.json)
- * @param hre 
+ * 
+ * @returns 
  */
-const logout = async (hre: HardhatRuntimeEnvironment) => {
+const logout = async () => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const authStore = await SimbaConfig.authStore();
     if (!authStore) {

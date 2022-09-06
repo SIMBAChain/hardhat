@@ -9,7 +9,7 @@ import {
  * print name, version, and design_id for all contracts in your simbachain.com org
  * @param hre 
  */
-const viewContracts = async (hre: HardhatRuntimeEnvironment) => {
+const viewContracts = async () => {
     SimbaConfig.log.debug(`:: ENTER :`);
     await printAllContracts();
     SimbaConfig.log.debug(`:: EXIT :`);

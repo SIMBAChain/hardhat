@@ -28,7 +28,6 @@ enum SimbaJsonFields {
  * @returns 
  */
 export const getSimbaInfo = (
-    hre: HardhatRuntimeEnvironment,
     field?: string,
     contract?: string,
 ) => {

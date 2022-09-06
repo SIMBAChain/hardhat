@@ -31,7 +31,6 @@ enum HelpCommands {
  * @returns 
  */
 export async function help(
-    hre: HardhatRuntimeEnvironment,
     topic?: string,
 ) {
     let helpTopic: string;

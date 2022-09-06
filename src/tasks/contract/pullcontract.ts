@@ -12,7 +12,6 @@ import {
 
 
 const pull = async (
-    hre: HardhatRuntimeEnvironment,
     designID?: string,
     contractName?: string,
     pullSourceCode: boolean = true,

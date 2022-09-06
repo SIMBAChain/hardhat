@@ -14,7 +14,6 @@ import {default as chalk} from 'chalk';
  * @returns 
  */
 export const setLogLevel = async (
-    hre: HardhatRuntimeEnvironment,
     level?: LogLevel,
 ) => {
     SimbaConfig.log.debug(`:: ENTER : ${level}`);

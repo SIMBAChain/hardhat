@@ -12,7 +12,6 @@ import {
  * @returns 
  */
 const addLibrary = async (
-    hre: HardhatRuntimeEnvironment,
     libName?: string,
     libAddress?: string,
 ) => {

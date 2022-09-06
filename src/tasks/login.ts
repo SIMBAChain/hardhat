@@ -22,7 +22,6 @@ import {default as chalk} from 'chalk';
  * @returns 
  */
 const login = async (
-    // hre: HardhatRuntimeEnvironment,
     interactive: boolean = true,
     org?: string,
     app?: string,
