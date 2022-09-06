@@ -18,7 +18,6 @@ import {default as chalk} from 'chalk';
 
 /**
  * obtain auth token and choose organisation and application to log into
- * @param hre 
  * @returns 
  */
 const login = async (

@@ -26,7 +26,6 @@ enum HelpCommands {
 
 /**
  * get help info
- * @param hre 
  * @param topic 
  * @returns 
  */

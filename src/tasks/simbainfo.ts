@@ -19,10 +19,8 @@ enum SimbaJsonFields {
     AUTHTOKEN = "authtoken",
 }
 
-
 /**
  * set minimum log level for logger
- * @param hre 
  * @param field
  * @param contract 
  * @returns 
