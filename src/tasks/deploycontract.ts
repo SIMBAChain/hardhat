@@ -32,13 +32,14 @@ interface DeploymentRequest {
 }
 
 /**
- * deploy contract to simbachain.com
- * @param hre 
- * @returns 
+ * 
+ * @param primary name of primary contract if user wants to skip the prompt to choose contract
+ * @param deployInfo strictly used for testing as of now
+ * @returns void | AxiosError
  */
 export const deployContract = async (
-    hre: HardhatRuntimeEnvironment,
-    primary?: string
+    primary?: string,
+    deployInfo?: Record<any, any>,
 ) => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const config = new SimbaConfig();
@@ -66,205 +67,226 @@ export const deployContract = async (
         return;
     }
     let contractName;
-    if (primary) {
-        if ((primary as string) in contractsInfo) {
-            SimbaConfig.ProjectConfigStore.set('primary', primary);
-            contractName = primary;
+    if (!deployInfo) {
+        if (primary) {
+            if ((primary as string) in contractsInfo) {
+                SimbaConfig.ProjectConfigStore.set('primary', primary);
+                contractName = primary;
+            } else {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
+                return;
+            }
         } else {
-            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Primary contract ${primary} is not the name of a contract in this project`)}`);
-            return;
-        }
-    } else {
-        const choices = [];
-
-        for (const [contractName, _] of Object.entries(contractsInfo)) {
-            choices.push({title: contractName, value: contractName});
-        }
+            const choices = [];
     
-        const response = await prompt({
-            type: 'select',
-            name: 'contract_name',
-            message: 'Please pick which contract you want to deploy',
-            choices,
-        });
-    
-        if (!response.contract_name) {
-            SimbaConfig.log.error(`${chalk.redBright('\nsimba: EXIT : No contract selected for deployment!')}`);
-            throw new Error('No Contract Selected!');
+            for (const [contractName, _] of Object.entries(contractsInfo)) {
+                choices.push({title: contractName, value: contractName});
+            }
+        
+            const response = await prompt({
+                type: 'select',
+                name: 'contract_name',
+                message: 'Please pick which contract you want to deploy',
+                choices,
+            });
+        
+            if (!response.contract_name) {
+                SimbaConfig.log.error(`${chalk.redBright('\nsimba: EXIT : No contract selected for deployment!')}`);
+                throw new Error('No Contract Selected!');
+            }
+        
+            contractName = response.contract_name;
+            SimbaConfig.ProjectConfigStore.set("primary", contractName);
         }
-    
-        contractName = response.contract_name;
-        SimbaConfig.ProjectConfigStore.set("primary", contractName);
     }
 
-    const contractInfo = contractsInfo[contractName];
-    const sourceCode = contractInfo.source_code;
-    const contractType = contractInfo.contract_type;
-    const _isLibrary = (contractType === "library") ? true : false;
-    SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: gathering info for deployment of contract ${chalk.greenBright(`${contractName}`)}`)}`)
     let chosen: any = {};
-    const questions: prompt.PromptObject[] = [
-        {
-            type: 'text',
-            name: 'api',
-            message: `Please enter an API name for contract ${chalk.greenBright(`${contractName}`)} [^[w-]*$]`,
-            validate: (str: string): boolean => !!/^[\w-]*$/.exec(str),
-        },
-        {
-            type: 'select',
-            name: 'blockchain',
-            message: 'Please choose the blockchain to deploy to.',
-            choices: blockchainList,
-            initial: 0,
-        },
-        {
-            type: 'select',
-            name: 'storage',
-            message: 'Please choose the storage to use.',
-            choices: storageList,
-            initial: 0,
-        },
-    ];
-    const constructorRequiresParams = await primaryConstructorRequiresArgs();
-    const paramInputQuestions: any = [];
-    let inputNameToTypeMap: any = {};
-    let inputsAsJson = true;
-    if (constructorRequiresParams) {
-        const constructorInputs = await primaryConstructorInputs();
-        const allParamsByJson = "enter all params as json object";
-        const paramsOneByOne = "enter params one by one from prompts";
-        const paramInputChoices = [paramsOneByOne, allParamsByJson];
-        const paramChoices = [];
-        for (let i = 0; i < paramInputChoices.length; i++) {
-            const entry = paramInputChoices[i];
-            paramChoices.push({
-                title: entry,
-                value: entry,
-            });
-        }
-        const promptChosen = await prompt({
-            type: 'select',
-            name: 'input_method',
-            message: 'Your constructor parameters can be input as either a single json object or one by one from prompts. Which would you prefer?',
-            choices: paramChoices,
-        });
-
-        if (!promptChosen.input_method) {
-            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : no param input method chosen!`)}`)
-            return;
-        }
-
-        if (promptChosen.input_method === allParamsByJson) {
-            questions.push({
+    let deployArgs: DeploymentArguments = {};
+    let id;
+    let _isLibrary: boolean = false;
+    let sourceCode;
+    if (!deployInfo) {
+        const contractInfo = contractsInfo[contractName];
+        sourceCode = contractInfo.source_code;
+        const contractType = contractInfo.contract_type;
+        _isLibrary = (contractType === "library") ? true : false;
+        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba deploy: gathering info for deployment of contract ${chalk.greenBright(`${contractName}`)}`)}`)
+        const questions: prompt.PromptObject[] = [
+            {
                 type: 'text',
-                name: 'args',
-                message: 'Please enter any arguments for the contract as a JSON dictionary.',
-                validate: (contractArgs: string): boolean => {
-                    if (!contractArgs) {
-                        return true;
-                    } // Allow empty strings
-                    try {
-                        JSON.parse(contractArgs);
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                },
-            });
-        } else {
-            inputsAsJson = false;
-            for (let i = 0; i < constructorInputs.length; i++) {
-                const inputEntry = constructorInputs[i];
-                const paramType = inputEntry.type;
-                const paramName = inputEntry.name;
-                inputNameToTypeMap[paramName] = paramType;
-                paramInputQuestions.push({
-                    type: "text",
-                    name: paramName,
-                    message: `please input value for param ${chalk.greenBright(`${paramName}`)} of type ${chalk.greenBright(`${paramType}`)}`,
+                name: 'api',
+                message: `Please enter an API name for contract ${chalk.greenBright(`${contractName}`)} [^[w-]*$]`,
+                validate: (str: string): boolean => !!/^[\w-]*$/.exec(str),
+            },
+            {
+                type: 'select',
+                name: 'blockchain',
+                message: 'Please choose the blockchain to deploy to.',
+                choices: blockchainList,
+                initial: 0,
+            },
+            {
+                type: 'select',
+                name: 'storage',
+                message: 'Please choose the storage to use.',
+                choices: storageList,
+                initial: 0,
+            },
+        ];
+        const constructorRequiresParams = await primaryConstructorRequiresArgs();
+        const paramInputQuestions: any = [];
+        let inputNameToTypeMap: any = {};
+        let inputsAsJson = true;
+        if (constructorRequiresParams) {
+            const constructorInputs = await primaryConstructorInputs();
+            const allParamsByJson = "enter all params as json object";
+            const paramsOneByOne = "enter params one by one from prompts";
+            const paramInputChoices = [paramsOneByOne, allParamsByJson];
+            const paramChoices = [];
+            for (let i = 0; i < paramInputChoices.length; i++) {
+                const entry = paramInputChoices[i];
+                paramChoices.push({
+                    title: entry,
+                    value: entry,
                 });
             }
+            const promptChosen = await prompt({
+                type: 'select',
+                name: 'input_method',
+                message: 'Your constructor parameters can be input as either a single json object or one by one from prompts. Which would you prefer?',
+                choices: paramChoices,
+            });
+    
+            if (!promptChosen.input_method) {
+                SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : no param input method chosen!`)}`)
+                return;
+            }
+    
+            if (promptChosen.input_method === allParamsByJson) {
+                questions.push({
+                    type: 'text',
+                    name: 'args',
+                    message: 'Please enter any arguments for the contract as a JSON dictionary.',
+                    validate: (contractArgs: string): boolean => {
+                        if (!contractArgs) {
+                            return true;
+                        } // Allow empty strings
+                        try {
+                            JSON.parse(contractArgs);
+                            return true;
+                        } catch {
+                            return false;
+                        }
+                    },
+                });
+            } else {
+                inputsAsJson = false;
+                for (let i = 0; i < constructorInputs.length; i++) {
+                    const inputEntry = constructorInputs[i];
+                    const paramType = inputEntry.type;
+                    const paramName = inputEntry.name;
+                    inputNameToTypeMap[paramName] = paramType;
+                    paramInputQuestions.push({
+                        type: "text",
+                        name: paramName,
+                        message: `please input value for param ${chalk.greenBright(`${paramName}`)} of type ${chalk.greenBright(`${paramType}`)}`,
+                    });
+                }
+            }
         }
-    }
-
-    chosen = await prompt(questions);
-
-    let inputsChosen = {} as any;
-    if (!inputsAsJson) {
-        inputsChosen = await prompt(paramInputQuestions);
-        SimbaConfig.log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
-        for (const key in inputsChosen) {
-            if (!inputNameToTypeMap[key].startsWith("string") || !inputNameToTypeMap[key].startsWith("address")) {
-                try {
-                    // trying and catching. there are custom data types that users can define
-                    // that we won't be able to anticipate. so we try to parse those,
-                    // and if they're really just extensions of 'string', then we continue
-                    inputsChosen[key] = JSON.parse(inputsChosen[key]);
-                } catch (e) {
-                    continue;
+    
+        chosen = await prompt(questions);
+    
+        let inputsChosen = {} as any;
+        if (!inputsAsJson) {
+            inputsChosen = await prompt(paramInputQuestions);
+            SimbaConfig.log.debug(`:: inputsChosen : ${JSON.stringify(inputsChosen)}`);
+            for (const key in inputsChosen) {
+                if (!inputNameToTypeMap[key].startsWith("string") || !inputNameToTypeMap[key].startsWith("address")) {
+                    try {
+                        // trying and catching. there are custom data types that users can define
+                        // that we won't be able to anticipate. so we try to parse those,
+                        // and if they're really just extensions of 'string', then we continue
+                        inputsChosen[key] = JSON.parse(inputsChosen[key]);
+                    } catch (e) {
+                        continue;
+                    }
+                }
+            }
+        }
+    
+        if (!chosen.api) {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No API Name chosen!`)}`);
+            return;
+        }
+    
+        if (!chosen.blockchain) {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT :  No blockchain chosen!`)}`);
+            return;
+        }
+    
+        if (!chosen.storage) {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No storage chosen!`)}`)
+            return;
+        }
+    
+        if (constructorRequiresParams && !chosen.args && !inputsChosen) {
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Your contract requires constructor arguments`)}`)
+            return;
+        }
+        id = contractInfo.design_id;
+        if (chosen.args) {
+            deployArgs = JSON.parse(chosen.args) as DeploymentArguments;
+        } else {
+            if (config.ProjectConfigStore.has('defaultArgs')) {
+                deployArgs = config.ProjectConfigStore.get('defaultArgs') as DeploymentArguments;
+            } else {
+                if (inputsChosen) {
+                    deployArgs = JSON.parse(JSON.stringify(inputsChosen));
                 }
             }
         }
     }
 
-    if (!chosen.api) {
-        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No API Name chosen!`)}`);
-        return;
-    }
-
-    if (!chosen.blockchain) {
-        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT :  No blockchain chosen!`)}`);
-        return;
-    }
-
-    if (!chosen.storage) {
-        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : No storage chosen!`)}`)
-        return;
-    }
-
-    if (constructorRequiresParams && !chosen.args && !inputsChosen) {
-        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : Your contract requires constructor arguments`)}`)
-        return;
-    }
-
-    const id = contractInfo.design_id;
-    let deployArgs: DeploymentArguments = {};
-    if (chosen.args) {
-        deployArgs = JSON.parse(chosen.args) as DeploymentArguments;
-    } else {
-        if (config.ProjectConfigStore.has('defaultArgs')) {
-            deployArgs = config.ProjectConfigStore.get('defaultArgs') as DeploymentArguments;
-        } else {
-            if (inputsChosen) {
-                deployArgs = JSON.parse(JSON.stringify(inputsChosen));
-            }
-        }
-    }
 
     let deployURL;
     let deployment: DeploymentRequest;
-    if (_isLibrary) {
-        deployURL = `organisations/${config.organisation.id}/deployed_artifacts/create/`;
-        const b64CodeBuffer = Buffer.from(sourceCode)
-        const base64CodeString = b64CodeBuffer.toString('base64')
+
+    if (deployInfo) {
+        deployURL = deployInfo.url;
         deployment = {
-            args: deployArgs,
-            language: "Solidity",
-            code: base64CodeString,
-            blockchain: chosen.blockchain,
-            app_name: config.application.name,
-            lib_name: config.ProjectConfigStore.get("primary"),
-        };
-    } else {
-        deployURL = `organisations/${config.organisation.id}/contract_designs/${id}/deploy/`;
-        deployment = {
-            blockchain: chosen.blockchain,
-            storage: chosen.storage,
-            api_name: chosen.api,
+            blockchain: deployInfo.blockchain,
+            storage: deployInfo.storage,
+            api_name: deployInfo.api,
             app_name: config.application.name,
             display_name: config.application.name,
-            args: deployArgs,
-        };
+            args: deployInfo.args,
+        }
+
+    } else {
+        if (_isLibrary) {
+            deployURL = `organisations/${config.organisation.id}/deployed_artifacts/create/`;
+            const b64CodeBuffer = Buffer.from(sourceCode)
+            const base64CodeString = b64CodeBuffer.toString('base64')
+            deployment = {
+                args: deployArgs,
+                language: "Solidity",
+                code: base64CodeString,
+                blockchain: chosen.blockchain,
+                app_name: config.application.name,
+                lib_name: config.ProjectConfigStore.get("primary"),
+            };
+        } else {
+            deployURL = `organisations/${config.organisation.id}/contract_designs/${id}/deploy/`;
+            deployment = {
+                blockchain: chosen.blockchain,
+                storage: chosen.storage,
+                api_name: chosen.api,
+                app_name: config.application.name,
+                display_name: config.application.name,
+                args: deployArgs,
+            };
+        }
     }
 
     const authStore = await SimbaConfig.authStore();
@@ -272,7 +294,8 @@ export const deployContract = async (
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no authStore created. Please make sure your baseURL is properly configured in your simba.json`)}`);
         return Promise.reject(new Error(authErrors.badAuthProviderInfo));
     }
-
+    console.log(`deployURL: ${deployURL}`);
+    console.log(`deploymentInfo: ${JSON.stringify(deployment)}`);
     try {
         const resp = await authStore.doPostRequest(
             deployURL,
@@ -392,13 +415,15 @@ export const deployContract = async (
         Promise.resolve(retVal);
     }  catch (error) {
         if (axios.isAxiosError(error) && error.response) {
-            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`)
+            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error.response.data)}`)}`);
+            return error;
         } else {
             SimbaConfig.log.error(`${chalk.redBright(`\nsimba: EXIT : ${JSON.stringify(error)}`)}`);
+            return error;
         }
-        return;
     }
     SimbaConfig.log.debug(`:: EXIT :`);
+    return;
 }
 
 export default deployContract;

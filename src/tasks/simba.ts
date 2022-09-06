@@ -209,7 +209,7 @@ const simba = async (
             break;
         }
         case Commands.DEPLOY: {
-            await deployContract(hre, primary);
+            await deployContract(primary);
             break;
         }
         case Commands.LOGOUT: {
