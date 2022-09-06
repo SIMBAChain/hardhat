@@ -62,8 +62,8 @@ export const deployContract = async (
 
     const contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info");
 
-    if (!contractsInfo) {
-        SimbaConfig.log.error(`${chalk.greenBright(`\nsimba: no contracts present in your contracts_info in simba.json. Did you forget to deploy contracts first by running ${chalk.greenBright(`$ npx hardhat simba export`)} ?`)}`);
+    if (!contractsInfo || !Object.keys(contractsInfo).length) {
+        SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no contracts present in your contracts_info in simba.json. Did you forget to export contracts first by running ${chalk.greenBright(`$ npx hardhat simba export`)} ?`)}`);
         return;
     }
     let contractName;
@@ -82,6 +82,7 @@ export const deployContract = async (
             for (const [contractName, _] of Object.entries(contractsInfo)) {
                 choices.push({title: contractName, value: contractName});
             }
+            console.log("heeeeeee")
         
             const response = await prompt({
                 type: 'select',
