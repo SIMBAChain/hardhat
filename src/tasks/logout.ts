@@ -7,7 +7,7 @@ import {
 import {default as chalk} from 'chalk';
 
 /**
- * 
+ * deletes auth token from configstore (authconfig.json)
  * @returns 
  */
 const logout = async () => {

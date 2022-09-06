@@ -3,13 +3,8 @@ import {
 } from "@simbachain/web3-suites";
 import deployContract from "../../tasks/deploycontract";
 import { expect } from 'chai';
-// import { execSync } from "child_process";
 import {default as chalk} from 'chalk';
 import axios from "axios";
-// import robot from "robotjs";
-// var ks = require('node-key-sender');
-
-// var robot = require("robotjs");
 import 'mocha';
 
 const deployInfo = {
