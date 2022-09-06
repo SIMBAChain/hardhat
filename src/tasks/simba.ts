@@ -56,7 +56,6 @@ enum Commands {
 /**
  * this is the main entry point for the CLI
  * cmd is the main command to call (eg deploy, export, etc.)
- * @param hre 
  * @param cmd 
  * @param topic 
  * @param primary 
@@ -201,7 +200,7 @@ const simba = async (
     }
     switch(cmd) {
         case Commands.LOGIN: { 
-           await login(hre, _interactive, org, app);
+           await login(_interactive, org, app);
            break; 
         }
         case Commands.EXPORT: {
@@ -209,23 +208,23 @@ const simba = async (
             break;
         }
         case Commands.DEPLOY: {
-            await deployContract(hre, primary);
+            await deployContract(primary);
             break;
         }
         case Commands.LOGOUT: {
-            await logout(hre);
+            await logout();
             break;
         }
         case Commands.HELP: {
-            await help(hre, topic);
+            await help(topic);
             break;
         }
         case Commands.LOGLEVEL: {
-            await setLogLevel(hre, logLevel);
+            await setLogLevel(logLevel);
             break;
         }
         case Commands.VIEWCONTRACTS: {
-            await viewContracts(hre);
+            await viewContracts();
             break;
         }
         case Commands.PULL: {
@@ -234,7 +233,6 @@ const simba = async (
                 _interactive = false;
             }
             await pull(
-                hre,
                 designID,
                 contractName,
                 _pullSourceCode,
@@ -245,15 +243,15 @@ const simba = async (
             break;
         }
         case Commands.ADDLIB: {
-            await addLib(hre, libraryName, libraryAddress);
+            await addLib(libraryName, libraryAddress);
             break;
         }
         case Commands.SIMBAINFO: {
-            getSimbaInfo(hre, field, contract);
+            getSimbaInfo(field, contract);
             break;
         }
         case Commands.GETDIRS: {
-            getOrSetDir(hre, "get");
+            getOrSetDir("get");
             break;
         }
         case Commands.SETDIR: {
@@ -274,7 +272,7 @@ const simba = async (
             if (dirName === "artifact" || dirName === "artifacts") {
                 dirName = AllDirs.ARTIFACTDIRECTORY;
             }
-            setOrGetDir(hre, "set", dirName as AllDirs, dirPath);
+            setOrGetDir("set", dirName as AllDirs, dirPath);
             break;
         }
         case Commands.RESETDIR: {
@@ -298,11 +296,11 @@ const simba = async (
             }
             if (dirName.toLowerCase() === "all") {
                 for (const value in AllDirs) {
-                    setOrGetDir(hre, "set", (AllDirs as any)[value] as AllDirs, "reset");
+                    setOrGetDir("set", (AllDirs as any)[value] as AllDirs, "reset");
                 }
                 return;
             }
-            setOrGetDir(hre, "set", dirName as AllDirs, "reset");
+            setOrGetDir("set", dirName as AllDirs, "reset");
             break;
         }
         default: { 

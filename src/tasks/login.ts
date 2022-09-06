@@ -18,11 +18,9 @@ import {default as chalk} from 'chalk';
 
 /**
  * obtain auth token and choose organisation and application to log into
- * @param hre 
  * @returns 
  */
 const login = async (
-    hre: HardhatRuntimeEnvironment,
     interactive: boolean = true,
     org?: string,
     app?: string,
@@ -133,8 +131,6 @@ const login = async (
             return Promise.resolve(new Error('No Application Selected!'));
         }
         SimbaConfig.resetSimbaJson(previousSimbaJson, org);
-        SimbaConfig.organisation = org
-        SimbaConfig.application = app
         SimbaConfig.log.info(`${chalk.cyanBright('\nsimba: Logged in with organisation')} ${chalk.greenBright(org.display_name)} ${chalk.cyanBright('and application')} ${chalk.greenBright(app.display_name)}`);
 
     } catch (error) {

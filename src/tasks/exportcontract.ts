@@ -27,12 +27,12 @@ interface Request {
 
 /**
  * export contract to simbachain.com (can also be thought of as "importing" contract to simbachain.com)
- * @param hre 
+ * @param hre hre is optional here to make testing more convenient
  * @param primary optional param specifying which contract to export. if not present, contract is selected from prompts
  * @returns 
  */
 const exportContract = async (
-    hre: HardhatRuntimeEnvironment,
+    hre?: HardhatRuntimeEnvironment,
     interactive: boolean = true,
     primary?: string,
     savemode: string = 'new',
@@ -45,9 +45,11 @@ const exportContract = async (
     let files: string[] = [];
     try {
         SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: cleaning up build artifacts`)}`);
-        await hre.run("clean");
-        SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: compiling your contracts`)}`);
-        await hre.run("compile");
+        if (hre) {
+            await hre.run("clean");
+            SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: compiling your contracts`)}`);
+            await hre.run("compile");
+        }
     } catch (error) {
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: Hardhat was unable to compile your contracts. exiting without exporting`)}`);
         SimbaConfig.log.debug(`:: EXIT :`);

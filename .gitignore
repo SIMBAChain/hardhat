@@ -65,8 +65,5 @@ typings/
 # environment variables
 .env
 
-# project configstore
-**simba.json
-
 # auth configstore
 **authconfig.json
