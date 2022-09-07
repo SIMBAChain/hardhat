@@ -22,6 +22,7 @@ enum HelpCommands {
     GETDIRS = "getdirs",
     SETDIR = "setdir",
     RESETDIR = "resetdir",
+    DELETECONTRACT = "deletecontract",
 }
 
 /**
@@ -50,6 +51,7 @@ export async function help(
         HelpCommands.GETDIRS,
         HelpCommands.SETDIR,
         HelpCommands.RESETDIR,
+        HelpCommands.DELETECONTRACT,
     ];
 
     if (topic) {
@@ -140,6 +142,10 @@ export async function help(
             await resetDirHelp();
             break;
         }
+        case HelpCommands.DELETECONTRACT: {
+            await deleteContractHelp();
+            break;
+        }
         default: { 
            SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: Please enter a valid topic from these choices: ${chalk.greenBright(`${JSON.stringify(paramInputChoices)}.`)} For example, run '$ npx hardhat simba help --topic deploy' for help deploying your contract.`)}`);
            break; 
@@ -225,6 +231,11 @@ async function resetDirHelp() {
     SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
 }
 
+async function deleteContractHelp() {
+    const message = await helpMessage("deleteContractHelp");
+    SimbaConfig.log.info(`${chalk.cyanBright("simba help:")}${chalk.greenBright(message)}`);
+}
+
 /**
  * grabs help message from helpOptions object
  * @param topic 
@@ -255,6 +266,7 @@ const helpOptions: any = {
     getDirsHelp: "\n\nThis command will retrieve and print the current path to relevant directories in your project: 'artifacts', 'contracts', and 'build'. Simply run:\n\n\t$ npx hardhat simba getdirs\n\n",
     setDirHelp: "\n\nThis command allows the user to set the absolute directory path for a relevant directory in their project. Most users won't need this, but there may be cases in which you've changed your default directory for 'contracts', 'build', or 'artifacts'. This would be the case if you're using a Foundry project that has been integrated into a Hardhat project. To set a new directory path, pass the -dirname and -dirpath parameters. Valid values for dirname are 'contract', 'contracts', 'artifact', 'artifacts', and 'build'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for instance, to change the absolute directory path for 'build' to '/myhomedir/dev/myproject/build/', just run:\n\n\t$ npx hardhat simba setdir --dirname build --dirpath /myhomedir/dev/myproject/build/\n\nNote that if you pass 'reset' as --dirpath, then the path to the directory specified in --dirname will be reset to its default path.\n\n",
     resetDirHelp: "\n\nThis command allows the user to reset a directory path for 'build', 'contracts', or 'artifacts' to default settings for their project. To reset a directory path with this command, just pass --dirname, which can be any of 'build', 'contract', 'contracts', 'artifact', 'artifacts', or 'all'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for example, to reset the path to your 'artifacts' directory, just run:\n\n\t$ npx hardhat simba resetdir --dirname artifacts\n\nTo reset all three of 'contracts', 'build', and 'artifacts', run:\n\n\t$ npx hardhat simba resetdir --dirname all\n\n",
+    deleteContractHelp: "\n\nThis command allows the user to delete contract designs from their organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:\n\n\t$ npx hardhat simba deletecontract --id <your contract design_id>\n\nTo run without parameters:\n\n\t$ npx hardhat simba deletecontract\n\n",
 }
 
 export default help;

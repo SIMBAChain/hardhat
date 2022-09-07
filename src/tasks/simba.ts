@@ -18,6 +18,7 @@ import {
     viewContracts,
     pull,
     addLib,
+    deleteContract,
  } from "./contract";
 import setOrGetDir from "./dirs";
 
@@ -32,9 +33,10 @@ const SIMBA_COMMANDS = {
     pull: "pull sol files and simba.json source code from SIMBA Chain",
     addlib: "add external library so you can deploy contracts that depend on that library",
     simbainfo: "grab info from your simba.json",
-    setdir: "set directory. --dirPath can be either artifact, build, or contract",
+    setdir: "set directory. --dirpath can be either artifact, build, or contract",
     getdirs: "see readout of current directory paths for your project",
-    resetdir: "reset directory path for 'build', 'artifact', or 'contract'"
+    resetdir: "reset directory path for 'build', 'artifact', or 'contract'",
+    deletecontract: "delete contract"
 };
 
 enum Commands {
@@ -50,7 +52,8 @@ enum Commands {
     SIMBAINFO = "simbainfo",
     SETDIR = "setdir",
     GETDIRS = "getdirs",
-    RESETDIR = "resetdir"
+    RESETDIR = "resetdir",
+    DELETECONTRACT = "deletecontract",
 };
 
 /**
@@ -303,6 +306,10 @@ const simba = async (
             setOrGetDir("set", dirName as AllDirs, "reset");
             break;
         }
+        case Commands.DELETECONTRACT: {
+            await deleteContract(designID);
+            break;
+        }
         default: { 
            SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unrecognized command - Please enter a valid simba command:\n${chalk.cyanBright(`${JSON.stringify(SIMBA_COMMANDS)}`)}`)}`);
            break; 
@@ -316,7 +323,7 @@ task("simba", "base simba cli that takes args")
     .addOptionalParam("topic", "pass optional help topic when cmd == 'help'")
     .addOptionalParam("prm", "used to specify a primary contract for either export or deploy")
     .addOptionalParam("lvl", "minimum log level to set your logger to")
-    .addOptionalParam("id", "id of the contract you want to pull from Blocks")
+    .addOptionalParam("id", "id of the contract you want to pull from Blocks; also used as id of contract for deletecontract")
     .addOptionalParam("libname", "name of the library you want to add")
     .addOptionalParam("libaddr", "address of the library you want to add")
     .addOptionalParam("interactive", "'true' or 'false' for interactive export, login, and pull")
