@@ -33,7 +33,7 @@ const SIMBA_COMMANDS = {
     pull: "pull sol files and simba.json source code from SIMBA Chain",
     addlib: "add external library so you can deploy contracts that depend on that library",
     simbainfo: "grab info from your simba.json",
-    setdir: "set directory. --dirPath can be either artifact, build, or contract",
+    setdir: "set directory. --dirpath can be either artifact, build, or contract",
     getdirs: "see readout of current directory paths for your project",
     resetdir: "reset directory path for 'build', 'artifact', or 'contract'",
     deletecontract: "delete contract"
