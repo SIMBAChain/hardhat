@@ -1,13 +1,14 @@
 import {
     SimbaConfig,
+    allContracts,
 } from "@simbachain/web3-suites";
 import exportContract from "../../tasks/exportcontract";
 import deleteContract from "../../tasks/contract/deletecontract"
 import { expect } from 'chai';
 import 'mocha';
 
-describe('tests export', () => {
-    it('design_id for TestContractChanged should be different, then stay the same', async () => {
+describe('tests deleteContract', () => {
+    it('design_id should not be present in allContracts[i].id after deleteContract is called', async () => {
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         const originalDesignID = originalSimbaJson.contracts_info.TestContractChanged.design_id;
         await exportContract(undefined, false);
@@ -20,8 +21,35 @@ describe('tests export', () => {
         expect(newDesignID).to.exist;
         expect(newDesignID).to.equal(newestDesignID);
 
+        let _allContracts = await allContracts() as any;
+        let idIsPresentInAllContracts: boolean = false;
+        for (let i = 0; i < _allContracts.length; i++) {
+            const entry = _allContracts[i];
+            const id = entry.id;
+            if (id === newDesignID) {
+                idIsPresentInAllContracts = true;
+                break;
+            }
+        }
+        expect(idIsPresentInAllContracts).to.equal(true);
+
         // delete the contract we just exported
         await deleteContract(newDesignID);
+
+        // now gather contracts again
+        _allContracts = await allContracts() as any;
+        idIsPresentInAllContracts = false;
+        for (let i = 0; i < _allContracts.length; i++) {
+            const entry = _allContracts[i];
+            const id = entry.id;
+            if (id === newDesignID) {
+                idIsPresentInAllContracts = true;
+                break;
+            }
+        }
+
+        // now contract should no longer be present in results
+        expect(idIsPresentInAllContracts).to.equal(false);
 
         // reset
         SimbaConfig.ProjectConfigStore.clear();
