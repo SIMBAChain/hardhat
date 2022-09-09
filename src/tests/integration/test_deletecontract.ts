@@ -18,11 +18,6 @@ describe('tests deleteContract', () => {
         expect(newDesignID).to.exist;
         expect(originalDesignID).to.not.equal(newDesignID);
 
-        await exportContract(undefined, false);
-        const newestDesignID = SimbaConfig.ProjectConfigStore.get("contracts_info").TestContractChanged.design_id;
-        expect(newDesignID).to.exist;
-        expect(newDesignID).to.equal(newestDesignID);
-
         let _allContracts = await allContracts() as any;
         let idIsPresentInAllContracts: boolean = false;
         for (let i = 0; i < _allContracts.length; i++) {
