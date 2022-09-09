@@ -36,6 +36,7 @@ describe('testing pulling source code to simba.json', () => {
         const contractName = "TestContractVT3";
         const simbaConfig = new SimbaConfig();
         const authStore = await simbaConfig.authStore();
+        await authStore!.performLogin(false);
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         SimbaConfig.resetSimbaJson(originalSimbaJson, null, true);
         let contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info");
@@ -43,7 +44,6 @@ describe('testing pulling source code to simba.json', () => {
         expect(currentKeysLength).to.eq(0);
 
 
-        await authStore!.performLogin(false);
         // now set one contract's source code in simba.json:
         await pull(undefined, contractName, true);
         contractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info");
@@ -144,7 +144,7 @@ describe('testing pulling source code and sol files', () => {
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
         FileHandler.removeDirectory(simbaDir);
 
-    }).timeout(300000);
+    }).timeout(200000);
 });
 
 

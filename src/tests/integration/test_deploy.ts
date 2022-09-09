@@ -22,6 +22,8 @@ describe('tests deploy', () => {
     it('testing that endpoint is being hit correctly, but not actually deploying since "ourtestapi" already exists', async () => {
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         let detail: any;
+        const authStore = await SimbaConfig.authStore();
+        await authStore!.performLogin(false);
         const res = await deployContract(undefined, deployInfo);
         if (axios.isAxiosError(res) && res.response) {
                 detail = res.response.data.errors[0].detail;
@@ -31,6 +33,6 @@ describe('tests deploy', () => {
         expect(detail).to.equal(`name ${deployInfo.api} already exists`);
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
-    }).timeout(150000);
+    }).timeout(60000);
 });
 
