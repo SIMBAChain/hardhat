@@ -26,7 +26,8 @@ describe('tests deploy', () => {
         await authStore!.performLogin(false);
         const res = await deployContract(undefined, deployInfo);
         if (axios.isAxiosError(res) && res.response) {
-                detail = res.response.data.errors[0].detail;
+                const data = res.response.data as any;
+                detail = data.errors[0].detail;
             } else {
                 SimbaConfig.log.error(`${chalk.redBright(`\nsimba: unknown error type`)}`);
             }
