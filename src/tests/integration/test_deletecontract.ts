@@ -9,6 +9,8 @@ import 'mocha';
 
 describe('tests deleteContract', () => {
     it('design_id should not be present in allContracts[i].id after deleteContract is called', async () => {
+        const authStore = await SimbaConfig.authStore();
+        await authStore!.performLogin(false);
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         const originalDesignID = originalSimbaJson.contracts_info.TestContractChanged.design_id;
         await exportContract(undefined, false);
