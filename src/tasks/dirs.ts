@@ -6,6 +6,13 @@ import {
 } from '@simbachain/web3-suites';
 import {default as chalk} from 'chalk';
 
+/**
+ * 
+ * @param method can be 'set' or 'get'
+ * @param dirName 
+ * @param dirPath 
+ * @returns 
+ */
 const setOrGetDir = (
     method: string,
     dirName?: AllDirs,

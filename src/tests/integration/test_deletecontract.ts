@@ -51,5 +51,5 @@ describe('tests deleteContract', () => {
         // reset
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
-    }).timeout(150000);
+    }).timeout(200000);
 });
