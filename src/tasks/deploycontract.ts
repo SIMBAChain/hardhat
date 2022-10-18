@@ -82,7 +82,6 @@ export const deployContract = async (
             for (const [contractName, _] of Object.entries(contractsInfo)) {
                 choices.push({title: contractName, value: contractName});
             }
-            console.log("heeeeeee")
         
             const response = await prompt({
                 type: 'select',
@@ -295,8 +294,6 @@ export const deployContract = async (
         SimbaConfig.log.error(`${chalk.redBright(`\nsimba: no authStore created. Please make sure your baseURL is properly configured in your simba.json`)}`);
         return Promise.reject(new Error(authErrors.badAuthProviderInfo));
     }
-    console.log(`deployURL: ${deployURL}`);
-    console.log(`deploymentInfo: ${JSON.stringify(deployment)}`);
     try {
         const resp = await authStore.doPostRequest(
             deployURL,
