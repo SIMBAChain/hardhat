@@ -144,14 +144,14 @@ const exportContract = async (
                 ) {
                     const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]
                     resp = await authStore.doPutRequest(
-                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
+                        `v2/organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
                         request,
                         "application/json",
                         true,
                     );
                 } else {
                     resp = await authStore.doPostRequest(
-                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
+                        `v2/organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
                         request,
                         "application/json",
                         true,
@@ -260,14 +260,14 @@ const exportContract = async (
                 ) {
                     const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]
                     resp = await authStore.doPutRequest(
-                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
+                        `v2/organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/${contractId}/`,
                         request,
                         "application/json",
                         true,
                     );
                 } else {
                     resp = await authStore.doPostRequest(
-                        `organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
+                        `v2/organisations/${SimbaConfig.organisation.id}/contract_designs/import/truffle/`,
                         request,
                         "application/json",
                         true,
