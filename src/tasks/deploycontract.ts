@@ -301,6 +301,7 @@ export const deployContract = async (
             "application/json",
             true,
         );
+        SimbaConfig.log.debug(`:: resp : ${JSON.stringify(resp)}`);
         if (!resp) {
             SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error deploying contract`)}`);
             return;
@@ -324,9 +325,7 @@ export const deployContract = async (
                 SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error checking deployment URL`)}`);
                 return;
             }
-            if (check_resp instanceof Error) {
-                throw new Error(check_resp.message);
-            }
+
             const state: any = check_resp.state;
             SimbaConfig.log.debug(`:: state : ${state}`);
 
