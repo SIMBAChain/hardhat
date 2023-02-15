@@ -2,7 +2,7 @@ import {
     SimbaConfig,
     AllDirs,
 } from "@simbachain/web3-suites";
-import setOrGetDir from "../../tasks/dirs";
+import setOrGetDir from "../../src/tasks/dirs";
 import { expect } from 'chai';
 import 'mocha';
 

@@ -1,7 +1,7 @@
 import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
-import loglevel from "../../tasks/loglevel";
+import loglevel from "../../src/tasks/loglevel";
 import { expect } from 'chai';
 import 'mocha';
 

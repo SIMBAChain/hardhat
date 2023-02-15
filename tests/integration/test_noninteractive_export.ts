@@ -1,8 +1,8 @@
 import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
-import exportContract from "../../tasks/exportcontract";
-import deleteContract from "../../tasks/contract/deletecontract"
+import exportContract from "../../src/tasks/exportcontract";
+import deleteContract from "../../src/tasks/contract/deletecontract"
 import { expect } from 'chai';
 import 'mocha';
 

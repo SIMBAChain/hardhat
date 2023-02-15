@@ -1,7 +1,7 @@
 import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
-import deployContract from "../../tasks/deploycontract";
+import deployContract from "../../src/tasks/deploycontract";
 import { expect } from 'chai';
 import {default as chalk} from 'chalk';
 import axios from "axios";

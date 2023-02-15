@@ -2,7 +2,7 @@ import {
     SimbaConfig,
     allContracts,
 } from "@simbachain/web3-suites";
-import pull from "../../tasks/contract/pullcontract";
+import pull from "../../src/tasks/contract/pullcontract";
 import {
     FileHandler,
 } from "../tests_setup/file_handler"
