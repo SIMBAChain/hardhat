@@ -7,7 +7,7 @@ import {
     deleteContractsFromPrompts,
 } from '@simbachain/web3-suites';
 
-const deleteContract = async (
+export const deleteContract = async (
     designID?: string,
 ) => {
     SimbaConfig.log.debug(`:: ENTER : designID : ${designID}`);
@@ -19,5 +19,3 @@ const deleteContract = async (
     await deleteContractFromDesignID(designID);
     SimbaConfig.log.debug(`:: EXIT :`);
 }
-
-export default deleteContract;

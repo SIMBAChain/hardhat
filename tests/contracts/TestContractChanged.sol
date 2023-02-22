@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 
 contract TestContractChanged {
+    // inserting comment here so source code is different;
+    // hence "TestContractChanged"
     uint private ourNum;
     string private ourString;
     // we inserted a comment here so that this contract is differently

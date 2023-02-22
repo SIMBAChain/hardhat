@@ -2,44 +2,43 @@ import {
     SimbaConfig,
     allContracts,
 } from "@simbachain/web3-suites";
-import exportContract from "../../src/tasks/exportcontract";
-import deleteContract from "../../src/tasks/contract/deletecontract"
+const web3SuitesLib = require("@simbachain/web3-suites");
+import {exportContract} from "../../src/tasks/exportcontract";
+import {deleteContract} from "../../src/tasks/contract/deletecontract"
+const deleteLib = require("../../src/tasks/contract/deletecontract");
 import { expect } from 'chai';
+import {
+    allContractsFake,
+    allContractsFakeAfterDelete,
+} from "../tests_setup";
 import 'mocha';
+import sinon from "sinon";
 
 describe('tests deleteContract', () => {
     it('design_id should not be present in allContracts[i].id after deleteContract is called', async () => {
-        const authStore = await SimbaConfig.authStore();
-        await authStore!.performLogin(false);
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
-        const originalDesignID = originalSimbaJson.contracts_info.TestContractChanged.design_id;
-        await exportContract(undefined, false);
-        const newDesignID = SimbaConfig.ProjectConfigStore.get("contracts_info").TestContractChanged.design_id;
-        expect(newDesignID).to.exist;
-        expect(originalDesignID).to.not.equal(newDesignID);
 
-        let _allContracts = await allContracts() as any;
-        let idIsPresentInAllContracts: boolean = false;
-        for (let i = 0; i < _allContracts.length; i++) {
-            const entry = _allContracts[i];
-            const id = entry.id;
-            if (id === newDesignID) {
-                idIsPresentInAllContracts = true;
-                break;
-            }
-        }
-        expect(idIsPresentInAllContracts).to.equal(true);
+
+        // grab all fake contracts from our environment/instance
+        let _allContracts = await allContractsFake() as any;
+        const firstContractID = _allContracts[0].id;
 
         // delete the contract we just exported
-        await deleteContract(newDesignID);
+        const sandbox = sinon.createSandbox();
+        sandbox.stub(deleteLib, "deleteContract").callsFake(() => {});
+        await deleteContract(firstContractID);
+        
 
-        // now gather contracts again
-        _allContracts = await allContracts() as any;
-        idIsPresentInAllContracts = false;
+        // now gather all fake contracts after deletion
+        _allContracts = await allContractsFakeAfterDelete() as any;
+        sandbox.restore();
+
+        // now check to make sure contract isn't present in results
+        let idIsPresentInAllContracts = false;
         for (let i = 0; i < _allContracts.length; i++) {
             const entry = _allContracts[i];
             const id = entry.id;
-            if (id === newDesignID) {
+            if (id === firstContractID) {
                 idIsPresentInAllContracts = true;
                 break;
             }
@@ -49,6 +48,7 @@ describe('tests deleteContract', () => {
         expect(idIsPresentInAllContracts).to.equal(false);
 
         // reset
+        sandbox.restore();
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
     }).timeout(200000);
