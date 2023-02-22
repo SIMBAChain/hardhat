@@ -16,10 +16,8 @@ describe('tests export', () => {
         // when we export a contract, and understand that only contracts with source code
         // that has been changed since their last export, will be exported
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
-        const authStore = await SimbaConfig.authStore();
-        await authStore!.performLogin(false);
-        
-        const originalContractsInfo = SimbaConfig.ProjectConfigStore.get("contracts_info");
+        // const authStore = await SimbaConfig.authStore();
+        // await authStore!.performLogin(false);
         
         let sandbox = sinon.createSandbox();
         sandbox.stub(exportLib, "exportContract").callsFake(() => {

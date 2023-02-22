@@ -1,4 +1,3 @@
-import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';

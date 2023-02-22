@@ -17,7 +17,7 @@ import "./tasks/loglevel";
 import {
   viewContracts,
   pull,
-  addLib,
+  addLibrary,
 }
 from "./tasks/contract";
 import "./tasks/contract";

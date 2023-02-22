@@ -17,7 +17,7 @@ import setLogLevel from "./loglevel";
 import {
     viewContracts,
     pull,
-    addLib,
+    addLibrary,
     deleteContract,
  } from "./contract";
 import setOrGetDir from "./dirs";
@@ -246,7 +246,7 @@ const simba = async (
             break;
         }
         case Commands.ADDLIB: {
-            await addLib(libraryName, libraryAddress);
+            await addLibrary(libraryName, libraryAddress);
             break;
         }
         case Commands.SIMBAINFO: {

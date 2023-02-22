@@ -1,9 +1,6 @@
 import {
     SimbaConfig,
-    allContracts,
 } from "@simbachain/web3-suites";
-const web3SuitesLib = require("@simbachain/web3-suites");
-import {exportContract} from "../../src/tasks/exportcontract";
 import {deleteContract} from "../../src/tasks/contract/deletecontract"
 const deleteLib = require("../../src/tasks/contract/deletecontract");
 import { expect } from 'chai';
@@ -27,7 +24,6 @@ describe('tests deleteContract', () => {
         const sandbox = sinon.createSandbox();
         sandbox.stub(deleteLib, "deleteContract").callsFake(() => {});
         await deleteContract(firstContractID);
-        
 
         // now gather all fake contracts after deletion
         _allContracts = await allContractsFakeAfterDelete() as any;
@@ -51,5 +47,5 @@ describe('tests deleteContract', () => {
         sandbox.restore();
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
-    }).timeout(200000);
+    }).timeout(1000);
 });
