@@ -104,5 +104,3 @@ export const getSimbaInfo = (
         return;
     }
 }
-
-export default getSimbaInfo;

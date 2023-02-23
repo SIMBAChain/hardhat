@@ -1,26 +1,25 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {default as chalk} from 'chalk';
-import login from "./login";
+import {login} from "./login";
 import {exportContract} from "./exportcontract";
 import {deployContract} from "./deploycontract";
-import logout from "./logout";
-import help from "./help";
-import getSimbaInfo from "./simbainfo";
-import getOrSetDir from "./dirs";
+import {logout} from "./logout";
+import {help} from "./help";
+import {getSimbaInfo} from "./simbainfo";
+import {setOrGetDir} from "./dirs";
 import {
     LogLevel,
     SimbaConfig,
     AllDirs,
 } from '@simbachain/web3-suites';
-import setLogLevel from "./loglevel";
+import {setLogLevel} from "./loglevel";
 import {
     viewContracts,
     pull,
     addLibrary,
     deleteContract,
  } from "./contract";
-import setOrGetDir from "./dirs";
 
 const SIMBA_COMMANDS = {
     login: "log in to Blocks using keycloak device login",
@@ -254,7 +253,7 @@ const simba = async (
             break;
         }
         case Commands.GETDIRS: {
-            getOrSetDir("get");
+            setOrGetDir("get");
             break;
         }
         case Commands.SETDIR: {

@@ -11,7 +11,7 @@ import {default as chalk} from 'chalk';
  * @param dirPath 
  * @returns 
  */
-const setOrGetDir = (
+export const setOrGetDir = (
     method: string,
     dirName?: AllDirs,
     dirPath?: string,
@@ -35,5 +35,3 @@ const setOrGetDir = (
         return;
     }
 }
-
-export default setOrGetDir;

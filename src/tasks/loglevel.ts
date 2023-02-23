@@ -60,5 +60,3 @@ export const setLogLevel = async (
         return;
     }
 }
-
-export default setLogLevel;
