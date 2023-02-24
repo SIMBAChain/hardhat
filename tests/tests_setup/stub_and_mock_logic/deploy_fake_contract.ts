@@ -2,7 +2,9 @@ import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
 
-export function deployFakeContract(deploymentInfo: Record<any, any>) {
+export async function deployFakeContract(
+    deploymentInfo: Record<any, any>,
+    ): Promise<void | Record<any, any>> {
 
     SimbaConfig.ProjectConfigStore.set(
         "most_recent_deployment_info",
