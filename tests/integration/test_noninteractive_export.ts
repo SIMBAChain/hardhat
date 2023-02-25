@@ -13,9 +13,6 @@ import sinon from "sinon";
 
 describe('tests export', () => {
     it('design_id for TestContractChanged should be different, then stay the same', async () => {
-        // this stub test is mostly just so other devs can understand what happens inside simba.json
-        // when we export a contract, and understand that only contracts with source code
-        // that has been changed since their last export, will be exported
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         const simbaConfig = new SimbaConfig();
         const authStore = await simbaConfig.authStore();
