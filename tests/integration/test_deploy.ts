@@ -22,8 +22,9 @@ const deployInfo = {
 describe('tests deploy', () => {
     it('after calling deployContract, deployment_id and most_recent_deployment_info are in simba.json', async () => {
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
-        // const authStore = await SimbaConfig.authStore();
-        // await authStore!.performLogin(false);
+        const simbaConfig = new SimbaConfig();
+        const authStore = await simbaConfig.authStore();
+        await authStore!.performLogin(false);
         const deploymentInfoForSimbaJson = {
             "address": "0xe97B0f55E9E559A77F4F9f7C49dAe2AE6341887D",
             "transaction_hash": "0xe4c5993631b7adcb49dbc47d122003e84713f9b89f925654e6e660147d1b9539",
