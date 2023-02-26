@@ -3,7 +3,6 @@ import {
     KeycloakHandler,
 } from "@simbachain/web3-suites";
 import {exportContract} from "../../src/tasks/exportcontract";
-const exportLib = require("../../src/tasks/exportcontract");
 import {
     exportWithNewSourceCode,
 } from "../tests_setup";

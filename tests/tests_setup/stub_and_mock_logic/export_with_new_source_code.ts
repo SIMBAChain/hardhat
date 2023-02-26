@@ -11,6 +11,7 @@ export function exportWithNewSourceCode() {
             "source_code": "this source code would be different than from previous export",
         },
         TestcontractVT20: originalContractsInfo.TestcontractVT20,
+        TestContractChanged: originalContractsInfo.TestContractChanged,
     }
     SimbaConfig.ProjectConfigStore.set(
         "contracts_info",
