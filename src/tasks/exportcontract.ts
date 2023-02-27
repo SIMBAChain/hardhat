@@ -1,4 +1,3 @@
-import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {default as chalk} from 'chalk';
 import {default as prompt} from 'prompts';
@@ -31,7 +30,7 @@ interface Request {
  * @param primary optional param specifying which contract to export. if not present, contract is selected from prompts
  * @returns 
  */
-const exportContract = async (
+export const exportContract = async (
     hre?: HardhatRuntimeEnvironment,
     interactive: boolean = true,
     primary?: string,
@@ -330,5 +329,3 @@ const exportContract = async (
         SimbaConfig.log.debug(`:: EXIT :`);
     }
 }
-
-export default exportContract;

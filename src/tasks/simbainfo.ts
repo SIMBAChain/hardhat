@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     SimbaInfo,
@@ -106,5 +104,3 @@ export const getSimbaInfo = (
         return;
     }
 }
-
-export default getSimbaInfo;

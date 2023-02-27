@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     authErrors,
@@ -10,7 +8,7 @@ import {default as chalk} from 'chalk';
  * deletes auth token from configstore (authconfig.json)
  * @returns 
  */
-const logout = async () => {
+export const logout = async () => {
     SimbaConfig.log.debug(`:: ENTER :`);
     const authStore = await SimbaConfig.authStore();
     if (!authStore) {
@@ -21,5 +19,3 @@ const logout = async () => {
     SimbaConfig.log.info(`${chalk.cyanBright(`\nsimba: you have logged out.`)}`)
     SimbaConfig.log.debug(`:: EXIT :`);
 }
-
-export default logout;

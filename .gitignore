@@ -63,7 +63,7 @@ typings/
 .next
 
 # environment variables
-.env
+**simbachain.env
 
 # auth configstore
 **authconfig.json

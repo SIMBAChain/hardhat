@@ -1,7 +1,7 @@
 import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
-import login from "../../tasks/login";
+import {login} from "../../src/tasks/login";
 import { expect } from 'chai';
 import 'mocha';
 

@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     addLib,
@@ -11,7 +9,7 @@ import {
  * @param libAddress 
  * @returns 
  */
-const addLibrary = async (
+export const addLibrary = async (
     libName?: string,
     libAddress?: string,
 ) => {
@@ -20,5 +18,3 @@ const addLibrary = async (
     SimbaConfig.log.debug(`:: EXIT :`);
     return;
 }
-
-export default addLibrary;

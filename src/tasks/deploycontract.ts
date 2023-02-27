@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     SimbaConfig,
     chooseApplicationFromList,
@@ -253,6 +251,7 @@ export const deployContract = async (
     let deployment: DeploymentRequest;
 
     if (deployInfo) {
+        contractName = deployInfo.api;
         deployURL = deployInfo.url;
         deployment = {
             blockchain: deployInfo.blockchain,
@@ -262,7 +261,6 @@ export const deployContract = async (
             display_name: config.application.name,
             args: deployInfo.args,
         }
-
     } else {
         if (_isLibrary) {
             deployURL = `v2/organisations/${config.organisation.id}/deployed_artifacts/create/`;
@@ -422,5 +420,3 @@ export const deployContract = async (
     SimbaConfig.log.debug(`:: EXIT :`);
     return;
 }
-
-export default deployContract;

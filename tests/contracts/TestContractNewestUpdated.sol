@@ -2,32 +2,8 @@
 pragma solidity ^0.8.0;
 
 
-contract TestContractChanged {
-    uint private ourNum;
-    string private ourString;
-    // we inserted a comment here so that this contract is differently
-    // than what's stored in simba.json once it's compiled
-    // this helps us test the sourceCodeComparer
-    constructor(uint _ourNum, string memory _ourString) {
-        ourNum = _ourNum;
-        ourString = _ourString;
-    }
-
-    function getNum() public view returns (uint) {
-        return ourNum;
-    }
-
-    function setNum(uint _ourNum) public {
-        ourNum = _ourNum;
-    }
-
-    function getString() public view returns (string memory) {
-        return ourString;
-    }
-
-    function setString(string memory _ourString) public {
-        ourString = _ourString;
-    }
+contract TestContractNewestUpdated {
+    // this is just a contract that has not yet been exported
 
     function anArr(uint[] memory first)
     public {}

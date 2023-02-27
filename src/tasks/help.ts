@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { 
     SimbaConfig,
 } from '@simbachain/web3-suites';
@@ -268,5 +266,3 @@ const helpOptions: any = {
     resetDirHelp: "\n\nThis command allows the user to reset a directory path for 'build', 'contracts', or 'artifacts' to default settings for their project. To reset a directory path with this command, just pass --dirname, which can be any of 'build', 'contract', 'contracts', 'artifact', 'artifacts', or 'all'. Note that 'contract' and 'contracts' both refer to the directory named 'contracts'; and 'artifact' and 'artifacts' both refer to the directory named 'artifacts'. So for example, to reset the path to your 'artifacts' directory, just run:\n\n\t$ npx hardhat simba resetdir --dirname artifacts\n\nTo reset all three of 'contracts', 'build', and 'artifacts', run:\n\n\t$ npx hardhat simba resetdir --dirname all\n\n",
     deleteContractHelp: "\n\nThis command allows the user to delete contract designs from their organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:\n\n\t$ npx hardhat simba deletecontract --id <your contract design_id>\n\nTo run without parameters:\n\n\t$ npx hardhat simba deletecontract\n\n",
 }
-
-export default help;

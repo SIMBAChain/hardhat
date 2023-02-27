@@ -1,5 +1,3 @@
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
     LogLevel,
     SimbaConfig,
@@ -62,5 +60,3 @@ export const setLogLevel = async (
         return;
     }
 }
-
-export default setLogLevel;

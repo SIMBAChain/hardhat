@@ -1,7 +1,7 @@
 import {
     SimbaConfig,
 } from "@simbachain/web3-suites";
-import loglevel from "../../tasks/loglevel";
+import {setLogLevel} from "../../src/tasks/loglevel";
 import { expect } from 'chai';
 import 'mocha';
 
@@ -12,7 +12,7 @@ describe('tests loglevel', () => {
         const originalSimbaJson = SimbaConfig.ProjectConfigStore.all;
         SimbaConfig.ProjectConfigStore.delete("logLevel");
         const level = "debug" as any;
-        await loglevel(level)
+        await setLogLevel(level)
 
         // posterior
         const simbaLogLevel = SimbaConfig.ProjectConfigStore.get("logLevel");
@@ -20,5 +20,5 @@ describe('tests loglevel', () => {
         // now reset simba.json to its original state
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
-    }).timeout(10000);
+    }).timeout(1000);
 });

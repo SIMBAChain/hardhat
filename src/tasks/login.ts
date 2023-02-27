@@ -1,11 +1,5 @@
 
 import {
-    task,
-} from "hardhat/config";
-import {
-    HardhatRuntimeEnvironment,
-} from "hardhat/types";
-import {
     chooseApplicationFromList,
     chooseOrganisationFromList,
     chooseApplicationFromName,
@@ -20,7 +14,7 @@ import {default as chalk} from 'chalk';
  * obtain auth token and choose organisation and application to log into
  * @returns 
  */
-const login = async (
+export const login = async (
     interactive: boolean = true,
     org?: string,
     app?: string,
@@ -139,4 +133,3 @@ const login = async (
     }
 }
 
-export default login;

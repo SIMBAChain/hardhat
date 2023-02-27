@@ -4,20 +4,20 @@ import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
 import path from "path";
 import simba from "./tasks/simba";
 import "./tasks/simba";
-import login from "./tasks/login";
+import {login} from "./tasks/login";
 import "./tasks/login";
-import logout from "./tasks/logout";
+import {logout} from "./tasks/logout";
 import "./tasks/logout";
-import exportContract from "./tasks/exportcontract";
+import {exportContract} from "./tasks/exportcontract";
 import "./tasks/exportcontract";
-import deployContract from "./tasks/deploycontract";
+import {deployContract} from "./tasks/deploycontract";
 import "./tasks/deploycontract";
-import setLogLevel from "./tasks/loglevel";
+import {setLogLevel} from "./tasks/loglevel";
 import "./tasks/loglevel";
 import {
   viewContracts,
   pull,
-  addLib,
+  addLibrary,
 }
 from "./tasks/contract";
 import "./tasks/contract";
