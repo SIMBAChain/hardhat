@@ -58,6 +58,6 @@ describe('tests deploy', () => {
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
         sandbox.restore();
-    }).timeout(100000);
+    }).timeout(10000);
 });
 

@@ -20,5 +20,5 @@ describe('tests loglevel', () => {
         // now reset simba.json to its original state
         SimbaConfig.ProjectConfigStore.clear();
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
-    }).timeout(10000);
+    }).timeout(1000);
 });

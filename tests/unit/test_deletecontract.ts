@@ -5,7 +5,7 @@ import 'mocha';
 import sinon from "sinon";
 
 describe('tests deleteContract', () => {
-    it('deleteAllContractsFromDesignID local should be called from inside deleteContract', async () => {
+    it('deleteAllContractsFromDesignIDLocal should be called from inside deleteContract', async () => {
         const fakeID = "1234";
 
         const sandbox = sinon.createSandbox()

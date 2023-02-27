@@ -142,7 +142,7 @@ describe('testing pulling source code and sol files', () => {
         SimbaConfig.ProjectConfigStore.set(originalSimbaJson);
         FileHandler.removeDirectory(simbaDir);
 
-    }).timeout(200000);
+    }).timeout(120000);
 });
 
 
