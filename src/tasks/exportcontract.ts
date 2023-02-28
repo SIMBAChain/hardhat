@@ -26,8 +26,10 @@ interface Request {
 
 /**
  * export contract to simbachain.com (can also be thought of as "importing" contract to simbachain.com)
- * @param hre hre is optional here to make testing more convenient
- * @param primary optional param specifying which contract to export. if not present, contract is selected from prompts
+ * @param hre - hre is optional here to make testing more convenient
+ * @param interactive - export from prompts if true
+ * @param primary - optional param specifying which contract to export. if not present, contract is selected from prompts
+ * @param savemode - if 'new' we do a post request for new design design; if 'update' we do a put request and update contract design
  * @returns 
  */
 export const exportContract = async (
@@ -138,7 +140,7 @@ export const exportContract = async (
             
             try {
                 let resp;
-                if (await sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
+                if (sourceCodeComparer.sourceCodeExistsInSimbaJson(currentContractName) &&
                     savemode === 'update'
                 ) {
                     const contractId = SimbaConfig.ProjectConfigStore.get("contracts_info")[currentContractName]["design_id"]

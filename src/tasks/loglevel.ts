@@ -7,6 +7,7 @@ import {default as chalk} from 'chalk';
 
 /**
  * set minimum log level for logger
+ * can be one of: 'error', 'debug', 'info', 'warn', 'fatal', 'silly', 'trace'
  * @param level 
  * @returns 
  */

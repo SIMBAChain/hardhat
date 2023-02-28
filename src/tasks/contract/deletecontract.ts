@@ -4,6 +4,11 @@ import {
     deleteContractFromDesignID
 } from '@simbachain/web3-suites';
 
+/**
+ * delete contract from your organisation. delete from prompts if !designID
+ * @param designID 
+ * @returns 
+ */
 export const deleteContract = async (
     designID?: string,
 ) => {
