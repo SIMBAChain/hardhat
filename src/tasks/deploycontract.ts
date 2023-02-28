@@ -32,7 +32,7 @@ interface DeploymentRequest {
 /**
  * deploy a contract to your organisation and application on blocks
  * @param primary name of primary contract if user wants to skip the prompt to choose contract
- * @param deployInfo strictly used for testing as of now
+ * @param deployInfo used to non-interactively deploy contract
  * @returns void | AxiosError
  */
 export const deployContract = async (
