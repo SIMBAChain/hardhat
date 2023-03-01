@@ -18,7 +18,8 @@ enum SimbaJsonFields {
 }
 
 /**
- * set minimum log level for logger
+ * meant to be used to print pretty info from simba.json, so that
+ * users do not have to directly interact with/view their simba.json
  * @param field
  * @param contract 
  * @returns 

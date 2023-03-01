@@ -8,7 +8,21 @@ import {
     SimbaConfig,
 } from '@simbachain/web3-suites';
 
-
+/**
+ * when pulling your contracts from your blocks organisation, you can "pull" them
+ * into two locations: your local contracts folder (or contracts/simbaimports), and/or
+ * your simba.json
+ * 
+ * pulling makes sure that, when working with teams, everyone is working
+ * with the most recent versions of contracts that have been exported to blocks
+ * @param designID 
+ * @param contractName 
+ * @param pullSourceCode - pull source code to your simba.json
+ * @param pullSolFiles - pull .sol files to your contracts or contracts/simbaimports directory
+ * @param interactive 
+ * @param useSimbaPath - pull to contracts/simbaimports
+ * @returns 
+ */
 const pull = async (
     designID?: string,
     contractName?: string,

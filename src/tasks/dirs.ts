@@ -5,7 +5,10 @@ import {
 import {default as chalk} from 'chalk';
 
 /**
+ * used for setting/overriding default directories, or for getting those directories
  * 
+ * THE 'SET' METHOD FOR THIS FUNCTION SHOULD NOT BE USED UNLESS SOMEONE KNOWS EXACTLY
+ * WHAT THEY ARE DOING!
  * @param method can be 'set' or 'get'
  * @param dirName 
  * @param dirPath 

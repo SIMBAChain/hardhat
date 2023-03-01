@@ -11,7 +11,14 @@ import axios from "axios";
 import {default as chalk} from 'chalk';
 
 /**
- * obtain auth token and choose organisation and application to log into
+ * command for user to login (acquire auth token, and choose org and app from blocks)
+ * @param interactive - if true, then choose org and app from prompts
+ * Also, if true, auth token will be generated through device login flow
+ * If false, auth token will be generated through client creds flow,
+ * so SIMBA_AUTH_CLIENT_ID and SIMBA_AUTH_CLIENT_SECRET need to be present
+ * in .simbachain.env, simbachain.env, or .env in project root or SIMBA_HOME
+ * @param org - if !interactive, org must be specified, or be present in simba.json
+ * @param app - if !interactive, app must be specified or be present in simba.json
  * @returns 
  */
 export const login = async (
