@@ -5,7 +5,7 @@ import {
 } from '@simbachain/web3-suites';
 
 /**
- * delete contract from your organisation. delete from prompts if !designID
+ * delete contract from your organisation. delete from prompts if designID is null
  * @param designID 
  * @returns 
  */
