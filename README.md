@@ -8,7 +8,8 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
 5. [Project Settings](#project-settings)
-6. [Usage](#usage)
+6. [Discovery of Environment Variables](#discovery-of-environment-variables)
+7. [Usage](#usage)
     - [Contract Compilation](#contract-compilation)
     - [Tasks](#tasks)
       - [login](#login)
@@ -19,14 +20,14 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
       - [pull](#pull)
       - [viewcontracts](#viewcontracts)
       - [loglevel](#loglevel)
-7. [Environment Extensions](#environment-extensions)
-8. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
-9. [CI/CD](#continuous-integration-continuous-deployment)
-10. [Retrieving information from simba.json and authconfig.json](#simbainfo)
-11. [Viewing current directory paths for your project](#getdirs)
-12. [Setting a directory path](#setdir)
-13. [Resetting directory paths to default settings](#resetdir)
-14. [Deleting contracts from your organisation](#deletecontract)
+8. [Environment Extensions](#environment-extensions)
+9. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
+10. [CI/CD](#continuous-integration-continuous-deployment)
+11. [Retrieving information from simba.json and authconfig.json](#simbainfo)
+12. [Viewing current directory paths for your project](#getdirs)
+13. [Setting a directory path](#setdir)
+14. [Resetting directory paths to default settings](#resetdir)
+15. [Deleting contracts from your organisation](#deletecontract)
 
 ## Summary
 
@@ -35,16 +36,17 @@ Do you love SIMBA Chain? Do you love Hardhat? Then you're in luck! The Hardhat p
 ## Installation Overview
 The following are the general steps to get going with the SIMBA Chain Hardhat plugin. The rest of the documentation provides details on these and other steps.
 
-1. create a directory for your Hardhat project.
+1. Create a directory for your Hardhat project.
 2. cd into that directory and start an npm project.
-3. install hardhat in that project / directory. This directory, where your package.json will live, is where you will run your Hardhat commands from.
-4. install the SIMBA Chain Hardhat plugin
-5. add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depending on which file your project has.
-6. create a simba.json file in the top level of your project, and populate that file with 'baseURL' and 'web3Suite' fields.
-7. run `npx hardhat simba help` to make sure the plugin is installed
+3. Install hardhat in that project / directory. This directory (the root of your project, where your package.json will live), is where you will run your Hardhat commands from.
+4. Install the SIMBA Chain Hardhat plugin
+5. Add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depending on which file your project has.
+6. (Optional) Create a simba.json file in the top level of your project, and populate that file with a 'baseURL' field.
+7. (Necessary if using client credentials) Create an env file (.simbachain.env, simbachain.env, or .env) in your project root, and specify client credentials as well as your SIMBA Chain base API URL.
+8. Run `npx hardhat simba help` to make sure the plugin is installed
 
 ## Prerequisites
-You should have a SIMBA Enterprise Platform Instance to communicate with. Additionally you must have a least one contract application created in the instance. To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
+You should have a SIMBA Blocks Instance to communicate with. Additionally you must have a least one contract application created in the instance (though the plugin will direct you to create one if you do not yet have one). To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
 
 Next, create a directory where you want your Hardhat project to live, eg:
 
@@ -66,7 +68,7 @@ $ npm init
 
 You can hit return/enter through the npm prompts if you'd like
 
-**NOTE: It is this level of your project, where your package.json lives, where you will run your Hardhat CLI commands**
+**NOTE: It is this level of your project (the root), where your package.json lives, where you will run your Hardhat CLI commands**
 
 You will also need to create your Hardhat TypeScript project. To do so, from the directory where your package.json now lives, run:
 
@@ -74,7 +76,7 @@ You will also need to create your Hardhat TypeScript project. To do so, from the
 $ npx hardhat
 ```
 
-For more info on starting a Hardhat project, you can follow the very brief instructions at https://hardhat.org/tutorial/creating-a-new-hardhat-project.html . Once get to the point where you are creating your project, you will see the following graphic, below. Select "Create an advanced sample project that uses TypeScript".
+For more info on starting a Hardhat project, you can follow the very brief instructions at https://hardhat.org/tutorial/creating-a-new-hardhat-project.html . Once you get to the point where you are creating your project, you will see the following graphic, below (or something similar, depending on which version Hardhat is currently on). Select "Create an advanced sample project that uses TypeScript".
 
 ```
 888    888                      888 888               888
@@ -124,14 +126,21 @@ require("./simba_hardhat");
 
 ## Project Settings
 
-To use the SIMBA Chain Hardhat plugin, you will need create and configure a simba.json file. Your simba.json file should live in the top level of your Hardhat project, where your package.json file lives, and should contain values for baseURL and web3Suite:
+The most important file in your SIMBA Chain Hardhat project is your simba.json file. You DO NOT need to create and configure a simba.json file. However, the one thing that does absolutely have to be configured is a value for SIMBA_API_BASE_URL, which you can configure in either your simba.json file, or in your project's env file (.simbachain.env, simbachain.env, or .env).
 
-NOTE: the following baseURL is an example, and will likely be different for your environment
+If you want to configure SIMBA_API_BASE_URL (you can also use the key of baseURL instead, if configuring in simba.json instead of an env file) in your simba.json, you will need to create and configure a simba.json file. Your simba.json file should live in the root of your Hardhat project, where your package.json file lives, and should contain a value for SIMBA_API_BASE_URL (or baseURL):
+
+NOTE: the following base URL is an example, and will likely be different for your environment
 
 ```json
 {
-  "baseURL": "https://simba-demo-api.platform.simbachain.com/v2",
-  "web3Suite": "hardhat"
+  "baseURL": "https://simba-demo-api.platform.simbachain.com/",
+}
+```
+or
+```json
+{
+  "SIMBA_API_BASE_URL": "https://simba-demo-api.platform.simbachain.com/",
 }
 ```
 
@@ -146,14 +155,13 @@ is that you do so in either a new directory or new branch, where your new `simba
 ​
 ```json
     {
-    "baseURL": "https://{your-new-environment-domain}/{version}/",
-    "web3Suite": "hardhat"
+    "baseURL": "https://{your-new-environment-domain}/",
     }
 ```
 
-**HINT 1:** if you *need* to change the value for `baseURL` in your `simba.json` file, then it is likely because you are targeting a new environment. In this scenario, many of the previous artifacts written to `simba.json` will no longer make sense in the context of your new environment. A distinct `simba.json` solves this problem.
+**HINT 1:** if you *need* to change the value for baseURL/SIMBA_API_BASE_URL in your simba.json file, then it is likely because you are targeting a new environment. In this scenario, many of the previous artifacts written to simba.json will no longer make sense in the context of your new environment. A distinct simba.json solves this problem.
 
-**HINT 2:** if you *want* to change the value for `baseURL` in your `simba.json` file but keep working in the same project/directory, then please make sure to:
+**HINT 2:** if you *want* to change the value for baseURL/SIMBA_API_BASE_URL in your simba.json file but keep working in the same project/directory, then please make sure to:
 
 1. run `npx hardhat simba logout` prior to executing any operations in the new environment. This ensures that the prior `authProviderInfo` is removed from `simba.json`. Following this,
 2. run `npx hardhat simba login`. This ensures that the correct `authProviderInfo` context is loaded. You are now ready to execute operations against the new environment.
@@ -163,8 +171,8 @@ In addition to these base configs, you can also specify a different contracts di
 ```json
 {
     ...
-    "buildDirectory": "custom build directory location",
-    "contractDirectory": "custom contract directory location"
+    "buildDirectory": "<your custom build directory location>",
+    "contractDirectory": "<your custom contract directory location>"
 }
 ```
 
@@ -189,10 +197,57 @@ And then you should see the following:
     viewcontracts
 ```
 
+# Discovery of Environment Variables
+When it comes to setting and discovering environment variables for you project, we try to make it as simple as possible, while also allowing flexibility for users. Towards this goal, there are two main locations you can set environment variables in an env file for your project, and three different file names you can you use for your env file. 
+
+## env file names
+You can name your env file any one of the following:
+1. .simbachain.env
+2. simbachain.env
+3. .env
+
+## env file locations
+1. The first location you can place your env file is in the root of your project. This is where your package.json lives.
+2. The second place you can place your env file is in the location that you've set as SIMBA_HOME, in your system environment variables. So if in your system environment variables, you've set:
+
+```bash
+export SIMBA_HOME=/Users/johnsmith/somedirectory
+```
+
+Then you can place your env file inside that directory, and the plugin will discover it.
+
+## Order of discovery
+The plugins will first look inside the root of your local project for an env file, then they will look inside SIMBA_HOME.
+
+## Keys and values
+There are only three keys and values you need to know about
+
+1. SIMBA_API_BASE_URL
+  - you can also set this in your simba.json, if you'd like
+  - the value will look something like:
+  ```
+  https://simba-dev-api.platform.simbachain.com/
+  ```
+2. SIMBA_AUTH_CLIENT_ID
+  - This is used for non-interactive commands, which use client credential flow for auth
+3. SIMBA_AUTH_CLIENT_SECRET
+  - This is used for non-interactive commands, which use client credential flow for auth
+
+For (2) and (3) above, you can obtain your client ID and client secret by navigating to your organisation and application in the UI, and then creating an ID and secret pair.
+
+So as an example, in the root of your project, you would create a file called ".simbachain.env", and it would look like:
+
+```
+SIMBA_API_BASE_URL=https://simba-dev-api.platform.simbachain.com/
+SIBMA_AUTH_CLIENT_ID=<insert your SIMBA client ID>
+SIMBA_AUTH_CLIENT_SECRET=<insert your SIMBA client secret>
+```
+
+
 # Usage
 
 ## Contract Compilation
-Contract compilation is achieved through the base Hardhat CLI. To compile your contracts, first write them and save them in your <project folder>/contracts/ directory. Then run:
+You do NOT need to manually compile your contracts. The SIMBA Chain Hardhat plugin will automatically compile your contracts when you export them to the SIMBA Blocks platform. However, if you would like to manually compile your contracts, first write them and save them in your <project folder>/contracts/ directory. Then run:
 
 ```
 $ npx hardhat compile
@@ -218,7 +273,7 @@ Below, we explain the Hardhat tasks that you will use in the SIMBA plugin to dep
 
 ### login
 
-*NOTE* : you need to have at least one app present in the SIMBA Chain org that you try to log into, otherwise the plugin will return an error during login. This is because, to deploy a contract, SIMBA needs to know which app you are deploying to. You can create an empty app, which is sufficient, by going to the UI, logging into your org, and creating an app there.
+*NOTE* : you need to have at least one app present in the SIMBA Chain org that you try to log into. This is because, to deploy a contract, SIMBA needs to know which app you are deploying to. You can create an empty app, which is sufficient, by going to the UI, logging into your org, and creating an app there. If you try to login without an app present, then the plugin will allow you to create an app from the terminal.
 
 Once you have configured your simba.json file, you will be able to login. the Hardhat plugin uses keycloack device login, so you will be given a URL that you can navigate to, to grant permission to your device. You will then be prompted to select the organization and application from SIMBA Chain that you wish to log into. To log in, simply run
 
@@ -230,8 +285,6 @@ You will then see something similar to:
 
 ```
 simba: Please navigate to the following URI to log in:  https://simba-dev-sso.platform.simbachain.com/auth/realms/simbachain/device?user_code=JPGL-RFRW 
-2022-05-16 02:17:02.236  INFO  [KeycloakHandler.getAuthToken] 
-simba: still waiting for user to login... 
 ```
 
 Simply navigate to the specified URL and grant permission to your device, and you will be prompted to choose your organization:
@@ -255,10 +308,9 @@ You will then be prompted to select your application, with something like:
 There is also a non-interactive login mode. This mode is mainly for CI/CD, but you can run this login mode like a normal login command if you have a few environment variables set, and it will use a client credentials flow for login. You will need to set
 
 1. SIMBA_AUTH_CLIENT_ID for your client ID
-2. SIMBA_AUTH_CLIENT_SECRET for your client secret, and 
-3. SIMBA_AUTH_CLIENT_ENDPOINT for your auth endpoint. 
+2. SIMBA_AUTH_CLIENT_SECRET for your client secret
 
-NOTE: SIMBA_AUTH_CLIENT_ENDPOINT defaults to '/o/' if not set.
+(please see [Discovery of Environment Variables](#discovery-of-environment-variables) for directions on setting those variables)
 
 To run login in non-interactive mode, you can run with org and app flag:
 
@@ -295,7 +347,7 @@ $ npx hardhat simba export
 You will then be prompted to select all of the contracts you want to export to Blocks:
 
 ```
-? Please select all contracts you want to export. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you. ›  
+? Please select all contracts you want to export. Use the Space Bar to select or un-select a contract (You can also use -> to select a contract, and <- to un-select a contract). Hit Return/Enter when you are ready to export. If you have questions on exporting libraries, then please run 'npx hardhat simba help --topic libraries' . ›  
 Instructions:
     ↑/↓: Highlight option
     ←/→/[space]: Toggle selection
@@ -435,11 +487,11 @@ This command is mainly designed to be used in the CI/CD process, but it can actu
 $ npx hardhat simba pull
 ```
 
-In addition to pulling source code for your simba.json, you can also use the pull command to pull the most recent versions of your solidity contracts from SIMBA Chain and place them in your /contracts/ directory. 
+In addition to pulling source code for your simba.json, you can also use the pull command to pull the most recent versions of your solidity contracts from SIMBA Chain and place them in your /contracts/ directory (or /contracts/SibmaImports/). 
 
 A brief note on file structure is worthwhile here. By default, contracts pulled from SIMBA Chain will be written to /contracts/SimbaImports/ directory. If you would like to place pulled files in the top level of your /contracts/ directory, then you can pass the --usesimbapath false flag in your call. 
 
-A note on file names is also in order. Files that are pulled form SIMBA are placed into files named after the contract name. So if you have two contracts, token1 and token2, which both originally lived in OurTokens.sol. Then both of those will end up in files named token1.sol and token2.sol. This is done becuase, currently, contracts that are pushed to SIMBA Chain sit in a flat structure, without sub-directories.
+A note on file names is also in order. Files that are pulled from SIMBA are placed into files named after the contract name. So if you have two contracts, token1 and token2, which both originally lived in OurTokens.sol. Then both of those will end up in files named token1.sol and token2.sol. This is done becuase, currently, contracts that are pushed to SIMBA Chain sit in a flat structure, without sub-directories.
 
 Usually, you shouldn't need to do pull contracts from SIMBA if you have git pulled, but there may be cases when, for instance, you want ALL of your most recent contracts from your SIMBA Chain organisation, even ones that weren't living in your current project. In that case, you can run:
 
@@ -473,7 +525,7 @@ If you would like to pull your .sol contract files interactively, while skipping
 $ npx hardhat simba pull --pullsourcecode false --interactive true
 ```
 
-If you want to pull a specific contract's most recently exported edition, by name, from SIMBA, then you can run:
+If you want to pull a specific contract's most recently exported version, by name, from SIMBA, then you can run:
 
 ```
 $ npx hardhat simba pull --contractname <your contract name>
@@ -555,15 +607,14 @@ and you will then be prompted to specify the name and address of your library. I
 SIMBA Chain’s web3 plugins offer CI/CD support, so that when you push your git project, you automatically export all of your recently changed contracts in your project to your SIMBA Chain org. In this process, any contracts that you have made recent changes to will be compiled and exported to SIMBA Chain. If no changes have been made to your contracts, then nothing will be exported to SIMBA Chain.
 
 ### Requirements & Configuration
-To use SIMBA’s plugins' CI/CD functionality, you will need to be working with a Hardhat project that has the SIMBA Chain Hardhat plugin installed. Please see the following for more details on installing and using our plugins:
+To use SIMBA’s plugin's' CI/CD functionality, you will need to be working with a Hardhat project that has the SIMBA Chain Hardhat plugin installed. Please see the following for more details on installing and using our plugins:
 
 1.Acquire a client ID and secret from SIMBA Chain for step 4 (below). You can acquire a client ID and secret from the SIMBA Chain UI, by navigating to your org, then application, and then selecting “secrets” in the upper right hand corner of the page.
 2. You will need to be working with a git project that supports CI/CD. The setup for different providers varies, but the directions for getting started with CI/CD in Gitlab are here: https://docs.gitlab.com/ee/ci/quick_start/
-3. You will need to configure three protected environment variables in your git service environment:
+3. You will need to configure two protected environment variables in your git service environment:
 
-    a. SIMBA_PLUGIN_ID
-    b. SIMBA_PLUGIN_SECRET
-    c. SIMBA_PLUGIN_AUTH_ENDPOINT (if you don’t set this last variable, it defaults to “/o/”)
+    a. SIMBA_AUTH_CLIENT_ID
+    b. SIMBA_AUTH_CLIENT_SECRET
 
 4. Since these are protected variables, you will probably need to be pushing from a protected branch, regardless of your git service.
 5. You will then need to create your pipeline. In Gitlab, that means creating a .gitlab-ci.yml file. Your pipeline will look different, depending on which plugin you’re using. Here is what a pipeline for gitlab would look like:
@@ -603,7 +654,7 @@ $ git pull
 $ npx hardhat simba pull
 ```
 
-this command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugin compares the source code it finds in your simba.json to the source code it finds in compiled artifacts. If there is a difference, then the plugin knows that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
+This command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugin compares the source code it finds in your simba.json to the source code it finds in compiled artifacts. If there is a difference, then the plugin knows that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
 
 You may notice above in the pipeline that simba pull is run inside the pipeline. This is as a precaution, in case you forgot to run in your local environment. It’s never a bad idea to include simba pull in your CI/CD pipeline, but it will make the pipeline run more slowly.
 
@@ -677,13 +728,13 @@ $ npx hardhat simba resetdir --dirname all
 
 ### deletecontract
 
-This command allows the user to delete contract designs from their organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:
+This command allows the user to delete contract designs from their SIMBA  Chain organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:
 
 ```
 $ npx hardhat simba deletecontract --id <your contract design_id>
 ```
 
-To run without parameters:
+To run without parameters, and then choose from prompts:
 
 ```
 $ npx hardhat simba deletecontract
