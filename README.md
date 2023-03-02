@@ -214,7 +214,7 @@ You can name your env file any one of the following:
 export SIMBA_HOME=/Users/johnsmith/somedirectory
 ```
 
-then you can place your env file inside that directory, and the plugins will discover it.
+Then you can place your env file inside that directory, and the plugin will discover it.
 
 ## Order of discovery
 The plugins will first look inside the root of your local project for an env file, then they will look inside SIMBA_HOME.
