@@ -41,12 +41,12 @@ The following are the general steps to get going with the SIMBA Chain Hardhat pl
 3. Install hardhat in that project / directory. This directory (the root of your project, where your package.json will live), is where you will run your Hardhat commands from.
 4. Install the SIMBA Chain Hardhat plugin
 5. Add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depending on which file your project has.
-6. (Optional) create a simba.json file in the top level of your project, and populate that file with a 'baseURL' field.
+6. (Optional) Create a simba.json file in the top level of your project, and populate that file with a 'baseURL' field.
 7. (Necessary if using client credentials) Create an env file (.simbachain.env, simbachain.env, or .env) in your project root, and specify client credentials as well as your SIMBA Chain base API URL.
 8. Run `npx hardhat simba help` to make sure the plugin is installed
 
 ## Prerequisites
-You should have a SIMBA Blocks Instance to communicate with. Additionally you must have a least one contract application created in the instance (though the plugins will direct you to create one if you do not yet have one). To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
+You should have a SIMBA Blocks Instance to communicate with. Additionally you must have a least one contract application created in the instance (though the plugin will direct you to create one if you do not yet have one). To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
 
 Next, create a directory where you want your Hardhat project to live, eg:
 
@@ -128,7 +128,7 @@ require("./simba_hardhat");
 
 The most important file in your SIMBA Chain Hardhat project is your simba.json file. You DO NOT need to create and configure a simba.json file. However, the one thing that does absolutely have to be configured is a value for SIMBA_API_BASE_URL, which you can configure in either your simba.json file, or in your project's env file (.simbachain.env, simbachain.env, or .env).
 
-If you want to configure SIMBA_API_BASE_URL (you can also use the key of baseURL instead) in your simba.json, you will need to create and configure a simba.json file. Your simba.json file should live in the root of your Hardhat project, where your package.json file lives, and should contain values for SIMBA_API_BASE_URL (or baseURL):
+If you want to configure SIMBA_API_BASE_URL (you can also use the key of baseURL instead, if configuring in simba.json instead of an env file) in your simba.json, you will need to create and configure a simba.json file. Your simba.json file should live in the root of your Hardhat project, where your package.json file lives, and should contain a value for SIMBA_API_BASE_URL (or baseURL):
 
 NOTE: the following base URL is an example, and will likely be different for your environment
 
