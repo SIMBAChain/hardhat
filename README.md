@@ -308,10 +308,9 @@ You will then be prompted to select your application, with something like:
 There is also a non-interactive login mode. This mode is mainly for CI/CD, but you can run this login mode like a normal login command if you have a few environment variables set, and it will use a client credentials flow for login. You will need to set
 
 1. SIMBA_AUTH_CLIENT_ID for your client ID
-2. SIMBA_AUTH_CLIENT_SECRET for your client secret, and 
-3. SIMBA_AUTH_CLIENT_ENDPOINT for your auth endpoint. 
+2. SIMBA_AUTH_CLIENT_SECRET for your client secret
 
-NOTE: SIMBA_AUTH_CLIENT_ENDPOINT defaults to '/o/' if not set.
+(please see [Discovery of Environment Variables](#discovery-of-environment-variables) for directions on setting those variables)
 
 To run login in non-interactive mode, you can run with org and app flag:
 
@@ -348,7 +347,7 @@ $ npx hardhat simba export
 You will then be prompted to select all of the contracts you want to export to Blocks:
 
 ```
-? Please select all contracts you want to export. Please note that if you're exporting contract X, and contract X depends on library Y, then you need to export Library Y along with Contract X. SIMBA Chain will handle the library linking for you. ›  
+? Please select all contracts you want to export. Use the Space Bar to select or un-select a contract (You can also use -> to select a contract, and <- to un-select a contract). Hit Return/Enter when you are ready to export. If you have questions on exporting libraries, then please run 'npx hardhat simba help --topic libraries' . ›  
 Instructions:
     ↑/↓: Highlight option
     ←/→/[space]: Toggle selection
@@ -488,11 +487,11 @@ This command is mainly designed to be used in the CI/CD process, but it can actu
 $ npx hardhat simba pull
 ```
 
-In addition to pulling source code for your simba.json, you can also use the pull command to pull the most recent versions of your solidity contracts from SIMBA Chain and place them in your /contracts/ directory. 
+In addition to pulling source code for your simba.json, you can also use the pull command to pull the most recent versions of your solidity contracts from SIMBA Chain and place them in your /contracts/ directory (or /contracts/SibmaImports/). 
 
 A brief note on file structure is worthwhile here. By default, contracts pulled from SIMBA Chain will be written to /contracts/SimbaImports/ directory. If you would like to place pulled files in the top level of your /contracts/ directory, then you can pass the --usesimbapath false flag in your call. 
 
-A note on file names is also in order. Files that are pulled form SIMBA are placed into files named after the contract name. So if you have two contracts, token1 and token2, which both originally lived in OurTokens.sol. Then both of those will end up in files named token1.sol and token2.sol. This is done becuase, currently, contracts that are pushed to SIMBA Chain sit in a flat structure, without sub-directories.
+A note on file names is also in order. Files that are pulled from SIMBA are placed into files named after the contract name. So if you have two contracts, token1 and token2, which both originally lived in OurTokens.sol. Then both of those will end up in files named token1.sol and token2.sol. This is done becuase, currently, contracts that are pushed to SIMBA Chain sit in a flat structure, without sub-directories.
 
 Usually, you shouldn't need to do pull contracts from SIMBA if you have git pulled, but there may be cases when, for instance, you want ALL of your most recent contracts from your SIMBA Chain organisation, even ones that weren't living in your current project. In that case, you can run:
 
@@ -526,7 +525,7 @@ If you would like to pull your .sol contract files interactively, while skipping
 $ npx hardhat simba pull --pullsourcecode false --interactive true
 ```
 
-If you want to pull a specific contract's most recently exported edition, by name, from SIMBA, then you can run:
+If you want to pull a specific contract's most recently exported version, by name, from SIMBA, then you can run:
 
 ```
 $ npx hardhat simba pull --contractname <your contract name>
@@ -608,15 +607,14 @@ and you will then be prompted to specify the name and address of your library. I
 SIMBA Chain’s web3 plugins offer CI/CD support, so that when you push your git project, you automatically export all of your recently changed contracts in your project to your SIMBA Chain org. In this process, any contracts that you have made recent changes to will be compiled and exported to SIMBA Chain. If no changes have been made to your contracts, then nothing will be exported to SIMBA Chain.
 
 ### Requirements & Configuration
-To use SIMBA’s plugins' CI/CD functionality, you will need to be working with a Hardhat project that has the SIMBA Chain Hardhat plugin installed. Please see the following for more details on installing and using our plugins:
+To use SIMBA’s plugin's' CI/CD functionality, you will need to be working with a Hardhat project that has the SIMBA Chain Hardhat plugin installed. Please see the following for more details on installing and using our plugins:
 
 1.Acquire a client ID and secret from SIMBA Chain for step 4 (below). You can acquire a client ID and secret from the SIMBA Chain UI, by navigating to your org, then application, and then selecting “secrets” in the upper right hand corner of the page.
 2. You will need to be working with a git project that supports CI/CD. The setup for different providers varies, but the directions for getting started with CI/CD in Gitlab are here: https://docs.gitlab.com/ee/ci/quick_start/
-3. You will need to configure three protected environment variables in your git service environment:
+3. You will need to configure two protected environment variables in your git service environment:
 
-    a. SIMBA_PLUGIN_ID
-    b. SIMBA_PLUGIN_SECRET
-    c. SIMBA_PLUGIN_AUTH_ENDPOINT (if you don’t set this last variable, it defaults to “/o/”)
+    a. SIMBA_AUTH_CLIENT_ID
+    b. SIMBA_AUTH_CLIENT_SECRET
 
 4. Since these are protected variables, you will probably need to be pushing from a protected branch, regardless of your git service.
 5. You will then need to create your pipeline. In Gitlab, that means creating a .gitlab-ci.yml file. Your pipeline will look different, depending on which plugin you’re using. Here is what a pipeline for gitlab would look like:
@@ -656,7 +654,7 @@ $ git pull
 $ npx hardhat simba pull
 ```
 
-this command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugin compares the source code it finds in your simba.json to the source code it finds in compiled artifacts. If there is a difference, then the plugin knows that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
+This command ensures that your simba.json source code for each contract is up to date. To determine which contracts need to be exported, the plugin compares the source code it finds in your simba.json to the source code it finds in compiled artifacts. If there is a difference, then the plugin knows that a contract has changed and needs to be exported. Running simba pull is necessary because in CI/CD, exporting happens in the git service environment, so there is no way for your simba.json to be updated with most recent source code during export. So what simba pull does is retrieve that source code from SIMBA Chain and write it to your simba.json
 
 You may notice above in the pipeline that simba pull is run inside the pipeline. This is as a precaution, in case you forgot to run in your local environment. It’s never a bad idea to include simba pull in your CI/CD pipeline, but it will make the pipeline run more slowly.
 
@@ -730,13 +728,13 @@ $ npx hardhat simba resetdir --dirname all
 
 ### deletecontract
 
-This command allows the user to delete contract designs from their organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:
+This command allows the user to delete contract designs from their SIMBA  Chain organisation. This command can be run with an optional 'id' parameter to delete a single contract, or it can be run without any parameters, which will allow the user to choose from prompts which contract designs they want to delete. To run with the 'id' parameter:
 
 ```
 $ npx hardhat simba deletecontract --id <your contract design_id>
 ```
 
-To run without parameters:
+To run without parameters, and then choose from prompts:
 
 ```
 $ npx hardhat simba deletecontract
