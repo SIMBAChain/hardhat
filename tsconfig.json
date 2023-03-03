@@ -14,12 +14,9 @@
     "typeRoots": ["node_modules/@types"],
     "allowJs": true
   },
-  "exclude": [
-    "./dist",
-    "./node_modules",
-  ],
+  "exclude": ["dist", "node_modules"],
   "include": [
     "./test",
     "./src"
-  , "tests"  ]
+  ]
 }
