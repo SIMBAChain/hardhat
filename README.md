@@ -100,6 +100,14 @@ We suggest you just create a TypeScript Hardhat project from scratch, as instruc
 
 https://hardhat.org/guides/typescript
 
+**Troubleshooting Notes: if instead of seeing prompts to create a hardhat project after you run `$ npx hardhat`, you see something like:
+
+```
+Hardhat version 2.9.3 Usage: hardhat [GLOBAL OPTIONS] [TASK OPTIONS] etc.....
+```
+
+This means that you accidentally installed Hardhat globally, which you should not do. To fix this, head to your root directory of your system (not your project), and delete your hardhat config file there (hardhat.config.ts/js). That should solve the issue; if it does not, then you will probably also find an artifacts directory and contracts directory there, as well as package.json, package-lock.json files; delete those as well.
+
 # Installation
 
 The objects/code that this plugin is built on are contained in @simbachain/web3-suites project, but all of this is abstracted away from the developer. Though if you want a brief summary of that code, you can check out the npm publication for that project.
