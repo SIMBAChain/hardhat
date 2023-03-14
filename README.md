@@ -10,6 +10,7 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 5. [Project Settings](#project-settings)
 6. [Discovery of Environment Variables](#discovery-of-environment-variables)
 7. [Usage](#usage)
+    - [Running Commands From The Terminal](#running-commands-from-the-terminal)
     - [Contract Compilation](#contract-compilation)
     - [Tasks](#tasks)
       - [login](#login)
@@ -230,6 +231,9 @@ SIMBA_AUTH_CLIENT_SECRET=<insert your SIMBA client secret>
 
 
 # Usage
+
+## Running Commands From the Terminal
+Please note that when running commands, you must be in the root of your project. This is where your package.json lives. If you try to run commands in a different directory, you will likely see unhandled error messages. 
 
 ## Contract Compilation
 You do NOT need to manually compile your contracts. The SIMBA Chain Hardhat plugin will automatically compile your contracts when you export them to the SIMBA Blocks platform. However, if you would like to manually compile your contracts, first write them and save them in your <project folder>/contracts/ directory. Then run:
