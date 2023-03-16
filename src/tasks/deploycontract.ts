@@ -318,7 +318,7 @@ export const deployContract = async (
             const checkDeployURL = `v2/organisations/${config.organisation.id}/deployments/${deployment_id}/`;
             const check_resp = await authStore.doGetRequest(
                 checkDeployURL,
-            );
+            ) as Record<any, any>;
             if (!check_resp) {
                 SimbaConfig.log.error(`${chalk.redBright(`simba: EXIT : error checking deployment URL`)}`);
                 return;
