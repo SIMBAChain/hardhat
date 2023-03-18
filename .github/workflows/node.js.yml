@@ -39,5 +39,4 @@ jobs:
     - run: echo SIMBA_AUTH_CLIENT_SECRET=${{ secrets.DEMO_CLIENT_SECRET }} >> ./tests/.simbachain.env
     - run: echo SIMBA_AUTH_CLIENT_ID=${{ secrets.DEMO_CLIENT_ID }} >> ./tests/.simbachain.env
     - run: npm install
-    - run: npm run all_integration_tests_with_coverage
-    - run: npm run all_unit_tests_with_coverage
+    - run: npm run all_clean_test
