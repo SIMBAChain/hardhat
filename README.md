@@ -5,11 +5,12 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 # Table of Contents:
 1. [Summary](#summary)
 2. [Installation Overview](#installation-overview)
-3. [Prerequisites](#prerequisites)
-4. [Installation](#installation)
-5. [Project Settings](#project-settings)
-6. [Discovery of Environment Variables](#discovery-of-environment-variables)
-7. [Usage](#usage)
+3. [Project Boilerplate](#project-boilerplate)
+4. [Prerequisites](#prerequisites)
+5. [Installation](#installation)
+6. [Project Settings](#project-settings)
+7. [Discovery of Environment Variables](#discovery-of-environment-variables)
+8. [Usage](#usage)
     - [Running Commands From The Terminal](#running-commands-from-the-terminal)
     - [Contract Compilation](#contract-compilation)
     - [Tasks](#tasks)
@@ -21,14 +22,14 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
       - [pull](#pull)
       - [viewcontracts](#viewcontracts)
       - [loglevel](#loglevel)
-8. [Environment Extensions](#environment-extensions)
-9. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
-10. [CI/CD](#continuous-integration-continuous-deployment)
-11. [Retrieving information from simba.json and authconfig.json](#simbainfo)
-12. [Viewing current directory paths for your project](#getdirs)
-13. [Setting a directory path](#setdir)
-14. [Resetting directory paths to default settings](#resetdir)
-15. [Deleting contracts from your organisation](#deletecontract)
+9. [Environment Extensions](#environment-extensions)
+10. [Deploying and Linking Libraries](#deploying-and-linking-libraries)
+11. [CI/CD](#continuous-integration-continuous-deployment)
+12. [Retrieving information from simba.json and authconfig.json](#simbainfo)
+13. [Viewing current directory paths for your project](#getdirs)
+14. [Setting a directory path](#setdir)
+16. [Resetting directory paths to default settings](#resetdir)
+16. [Deleting contracts from your organisation](#deletecontract)
 
 ## Summary
 
@@ -43,6 +44,16 @@ The following are the general steps to get going with the SIMBA Chain Hardhat pl
 4. Install the SIMBA Chain Hardhat plugin
 5. Add a 'require' or 'import' statement to your hardhat.config.js or hardhat.config.ts file, depending on which file your project has.
 6. Create an env file (.simbachain.env, simbachain.env, or .env) in your project root. Then define SIMBA_BASE_API_URL in that file. And, if you want to use client credentials flow (for noninteractive commands), specify client credentials in that file as well.
+
+## Project Boilerplate
+If users want to view and/or use a boilerplate for the SIMBA Chain Truffle plugin, they can navigate to https://github.com/SIMBAChain/hardhat-plugin-template
+
+From that URL, users can click the "Use this template" tab
+
+## Project Boilerplate
+If users want to view and/or use a boilerplate for the SIMBA Chain Truffle plugin, they can navigate to https://github.com/SIMBAChain/truffle-plugin-template
+
+From that URL, users can click the "Use this template" tab
 
 ## Prerequisites
 You should have a SIMBA Blocks Instance to communicate with. Additionally you must have a least one contract application created in the instance (though the plugin will direct you to create one if you do not yet have one). To create an application, open your browser, navigate to your instance and log in using your SIMBA user account. Click on your organization -> Applications and then click on the "Add" button. Follow the on screen instructions to create your application.
