@@ -8,7 +8,6 @@ import {
     SimbaConfig,
     pullSourceCodeForSimbaJson,
 } from '@simbachain/web3-suites';
-import { ContractDesignWithCode } from '@simbachain/web3-suites/dist/commands/contract';
 
 /**
  * when pulling your contracts from your blocks organisation, you can "pull" them
