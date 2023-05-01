@@ -6,6 +6,7 @@ import {
     pullMostRecentFromContractName,
     pullContractFromDesignId,
     SimbaConfig,
+    pullSourceCodeForSimbaJson,
 } from '@simbachain/web3-suites';
 
 /**
@@ -48,7 +49,10 @@ const pull = async (
         return;
     }
     if (designID) {
-        await pullContractFromDesignId(designID, useSimbaPath);
+        const contractDesign = await pullContractFromDesignId(designID, useSimbaPath);
+        if (pullSourceCode && contractDesign) {
+            pullSourceCodeForSimbaJson(contractDesign)
+        }
         SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
