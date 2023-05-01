@@ -6,7 +6,9 @@ import {
     pullMostRecentFromContractName,
     pullContractFromDesignId,
     SimbaConfig,
+    pullSourceCodeForSimbaJson,
 } from '@simbachain/web3-suites';
+import { ContractDesignWithCode } from '@simbachain/web3-suites/dist/commands/contract';
 
 /**
  * when pulling your contracts from your blocks organisation, you can "pull" them
@@ -48,7 +50,10 @@ const pull = async (
         return;
     }
     if (designID) {
-        await pullContractFromDesignId(designID, useSimbaPath);
+        const contractDesign = await pullContractFromDesignId(designID, useSimbaPath);
+        if (pullSourceCode && contractDesign) {
+            pullSourceCodeForSimbaJson(contractDesign)
+        }
         SimbaConfig.log.debug(`:: EXIT :`);
         return;
     }
